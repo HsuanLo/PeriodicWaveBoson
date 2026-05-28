@@ -40,7 +40,7 @@ class LocalEnergy(Protocol):
       self,
       params: networks.ParamTree,
       key: chex.PRNGKey,
-      data: networks.FermiNetData,
+      data: networks.WalkerData,
   ) -> Tuple[jnp.ndarray, Optional[jnp.ndarray]]:
     """Returns the local energy of a Hamiltonian at a configuration.
 
@@ -55,7 +55,7 @@ class MakeLocalEnergy(Protocol):
 
   def __call__(
       self,
-      f: networks.FermiNetLike,
+      f: networks.NetworkLike,
       charges: jnp.ndarray,
       nspins: Sequence[int],
       use_scan: bool = False,
@@ -68,7 +68,7 @@ class MakeLocalEnergy(Protocol):
       f: Callable which evaluates the sign and log of the magnitude of the
         wavefunction.
       charges: nuclear charges.
-      nspins: Number of particles of each spin.
+      nspins: Layer occupation counts for this boson path.
       use_scan: Whether to use a `lax.scan` for computing the laplacian.
       complex_output: If true, the output of f is complex-valued.
       **kwargs: additional kwargs to use for creating the specific Hamiltonian.
@@ -76,12 +76,12 @@ class MakeLocalEnergy(Protocol):
 
 
 KineticEnergy = Callable[
-    [networks.ParamTree, networks.FermiNetData], jnp.ndarray
+    [networks.ParamTree, networks.WalkerData], jnp.ndarray
 ]
 
 
 def local_kinetic_energy(
-    f: networks.FermiNetLike,
+    f: networks.NetworkLike,
     use_scan: bool = False,
     complex_output: bool = False,
     laplacian_method: str = 'default',
@@ -159,5 +159,4 @@ def local_kinetic_energy(
                               'not implemented.')
 
   return _lapl_over_f
-
 

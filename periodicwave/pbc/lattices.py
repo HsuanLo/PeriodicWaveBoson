@@ -40,12 +40,12 @@ def _square_lattice_vecs(L: float) -> np.ndarray:
 
 def _triangular_lattice_vecs_periodic_potential(a: float, num_sites: int, return_lattice_M = False) -> np.ndarray:
     """Returns triangular lattice vectors for 2D with Wigner-Seitz radius rs."""
-    # Calculate the area of the unit cell per electron, the total area is n_elec * area_per_electron
-    # area_per_electron = np.pi * (rs**2)  # 2D area calculation
+    # Calculate the area of the unit cell per particle.
+    # area_per_particle = np.pi * (rs**2)  # 2D area calculation
 
     # For a triangular lattice, the area of the primitive cell is sqrt(3)/2 * (a^2)
     # where a is the lattice constant (side length of the primitive cell).
-    # a = (2 * area_per_electron / (np.sqrt(3)))**0.5  # Lattice constant
+    # a = (2 * area_per_particle / (np.sqrt(3)))**0.5  # Lattice constant
 
     periodic_potential_lattice_vectors = np.array([
         [a, -a / 2],
@@ -77,5 +77,4 @@ def _triangular_lattice_vecs_periodic_potential(a: float, num_sites: int, return
         return supercell_lattice_vectors, periodic_potential_lattice_vectors, M
     else:
         return supercell_lattice_vectors, periodic_potential_lattice_vectors
-
 

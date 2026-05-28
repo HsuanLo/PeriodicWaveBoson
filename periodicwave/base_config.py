@@ -25,7 +25,7 @@ from ml_collections import config_dict
 def default() -> ml_collections.ConfigDict:
   """Create set of default parameters for running qmc.py.
 
-  Note: placeholder (cfg.system.electrons must be replaced with appropriate values.
+  Note: placeholder `cfg.system.bosons` must be replaced with appropriate values.
 
   Returns:
     ml_collections.ConfigDict containing default settings.
@@ -38,7 +38,7 @@ def default() -> ml_collections.ConfigDict:
           # 'vmc': minimise <H> by standard VMC energy minimization
           'objective': 'vmc',
           'iterations': 1000000,  # number of iterations
-          'optimizer': 'kfac',  # one of adam, kfac, lamb, none
+          'optimizer': 'kfac',  # one of adam, adam_kfac, kfac, lamb, none
           'laplacian': 'default',  # one of default or folx (for forward lapl)
           'lr': {
               'rate':  0.05,  # learning rate
@@ -81,6 +81,14 @@ def default() -> ml_collections.ConfigDict:
               'eps': 1.0e-8,
               'eps_root': 0.0,
           },
+          # Two-stage optimizer: Adam first, then initialize KFAC from the
+          # current parameters and walkers at switch_iteration.
+          'adam_kfac': {
+              'switch_iteration': 1000,
+              'kfac_lr_rate': 0.01,
+              'kfac_lr_delay': 10000.0,
+              'kfac_lr_decay': 1.0,
+          },
       },
       'log': {
           'stats_frequency': 1,  # iterations between logging of stats
@@ -94,8 +102,8 @@ def default() -> ml_collections.ConfigDict:
       },
       'system': {
           # Specify the system by setting variables below.
-          # number of spin up, spin-down electrons
-          'electrons': tuple(),
+          # Bilayer boson occupations, e.g. (top_layer, bottom_layer).
+          'bosons': tuple(),
           # Dimensionality. 
           'ndim': 2,
           # String set to module.make_local_energy, where make_local_energy is a
@@ -115,8 +123,7 @@ def default() -> ml_collections.ConfigDict:
           # or reinitialize walkers.
           'burn_in': 300,
           'steps': 30,  # Number of MCMC steps to make between network updates.
-          # Width of (atom-centred) Gaussian used to generate initial electron
-          # configurations.
+          # Width of Gaussian used to generate initial boson configurations.
           'init_width': 1.0,
           # Width of Gaussian used for random moves for RMW or step size for HMC.
           'move_width': 0.1,
@@ -126,58 +133,27 @@ def default() -> ml_collections.ConfigDict:
           'move_width_updater': 'adaptive',
           # Number of steps after which to update the adaptive MCMC step size
           'adapt_frequency': 100,
+          # Stop adapting the MCMC move width after this many optimization
+          # iterations. This freezes the proposal scale for cleaner statistics.
+          'adaptive_steps': 1000,
           'blocks': 1,  # Number of blocks to split the MCMC sampling into
       },
       'network': {
-          'network_type': 'CustomPsiformer',  # One of 'SlaterNet' or 'CustomPsiformer'.
+          'network_type': 'BosonNet',
           # If true, the network outputs complex numbers rather than real.
           'complex': False,
-          # Only used if network_type is 'CustomPsiformer'.
-          'CustomPsiformer': {
-              # Customized Psiformer architecture: Geier et al,. arXiv:2502.05383
-              'num_layers': 4, # number of self-attention layers
-              'num_heads': 4,  # number of heads per layer
-              'attn_dim': 32,  # dimension of the scalar product within each attention head
-              'value_dim': 32, # dimension of the value vector multiplied with the softmax result
-              'mlp_dim': 128,  # MLP dimension equals internal token dimension
-              'num_perceptrons_per_layer': 2, # number of subsequenct perceptrons after each attention layer
-              'use_layer_norm': True, # whether to apply layer norm after each MLP and attention operation
-              'mlp_activation_fct': "GELU", # MLP non-linearity
+          # Symmetric bosonic network, not a determinant wavefunction.
+          'BosonNet': {
+              'architecture': "DeepSets", # one of "DeepSets", "Attention", or "Transformer"
+              'num_layers': 3,
+              'mlp_dim': 64,
+              'num_heads': 4,
+              'attn_dim': 16,
+              'value_dim': 16,
+              'num_perceptrons_per_layer': 2,
+              'use_layer_norm': True,
+              'mlp_activation_fct': "GELU",
           },
-          # Only used if network_type is 'SlaterNet': Geier et al,. arXiv:2502.05383
-          # NOTE: SlaterNet is equivalent to Hartree-Fock if cfg.network.determinants = 1.
-          'SlaterNet': {
-              'num_layers': 4, # number layers over which a residual connection is applied
-              'mlp_dim': 128,  # MLP dimension equals internal token dimension
-              'num_perceptrons_per_layer': 2, # number of perceptrons between residual connections
-              'use_layer_norm': True, # whether to apply layer norm in each layer
-              'mlp_activation_fct': "GELU", # MLP non-linearity
-          },
-          # Config common to all architectures.
-          'determinants': 4,  # Number of determinants.
-          'bias_orbitals': False,  # include bias in last layer to orbitals
-          # If specified, include a pre-determinant Jastrow factor.
-          # One of 'default' (use network_type default), 'none', or 'simple_ee'.
-          # NOTE: simple_ee Jastrow is specific to Coulomb interaction. 
-          # It requires to specify the spatial dimensional as well as interaction_strength 
-          # of Coulomb such that cusp conditions are correctly enforced.
-          # These parameters are passed in jastrow_kwargs
-          'jastrow': 'none',
-          # Additional kwargs for custom jastrow
-          'jastrow_kwargs': {'ndim': 2, "interaction_strength": 1.0}, 
-          # String set to module.make_feature_layer, where make_feature_layer is
-          # callable (type: MakeFeatureLayer) which creates an object with
-          # member functions init() and apply() that initialize parameters
-          # for custom input features and modify raw input features,
-          # respectively. Module is the absolute module containing
-          # make_feature_layer.
-          # If not set, networks.make_ferminet_features is used.
-          'make_feature_layer_fn': '',
-          # Additional kwargs to pass into make_local_energy_fn.
-          'make_feature_layer_kwargs': {},
-          # Same structure as make_feature_layer
-          'make_envelope_fn': '',
-          'make_envelope_kwargs': {},
       },
       'debug': {
           # Check optimizer state, parameters and loss and raise an exception if
@@ -188,4 +164,3 @@ def default() -> ml_collections.ConfigDict:
   })
 
   return cfg
-

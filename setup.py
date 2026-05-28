@@ -15,12 +15,10 @@
 
 # NOTICE: This file has been modified from the original DeepMind version.
 # Changes:
-# - Removed pyscf dependency because not needed for materials calculations
+# - Streamlined dependencies for the bilayer boson workflow
 
 # ============================================================================
 """Setup for pip package."""
-
-import unittest
 
 from setuptools import find_packages
 from setuptools import setup
@@ -29,17 +27,16 @@ REQUIRED_PACKAGES = [
     'absl-py',
     'attrs',
     'chex',
-    'h5py',
     'folx @ git+https://github.com/microsoft/folx',
     'jax',
     'jaxlib',
     'kfac_jax @ git+https://github.com/deepmind/kfac-jax',
+    'matplotlib',
     'ml-collections',
     'optax',
     'numpy',
     'pandas',
-    'pyblock',
-    'scipy',
+    'tqdm',
     'typing_extensions',
 ]
 
@@ -47,9 +44,7 @@ REQUIRED_PACKAGES = [
 setup(
     name='periodicwave',
     version='0.0',
-    description=(
-        'Neural network variational Monte Carlo for solids'
-    ),
+    description='Neural network variational Monte Carlo for bilayer bosons',
     url='https://github.com/mg607/periodicwave',
     author='Max Geier, Khachatur Nazaryan',
     author_email='contact@deeppsi.ai',

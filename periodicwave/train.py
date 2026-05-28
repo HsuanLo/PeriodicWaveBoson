@@ -16,8 +16,7 @@
 # NOTICE: This file has been modified from the original DeepMind version.
 # Changes:
 # - Streamlined for materials simulations
-# - Included CustomPsiformer and SlaterNet architectures
-# - Simplified batch initialization of electron positions
+# - Streamlined to the bilayer boson simulation path
 
 """Core training loop for neural QMC in JAX."""
 
@@ -32,13 +31,11 @@ import chex
 from periodicwave import checkpoint
 from periodicwave import constants
 from periodicwave import curvature_tags_and_blocks
-from periodicwave import envelopes
 from periodicwave import hamiltonian
 from periodicwave import loss as qmc_loss_functions
 from periodicwave import mcmc
 from periodicwave import networks
-from periodicwave import CustomPsiformer
-from periodicwave import SlaterNet
+from periodicwave import BosonNet
 from periodicwave.utils import statistics
 from periodicwave.utils import utils
 from periodicwave.utils import writers
@@ -46,49 +43,95 @@ from periodicwave.utils import jax_utils
 import jax
 from jax.experimental import multihost_utils
 import jax.numpy as jnp
+import numpy as np
+
+
+def _install_jax_device_put_compat():
+  """Install temporary compatibility shims for newer JAX releases."""
+  from jax.sharding import Mesh, NamedSharding, PartitionSpec as P
+
+  try:
+    jax.device_put_replicated
+  except AttributeError:
+    def device_put_replicated(x, devices):
+      mesh = Mesh(np.array(devices), ('x',))
+      sharding = NamedSharding(mesh, P('x'))
+      return jax.tree_util.tree_map(
+          lambda y: jax.device_put(jnp.stack([y] * len(devices)), sharding), x)
+
+    jax.device_put_replicated = device_put_replicated
+
+  try:
+    jax.device_put_sharded
+  except AttributeError:
+    def device_put_sharded(shards, devices):
+      mesh = Mesh(np.array(devices), ('x',))
+      sharding = NamedSharding(mesh, P('x'))
+      return jax.tree_util.tree_map(
+          lambda *xs: jax.device_put(jnp.stack(xs), sharding), *shards)
+
+    jax.device_put_sharded = device_put_sharded
+
+
+_install_jax_device_put_compat()
+
 import kfac_jax
 import ml_collections
-import numpy as np
 import optax
 from typing_extensions import Protocol
 
-def _assign_spin_configuration(
-    nalpha: int, nbeta: int, batch_size: int = 1
-) -> jnp.ndarray:
-  """Returns the spin configuration for a fixed spin polarisation."""
-  spins = jnp.concatenate((jnp.ones(nalpha), -jnp.ones(nbeta)))
-  return jnp.tile(spins[None], reps=(batch_size, 1))
+try:
+  from tqdm.auto import tqdm
+except ImportError:
+  tqdm = None
 
-def init_electrons_gaussian(
+
+def _progress_bar(iterable, **kwargs):
+  """Wraps an iterable with tqdm when available."""
+  if tqdm is None:
+    return iterable
+  return tqdm(
+      iterable,
+      dynamic_ncols=True,
+      disable=jax.process_index() != 0,
+      **kwargs)
+
+def _assign_layer_configuration(
+    ntop: int, nbottom: int, batch_size: int = 1
+) -> jnp.ndarray:
+  """Returns fixed bilayer labels for the initial walkers."""
+  layers = jnp.concatenate((jnp.ones(ntop), -jnp.ones(nbottom)))
+  return jnp.tile(layers[None], reps=(batch_size, 1))
+
+def init_bosons_gaussian(
     key,
-    nspins: Sequence[int],
+    layer_occupations: Sequence[int],
     ndim: int,
     batch_size: int,
     init_width: float,
 ) -> Tuple[jnp.ndarray, jnp.ndarray]:
-  """Initializes electron positions around each atom.
+  """Initializes boson positions.
 
   Args:
     key: JAX RNG state.
-    nspins: tuple of number of alpha and beta electrons.
+    layer_occupations: tuple of top- and bottom-layer boson counts.
     batch_size: total number of MCMC configurations to generate across all
       devices.
-    init_width: width of (atom-centred) Gaussian used to generate initial
-      electron configurations.
+    init_width: width of Gaussian used to generate initial configurations.
 
   Returns:
-    array of (batch_size, (nalpha+nbeta)*ndim) of initial (random) electron
-    positions in the initial MCMC configurations and ndim is the dimensionality
-    of the space (i.e. typically 3), and array of (batch_size, (nalpha+nbeta))
-    of spin configurations, where 1 and -1 indicate alpha and beta electrons
-    respectively.
+    Boson positions and fixed layer labels for the initial MCMC configurations.
   """
 
   key, subkey = jax.random.split(key)
-  electron_positions = jax.random.normal(subkey, shape=(batch_size, ndim * sum(nspins))) * init_width
-  electron_spins = _assign_spin_configuration(nspins[0], nspins[1], batch_size)
+  boson_positions = (
+      jax.random.normal(
+          subkey, shape=(batch_size, ndim * sum(layer_occupations))) *
+      init_width)
+  layer_labels = _assign_layer_configuration(
+      layer_occupations[0], layer_occupations[1], batch_size)
 
-  return electron_positions, electron_spins
+  return boson_positions, layer_labels
 
 # All optimizer states (KFAC and optax-based).
 OptimizerState = Union[optax.OptState, kfac_jax.Optimizer.State]
@@ -101,7 +144,7 @@ class OptUpdate(Protocol):
   def __call__(
       self,
       params: networks.ParamTree,
-      data: networks.FermiNetData,
+      data: networks.WalkerData,
       opt_state: optax.OptState,
       key: chex.PRNGKey,
   ) -> OptUpdateResults:
@@ -109,7 +152,7 @@ class OptUpdate(Protocol):
 
     Args:
       params: network parameters.
-      data: electron positions, spins and atomic positions.
+      data: boson positions, layer labels and placeholder atom data.
       opt_state: optimizer internal state.
       key: RNG state.
 
@@ -121,7 +164,7 @@ class OptUpdate(Protocol):
 
 
 StepResults = Tuple[
-    networks.FermiNetData,
+    networks.WalkerData,
     networks.ParamTree,
     Optional[optax.OptState],
     jnp.ndarray,
@@ -134,7 +177,7 @@ class Step(Protocol):
 
   def __call__(
       self,
-      data: networks.FermiNetData,
+      data: networks.WalkerData,
       params: networks.ParamTree,
       state: OptimizerState,
       key: chex.PRNGKey,
@@ -165,7 +208,7 @@ class Step(Protocol):
 
 def null_update(
     params: networks.ParamTree,
-    data: networks.FermiNetData,
+    data: networks.WalkerData,
     opt_state: Optional[optax.OptState],
     key: chex.PRNGKey,
 ) -> OptUpdateResults:
@@ -183,7 +226,7 @@ def make_opt_update_step(evaluate_loss: qmc_loss_functions.LossFn,
 
   def opt_update(
       params: networks.ParamTree,
-      data: networks.FermiNetData,
+      data: networks.WalkerData,
       opt_state: Optional[optax.OptState],
       key: chex.PRNGKey,
   ) -> OptUpdateResults:
@@ -202,7 +245,7 @@ def make_loss_step(evaluate_loss: qmc_loss_functions.LossFn) -> OptUpdate:
 
   def loss_eval(
       params: networks.ParamTree,
-      data: networks.FermiNetData,
+      data: networks.WalkerData,
       opt_state: Optional[optax.OptState],
       key: chex.PRNGKey,
   ) -> OptUpdateResults:
@@ -234,7 +277,7 @@ def make_training_step(
   """
   @functools.partial(constants.pmap, donate_argnums=(0, 1, 2)) # applies pmap to step with args 0,1,2 donated for memory efficiency
   def step(
-      data: networks.FermiNetData,
+      data: networks.WalkerData,
       params: networks.ParamTree,
       state: Optional[optax.OptState],
       key: chex.PRNGKey,
@@ -292,7 +335,7 @@ def make_kfac_training_step(
                         lambda x: (1.0 * x).astype(x.dtype)))
 
   def step(
-      data: networks.FermiNetData,
+      data: networks.WalkerData,
       params: networks.ParamTree,
       state: kfac_jax.Optimizer.State,
       key: chex.PRNGKey,
@@ -327,7 +370,7 @@ def make_kfac_training_step(
 
   return step
 
-def train(cfg: ml_collections.ConfigDict, writer_manager=None):
+def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=None):
   """Runs training loop for QMC.
 
   Args:
@@ -352,12 +395,11 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None):
   device_batch_size = host_batch_size // num_devices  # batch size per device
   data_shape = (num_devices, device_batch_size)
 
-  # For consistency with the original FermiNet interface, we carry default
-  # atom and charge information, set to zero. 
-  # This data is unused in pbc code without atoms.
+  # The bilayer Hamiltonian does not use atoms or charges, but the shared network
+  # call signature carries these placeholders.
   atoms = jnp.stack([jnp.array([0.0, 0.0])])
   charges = jnp.array([0.0])
-  nspins = cfg.system.electrons
+  nspins = cfg.system.bosons
 
   # Generate atomic configurations for each walker
   batch_atoms = jnp.tile(atoms[None, ...], [device_batch_size, 1, 1])
@@ -372,66 +414,19 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None):
     seed = int(multihost_utils.broadcast_one_to_all(seed)[0])
   prng_key = jax.random.PRNGKey(seed)
 
-  if cfg.network.make_feature_layer_fn:
-    feature_layer_module, feature_layer_fn = (
-        cfg.network.make_feature_layer_fn.rsplit('.', maxsplit=1))
-    feature_layer_module = importlib.import_module(feature_layer_module)
-    make_feature_layer: networks.MakeFeatureLayer = getattr(
-        feature_layer_module, feature_layer_fn
-    )
-    feature_layer = make_feature_layer(
-        natoms=charges.shape[0],
-        nspins=cfg.system.electrons,
-        ndim=cfg.system.ndim,
-        **cfg.network.make_feature_layer_kwargs)
-  else:
-    feature_layer = networks.make_ferminet_features(
-        natoms=charges.shape[0],
-        nspins=cfg.system.electrons,
-        ndim=cfg.system.ndim,
-    )
-
-  if cfg.network.make_envelope_fn:
-    envelope_module, envelope_fn = (
-        cfg.network.make_envelope_fn.rsplit('.', maxsplit=1))
-    envelope_module = importlib.import_module(envelope_module)
-    make_envelope = getattr(envelope_module, envelope_fn)
-    envelope = make_envelope(**cfg.network.make_envelope_kwargs)  # type: envelopes.Envelope
-  else:
-    # default: use no envelope
-    envelope = envelopes.make_null_envelope()
-
   use_complex = cfg.network.get('complex', False)
-  if cfg.network.network_type == 'CustomPsiformer':
-    network = CustomPsiformer.make_fermi_net(
-        nspins,
-        charges,
-        ndim=cfg.system.ndim,
-        determinants=cfg.network.determinants,
-        envelope=envelope,
-        feature_layer=feature_layer,
-        jastrow=cfg.network.get('jastrow', 'default'), # default: No Jastrow
-        jastrow_kwargs=cfg.network.jastrow_kwargs,
-        bias_orbitals=cfg.network.bias_orbitals,
-        complex_output=use_complex,
-        pbc_lattice=cfg.system.pbc_lattice,
-        **cfg.network.CustomPsiformer,
-    )
-  elif cfg.network.network_type == 'SlaterNet':
-    network = SlaterNet.make_fermi_net(
-        nspins,
-        charges,
-        ndim=cfg.system.ndim,
-        determinants=cfg.network.determinants,
-        envelope=envelope,
-        feature_layer=feature_layer,
-        jastrow=cfg.network.get('jastrow', 'default'), # default: No Jastrow
-        jastrow_kwargs=cfg.network.jastrow_kwargs,
-        bias_orbitals=cfg.network.bias_orbitals,
-        complex_output=use_complex,
-        pbc_lattice=cfg.system.pbc_lattice,
-        **cfg.network.SlaterNet,
-    )
+  if cfg.network.network_type != 'BosonNet':
+    raise ValueError('This codebase now only supports network_type="BosonNet".')
+  network = BosonNet.make_boson_net(
+      nspins,
+      charges,
+      ndim=cfg.system.ndim,
+      complex_output=use_complex,
+      pbc_lattice=cfg.system.pbc_lattice,
+      layer_separation=cfg.system.make_local_energy_kwargs.get(
+          "layer_separation", 1.0),
+      **cfg.network.BosonNet,
+  )
   prng_key, subkey = jax.random.split(prng_key)
   params = network.init(subkey)
 
@@ -453,8 +448,7 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None):
     phase, mag = signed_network(*args, **kwargs)
     return mag + 1.j * phase
 
-  # Set up checkpointing and restore params/data if necessary
-  # Mirror behaviour of checkpoints in TF FermiNet.
+  # Set up checkpointing and restore params/data if necessary.
   # Checkpoints are saved to save_path.
   # When restoring, we first check for a checkpoint in save_path. If none are
   # found, then we check in restore_path.  This enables calculations to be
@@ -479,19 +473,25 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None):
     prng_key, subkey = jax.random.split(prng_key)
     # make sure data on each host is initialized differently
     subkey = jax.random.fold_in(subkey, jax.process_index())
-    # create electron state (position and spin)
-    pos, spins = init_electrons_gaussian(
+    # Create boson positions and layer labels.
+    pos, spins = init_bosons_gaussian(
       subkey,
-      nspins = cfg.system.electrons,
+      layer_occupations = cfg.system.bosons,
       ndim = cfg.system.ndim,
       batch_size=host_batch_size,
       init_width=cfg.mcmc.init_width,)
+    if layer_assignment is None:
+      layer_assignment = np.ones(sum(cfg.system.bosons))
+    layer_assignment = jnp.asarray(layer_assignment)
+    if layer_assignment.shape[0] != sum(cfg.system.bosons):
+      raise ValueError("layer_assignment must have one entry per boson.")
+    spins = jnp.tile(layer_assignment[None], reps=(host_batch_size, 1))
 
     pos = jnp.reshape(pos, data_shape + (-1,))
     pos = kfac_jax.utils.broadcast_all_local_devices(pos)
     spins = jnp.reshape(spins, data_shape + (-1,))
     spins = kfac_jax.utils.broadcast_all_local_devices(spins)
-    data = networks.FermiNetData(
+    data = networks.WalkerData(
         positions=pos, spins=spins, atoms=batch_atoms, charges=batch_charges
     )
 
@@ -547,31 +547,36 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None):
     return cfg.optim.lr.rate * jnp.power(
         (1.0 / (1.0 + (t_/cfg.optim.lr.delay))), cfg.optim.lr.decay)
 
-  # Construct and setup optimizer
-  if cfg.optim.optimizer == 'none':
-    optimizer = None
-  elif cfg.optim.optimizer == 'adam':
-    optimizer = optax.chain(
+  def kfac_learning_rate_schedule(t_: jnp.ndarray) -> jnp.ndarray:
+    if cfg.optim.optimizer != 'adam_kfac':
+      return learning_rate_schedule(t_)
+    return cfg.optim.adam_kfac.kfac_lr_rate * jnp.power(
+        (1.0 / (1.0 + (t_/cfg.optim.adam_kfac.kfac_lr_delay))),
+        cfg.optim.adam_kfac.kfac_lr_decay)
+
+  def make_adam_optimizer() -> optax.GradientTransformation:
+    return optax.chain(
         optax.scale_by_adam(**cfg.optim.adam),
         optax.scale_by_schedule(learning_rate_schedule),
         optax.scale(-1.))
-  elif cfg.optim.optimizer == 'lamb':
-    optimizer = optax.chain(
+
+  def make_lamb_optimizer() -> optax.GradientTransformation:
+    return optax.chain(
         optax.clip_by_global_norm(1.0),
         optax.scale_by_adam(eps=1e-7),
         optax.scale_by_trust_ratio(),
         optax.scale_by_schedule(learning_rate_schedule),
         optax.scale(-1))
-  elif cfg.optim.optimizer == 'kfac':
-    # Differentiate wrt parameters (argument 0)
+
+  def make_kfac_optimizer() -> kfac_jax.Optimizer:
     val_and_grad = jax.value_and_grad(evaluate_loss, argnums=0, has_aux=True)
-    optimizer = kfac_jax.Optimizer(
+    return kfac_jax.Optimizer(
         val_and_grad,
         l2_reg=cfg.optim.kfac.l2_reg,
         norm_constraint=cfg.optim.kfac.norm_constraint,
         value_func_has_aux=True,
         value_func_has_rng=True,
-        learning_rate_schedule=learning_rate_schedule,
+        learning_rate_schedule=kfac_learning_rate_schedule,
         curvature_ema=cfg.optim.kfac.cov_ema_decay,
         inverse_update_period=cfg.optim.kfac.invert_every,
         min_damping=cfg.optim.kfac.min_damping,
@@ -585,31 +590,73 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None):
         ),
         # debug=True
     )
+
+  def make_step_for_optimizer(optimizer):
+    if not optimizer:
+      return make_training_step(
+          mcmc_step=mcmc_step,
+          optimizer_step=make_loss_step(evaluate_loss))
+    if isinstance(optimizer, optax.GradientTransformation):
+      return make_training_step(
+          mcmc_step=mcmc_step,
+          optimizer_step=make_opt_update_step(evaluate_loss, optimizer),
+          reset_if_nan=cfg.optim.reset_if_nan)
+    if isinstance(optimizer, kfac_jax.Optimizer):
+      return make_kfac_training_step(
+          mcmc_step=mcmc_step,
+          damping=cfg.optim.kfac.damping,
+          optimizer=optimizer,
+          reset_if_nan=cfg.optim.reset_if_nan)
+    raise ValueError(f'Unknown optimizer: {optimizer}')
+
+  scheduled_adam_kfac = cfg.optim.optimizer == 'adam_kfac'
+  switch_iteration = cfg.optim.adam_kfac.switch_iteration
+  if scheduled_adam_kfac and switch_iteration <= 0:
+    raise ValueError("cfg.optim.adam_kfac.switch_iteration must be positive.")
+
+  # Construct and setup optimizer
+  if cfg.optim.optimizer == 'none':
+    optimizer = None
+  elif cfg.optim.optimizer == 'adam':
+    optimizer = make_adam_optimizer()
+  elif cfg.optim.optimizer == 'lamb':
+    optimizer = make_lamb_optimizer()
+  elif cfg.optim.optimizer == 'kfac':
+    optimizer = make_kfac_optimizer()
     sharded_key, subkeys = kfac_jax.utils.p_split(sharded_key)
     opt_state = optimizer.init(params, subkeys, data)
     opt_state = opt_state_ckpt or opt_state  # avoid overwriting ckpted state
+  elif scheduled_adam_kfac:
+    adam_optimizer = make_adam_optimizer()
+    kfac_optimizer = make_kfac_optimizer()
+    if t_init >= switch_iteration:
+      optimizer = kfac_optimizer
+      sharded_key, subkeys = kfac_jax.utils.p_split(sharded_key)
+      opt_state = optimizer.init(params, subkeys, data)
+      current_optimizer_name = 'kfac'
+    else:
+      optimizer = adam_optimizer
+      opt_state = jax.pmap(optimizer.init)(params)
+      opt_state = opt_state_ckpt or opt_state
+      current_optimizer_name = 'adam'
   else:
     raise ValueError(f'Not a recognized optimizer: {cfg.optim.optimizer}')
 
-  if not optimizer:
+  if scheduled_adam_kfac:
+    step = make_step_for_optimizer(optimizer)
+    logging.info(
+        'Using adam_kfac optimizer: Adam until step %d, then KFAC.',
+        switch_iteration)
+  elif not optimizer:
     opt_state = None
-    step = make_training_step(
-        mcmc_step=mcmc_step,
-        optimizer_step=make_loss_step(evaluate_loss))
+    step = make_step_for_optimizer(optimizer)
   elif isinstance(optimizer, optax.GradientTransformation):
     # optax/optax-compatible optimizer (ADAM, LAMB, ...)
     opt_state = jax.pmap(optimizer.init)(params)
     opt_state = opt_state_ckpt or opt_state  # avoid overwriting ckpted state
-    step = make_training_step(
-        mcmc_step=mcmc_step,
-        optimizer_step=make_opt_update_step(evaluate_loss, optimizer),
-        reset_if_nan=cfg.optim.reset_if_nan)
+    step = make_step_for_optimizer(optimizer)
   elif isinstance(optimizer, kfac_jax.Optimizer):
-    step = make_kfac_training_step(
-        mcmc_step=mcmc_step,
-        damping=cfg.optim.kfac.damping,
-        optimizer=optimizer,
-        reset_if_nan=cfg.optim.reset_if_nan)
+    step = make_step_for_optimizer(optimizer)
   else:
     raise ValueError(f'Unknown optimizer: {optimizer}')
 
@@ -625,7 +672,7 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None):
     burn_in_step = make_training_step(
         mcmc_step=mcmc_step, optimizer_step=null_update)
 
-    for t in range(cfg.mcmc.burn_in):
+    for t in _progress_bar(range(cfg.mcmc.burn_in), desc='MCMC burn-in'):
       sharded_key, subkeys = kfac_jax.utils.p_split(sharded_key)
       data, params, *_ = burn_in_step(
           data,
@@ -673,7 +720,19 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None):
   with writer_manager as writer:
     # Main training loop
     num_resets = 0  # used if reset_if_nan is true
-    for t in range(t_init, cfg.optim.iterations):
+    steps = range(t_init, cfg.optim.iterations)
+    train_progress = _progress_bar(
+        steps, desc='Training', total=cfg.optim.iterations - t_init)
+    for t in train_progress:
+      if (scheduled_adam_kfac and current_optimizer_name == 'adam' and
+          t >= switch_iteration):
+        logging.info('Switching optimizer from Adam to KFAC at step %d.', t)
+        optimizer = kfac_optimizer
+        sharded_key, subkeys = kfac_jax.utils.p_split(sharded_key)
+        opt_state = optimizer.init(params, subkeys, data)
+        step = make_step_for_optimizer(optimizer)
+        current_optimizer_name = 'kfac'
+
       sharded_key, subkeys = kfac_jax.utils.p_split(sharded_key)
       data, params, opt_state, loss, aux_data, pmove = step(
           data,
@@ -699,7 +758,11 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None):
             w = jnp.where(pmove > 0.55, w * 1.1, w)
             w = jnp.where(pmove < 0.50, w * 0.9, w)
             return w
-        pred = (jnp.remainder(t, cfg.mcmc.adapt_frequency) == 0)  # scalar ()
+        adaptive_steps = cfg.mcmc.get('adaptive_steps', cfg.optim.iterations)
+        pred = (
+            (t < adaptive_steps) &
+            (jnp.remainder(t, cfg.mcmc.adapt_frequency) == 0)
+        )
         mcmc_width = jax.lax.cond(pred, do_width_update, lambda w: w, mcmc_width)
 
       if cfg.debug.check_nan:
@@ -735,10 +798,13 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None):
                        '%03.4f E_h, exp. variance=%03.4f E_h^2, pmove=%0.2f')
         logging_args = t, loss, weighted_stats.variance, pmove
         logging.info(logging_str, *logging_args)
+        if hasattr(train_progress, 'set_postfix'):
+          train_progress.set_postfix(
+              energy=f'{float(np.asarray(loss)):.4f}',
+              pmove=f'{float(np.asarray(pmove)):.2f}',
+              locstd=f'{float(np.asarray(local_std)):.4f}')
         
       # Checkpointing every cfg.log.save_frequency minutes and at final iteration
       if time.time() - time_of_last_ckpt > cfg.log.save_frequency * 60 or t == (cfg.optim.iterations - 1):
         checkpoint.save(ckpt_save_path, t, data, params, opt_state, mcmc_width)
         time_of_last_ckpt = time.time()
-
-

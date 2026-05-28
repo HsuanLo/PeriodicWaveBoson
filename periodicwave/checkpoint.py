@@ -95,7 +95,7 @@ def get_restore_path(restore_path: Optional[str] = None) -> Optional[str]:
 
 def save(save_path: str,
          t: int,
-         data: networks.FermiNetData,
+         data: networks.WalkerData,
          params,
          opt_state,
          mcmc_width) -> str:
@@ -156,7 +156,7 @@ def restore(restore_filename: str, batch_size: Optional[int] = None):
     # Retrieve data from npz file. Non-array variables need to be converted back
     # to natives types using .tolist().
     t = ckpt_data['t'].tolist() + 1  # Return the iterations completed.
-    data = networks.FermiNetData(**ckpt_data['data'].item())
+    data = networks.WalkerData(**ckpt_data['data'].item())
     params = ckpt_data['params'].tolist()
     opt_state = ckpt_data['opt_state'].tolist()
     mcmc_width = jnp.array(ckpt_data['mcmc_width'].tolist())

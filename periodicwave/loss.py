@@ -63,7 +63,7 @@ class LossFn(Protocol):
       self,
       params: networks.ParamTree,
       key: chex.PRNGKey,
-      data: networks.FermiNetData,
+      data: networks.WalkerData,
   ) -> Tuple[jnp.ndarray, AuxiliaryLossData]:
     """Evaluates the total energy of the network for a batch of configurations.
 
@@ -155,7 +155,7 @@ def clip_local_values(
   return diff_center, diff
 
 
-def make_loss(network: networks.LogFermiNetLike,
+def make_loss(network: networks.LogNetworkLike,
               local_energy: hamiltonian.LocalEnergy,
               clip_local_energy: float = 0.0,
               clip_from_median: bool = True,
@@ -191,14 +191,14 @@ def make_loss(network: networks.LogFermiNetLike,
   # Input: 
   #   params: 
   #   keys: vector of keys of dimension batch_size
-  #   data: FermiNetData where positions, spins, atoms, charges have dim (batch_size, x) 
+  #   data: WalkerData where positions, spins, atoms, charges have dim (batch_size, x) 
   #     where x is the dimension of the respective element
   batch_local_energy = jax.vmap(
       local_energy,
       in_axes=(
           None,
           0,
-          networks.FermiNetData(positions=0, spins=0, atoms=0, charges=0),
+          networks.WalkerData(positions=0, spins=0, atoms=0, charges=0),
       ),
       out_axes=(0, 0)
   )
@@ -208,7 +208,7 @@ def make_loss(network: networks.LogFermiNetLike,
   def total_energy(
       params: networks.ParamTree,
       key: chex.PRNGKey,
-      data: networks.FermiNetData,
+      data: networks.WalkerData,
   ) -> Tuple[jnp.ndarray, AuxiliaryLossData]:
     """Evaluates the total energy of the network for a batch of configurations.
 
@@ -263,7 +263,7 @@ def make_loss(network: networks.LogFermiNetLike,
 
     # Due to the simultaneous requirements of KFAC (calling convention must be
     # (params, rng, data)) and Laplacian calculation (only want to take
-    # Laplacian wrt electron positions) we need to change up the calling
+    # Laplacian wrt boson positions) we need to change up the calling
     # convention between total_energy and batch_network
     data = primals[2]
     data_tangents = tangents[2]

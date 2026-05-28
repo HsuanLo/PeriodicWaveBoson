@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Curvature blocks for FermiNet."""
+"""Curvature blocks used by KFAC optimizer registrations."""
 import dataclasses
 import functools
 from typing import Sequence, Set, Tuple
