@@ -18,13 +18,16 @@ from matplotlib import pyplot as plt
 from periodicwave.pbc import lattices
 
 
-num_bosons = 14
-layer_occupations = (7, 7)
-layer_separation = 10.0
-dipole_strength = 20.0
+num_bosons = 10
+layer_occupations = (10, 0)
+layer_separation = 0.0
+dipole_strength = 50.0
 supercell_shape = "sq"
-density_rs = 3.0
-load_N_ckpts = 20
+density_rs = 0.5
+
+load_N_ckpts = 1
+snapshot_count = 12
+pair_correlation_bins = 80
 
 folder_name = (
     "results/bilayer-bosons/"
@@ -92,11 +95,17 @@ def cell_outline():
   return np.einsum("ij,kj->ki", lat_vec, corners_frac)
 
 
+def minimum_image(displacements):
+  frac = np.einsum("ij,...j->...i", np.linalg.inv(lat_vec), displacements)
+  frac = (frac + 0.5) % 1.0 - 0.5
+  return np.einsum("ij,...j->...i", lat_vec, frac)
+
+
 def scatter_density(ax, positions, title, color):
   flat = positions.reshape((-1, 2))
   npoints = flat.shape[0]
   point_size = np.clip(1800 / max(npoints, 1), 1.5, 8.0)
-  alpha = 0.1
+  alpha = 0.7
 
   ax.scatter(
       flat[:, 0],
@@ -118,6 +127,87 @@ def scatter_density(ax, positions, title, color):
   ax.set_title(f"{title} ({npoints} samples)")
   ax.spines["top"].set_visible(False)
   ax.spines["right"].set_visible(False)
+
+
+def draw_cell(ax):
+  outline = cell_outline()
+  ax.plot(outline[:, 0], outline[:, 1], color="black", linewidth=1.0, alpha=0.65)
+  pad = 0.04 * np.max(np.ptp(outline, axis=0))
+  ax.set_xlim(outline[:, 0].min() - pad, outline[:, 0].max() + pad)
+  ax.set_ylim(outline[:, 1].min() - pad, outline[:, 1].max() + pad)
+  ax.set_aspect("equal", adjustable="box")
+  ax.set_xticks([])
+  ax.set_yticks([])
+
+
+def save_snapshot_plots(positions, nsnapshots=snapshot_count):
+  nsnapshots = min(nsnapshots, positions.shape[0])
+  if nsnapshots == 0:
+    return
+  indices = np.linspace(0, positions.shape[0] - 1, nsnapshots, dtype=int)
+  ncols = min(4, nsnapshots)
+  nrows = int(np.ceil(nsnapshots / ncols))
+  fig, axs = plt.subplots(nrows, ncols, figsize=(3 * ncols, 3 * nrows))
+  axs = np.atleast_1d(axs).ravel()
+  colors = np.where(layer_assignment == 1.0, "#c7364f", "#2f7d57")
+  for ax, idx in zip(axs, indices):
+    config = positions[idx]
+    ax.scatter(
+        config[:, 0],
+        config[:, 1],
+        s=32,
+        c=colors,
+        edgecolors="black",
+        linewidths=0.4)
+    draw_cell(ax)
+    ax.set_title(f"sample {idx}")
+  for ax in axs[len(indices):]:
+    ax.axis("off")
+  fig.tight_layout()
+  path = os.path.join(folder_name, "bilayer_snapshots.png")
+  fig.savefig(path, dpi=200)
+  print(f"Saved {path}")
+  plt.close(fig)
+
+
+def compute_pair_correlation(positions, nbins=pair_correlation_bins):
+  area = abs(np.linalg.det(lat_vec))
+  density = num_bosons / area
+  lengths = np.linalg.norm(lat_vec, axis=0)
+  rmax = 0.5 * np.min(lengths)
+  edges = np.linspace(0.0, rmax, nbins + 1)
+  counts = np.zeros(nbins)
+  for config in positions:
+    disp = config[:, None, :] - config[None, :, :]
+    disp = minimum_image(disp)
+    distances = np.linalg.norm(disp, axis=-1)
+    pair_distances = distances[np.triu_indices(num_bosons, k=1)]
+    counts += np.histogram(pair_distances, bins=edges)[0]
+  centers = 0.5 * (edges[:-1] + edges[1:])
+  shell_areas = np.pi * (edges[1:] ** 2 - edges[:-1] ** 2)
+  ideal_counts = positions.shape[0] * num_bosons * density * shell_areas / 2.0
+  gr = np.divide(
+      counts,
+      ideal_counts,
+      out=np.zeros_like(counts, dtype=float),
+      where=ideal_counts > 0)
+  return centers, gr
+
+
+def save_pair_correlation(positions):
+  r, gr = compute_pair_correlation(positions)
+  fig, ax = plt.subplots(1, 1, figsize=(6, 5))
+  ax.plot(r, gr, linewidth=1.5)
+  ax.axhline(1.0, color="black", linewidth=0.8, linestyle="--", alpha=0.6)
+  ax.set_xlabel("r")
+  ax.set_ylabel("g(r)")
+  ax.set_title("Pair correlation")
+  ax.grid(alpha=0.25, linewidth=0.5)
+  fig.tight_layout()
+  path = os.path.join(folder_name, "bilayer_pair_correlation.png")
+  fig.savefig(path, dpi=200)
+  print(f"Saved {path}")
+  plt.close(fig)
 
 
 def save_density_plots(positions):
@@ -189,4 +279,6 @@ def save_structure_factor(positions):
 
 positions = load_positions(folder_name, load_N_ckpts)
 save_density_plots(positions)
+save_snapshot_plots(positions)
+save_pair_correlation(positions)
 save_structure_factor(positions)

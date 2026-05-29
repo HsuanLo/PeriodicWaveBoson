@@ -22,13 +22,12 @@ jax.config.update("jax_default_matmul_precision", "float32")
 
 
 # --------------------------- Physical parameters ---------------------------
-num_bosons = 14
-layer_occupations = (7, 7)
-layer_separation = 10.0
-dipole_strength = 20.0
+num_bosons = 7
+layer_occupations = (7, 0)
+layer_separation = 0.0
+dipole_strength = 50.0
 supercell_shape = "sq"
-density_rs = 3.0
-
+density_rs = 0.5
 
 if sum(layer_occupations) != num_bosons:
   raise ValueError("layer_occupations must sum to num_bosons.")
@@ -63,7 +62,7 @@ cfg.system.make_local_energy_kwargs = {
     "potential_type": "Dipolar",
     "potential_kwargs": {
         "dipole_strength": dipole_strength,
-        "softening": 0.1,
+        "softening": 1e-2,
         "use_ewald": True,
         "ewald_alpha": 10.0 / np.sqrt(cell_area),
         "ewald_real_cut": 2,
@@ -85,20 +84,20 @@ cfg.network.BosonNet.num_perceptrons_per_layer = 2
 cfg.network.BosonNet.use_layer_norm = True
 cfg.network.BosonNet.mlp_activation_fct = "GELU"
 
-cfg.mcmc.burn_in = 20
+cfg.mcmc.burn_in = 500
 cfg.mcmc.steps = 10
 cfg.mcmc.init_width = 0.5
 cfg.mcmc.move_width = 0.1
 cfg.mcmc.move_width_updater = "adaptive"
 cfg.mcmc.adapt_frequency = 10
-cfg.mcmc.adaptive_steps = 100
+cfg.mcmc.adaptive_steps = 500
 
 cfg.optim.optimizer = "adam_kfac"
-cfg.optim.iterations = 5000
+cfg.optim.iterations = 3000
 cfg.optim.lr.rate = 1e-4
 cfg.optim.lr.delay = 1000
 cfg.optim.lr.decay = 1.0
-cfg.optim.adam_kfac.switch_iteration = 2000
+cfg.optim.adam_kfac.switch_iteration = 300
 cfg.optim.adam_kfac.kfac_lr_rate = 0.01
 cfg.optim.adam_kfac.kfac_lr_delay = 10000.0
 cfg.optim.adam_kfac.kfac_lr_decay = 1.0

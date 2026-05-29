@@ -113,6 +113,22 @@ def make_ewald_bilayer_potential(
   g_vectors = jnp.einsum("ij,kj->ki", rec, reciprocal_indices)
   g_norms = jnp.linalg.norm(g_vectors, axis=1)
 
+  def _exp_erfc_product(exp_arg: jnp.ndarray,
+                        erfc_arg: jnp.ndarray) -> jnp.ndarray:
+    """Evaluates exp(exp_arg) * erfc(erfc_arg) without inf * 0 NaNs."""
+    x = erfc_arg
+    x2 = x ** 2
+    # For large positive x, erfc(x) = exp(-x^2) erfcx(x).  Use the asymptotic
+    # expansion of erfcx to avoid overflow in exp(exp_arg) and underflow in
+    # erfc(x).  The direct branch is clipped because jnp.where evaluates both
+    # branches before selecting.
+    asymptotic = (
+        jnp.exp(exp_arg - x2) /
+        (jnp.sqrt(jnp.pi) * x) *
+        (1.0 - 0.5 / x2 + 0.75 / (x2 ** 2)))
+    direct = jnp.exp(jnp.minimum(exp_arg, 80.0)) * special.erfc(x)
+    return jnp.where(x > 8.0, asymptotic, direct)
+
   def _coulomb_pair(rho: jnp.ndarray, dz: jnp.ndarray) -> jnp.ndarray:
     r = jnp.sqrt(jnp.sum(rho ** 2) + dz ** 2)
     real_zero_part = special.erfc(alpha * r) / r
@@ -128,8 +144,8 @@ def make_ewald_bilayer_potential(
     gz = g_norms * dz
     g_over_2a = g_norms / (2.0 * alpha)
     reciprocal_kernel = (
-        jnp.exp(gz) * special.erfc(g_over_2a + alpha * dz) +
-        jnp.exp(-gz) * special.erfc(g_over_2a - alpha * dz))
+        _exp_erfc_product(gz, g_over_2a + alpha * dz) +
+        _exp_erfc_product(-gz, g_over_2a - alpha * dz))
     reciprocal_part = (
         jnp.pi / area *
         jnp.sum(jnp.cos(g_dot_rho) * reciprocal_kernel / g_norms))
