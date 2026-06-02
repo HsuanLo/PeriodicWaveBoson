@@ -1,0 +1,19 @@
+2026-06-02 14:42:33,173 - JAX version: 0.10.1
+2026-06-02 14:42:33,174 - jax_enable_x64: False
+2026-06-02 14:42:33,174 - JAXlib version: 0.10.1
+2026-06-02 14:42:33,174 - KFAC-JAX version: 0.0.8
+2026-06-02 14:42:33,174 - Available devices: ['cuda:0']
+2026-06-02 14:42:33,174 - Platform: gpu
+2026-06-02 14:42:33,174 - Default precision: float32
+2026-06-02 14:42:33,174 - Default matmul precision: float32
+2026-06-02 14:42:33,174 - GPU information: ['Tesla V100-PCIE-32GB']
+2026-06-02 14:42:33,174 - Python version: 3.13.13
+2026-06-02 14:42:33,174 - System: Linux #20260508 SMP PREEMPT_DYNAMIC Fri May  8 11:20:56 EDT 2026
+2026-06-02 14:42:33,174 - Processor: x86_64
+2026-06-02 14:42:33,174 - Numpy version: 2.4.6
+2026-06-02 14:42:33,174 - CUDA_VISIBLE_DEVICES: GPU-1f084117-ee48-17a5-9b4e-f8799928aa2d
+2026-06-02 14:42:33,174 - NVIDIA driver version: 580.126.09
+580.126.09
+2026-06-02 14:42:33,174 - GPU models: Tesla V100-PCIE-32GB, Tesla V100-PCIE-32GB
+2026-06-02 14:42:33,189 - Starting QMC with 1 XLA devices per host across 1 hosts.
+2026-06-02 14:42:38,429 - Loading checkpoint results/bilayer-bosons/BosonNet/N24_layers12_12_rs0.5_d1.0_D20.0_sq/qmcjax_ckpt_002999.npz

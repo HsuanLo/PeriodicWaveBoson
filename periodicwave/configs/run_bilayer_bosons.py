@@ -4,6 +4,7 @@
 
 """Run a bilayer boson NN-VMC calculation with xy PBC."""
 
+import os
 from time import time
 
 from absl import logging
@@ -21,13 +22,20 @@ print("Jax Devices:", jax.devices())
 jax.config.update("jax_default_matmul_precision", "float32")
 
 
+def _env_float(name, default):
+  value = os.environ.get(name)
+  if value is None:
+    return default
+  return float(value)
+
+
 # --------------------------- Physical parameters ---------------------------
-num_bosons = 32
-layer_occupations = (16,16)
-layer_separation = 1.0
-dipole_strength = 50.0
+num_bosons = 24
+layer_occupations = (12, 12)
+layer_separation = _env_float("SCAN_D", 1.0)
+dipole_strength = 20.0
 supercell_shape = "sq"
-density_rs = 0.5
+density_rs = _env_float("SCAN_RS", 0.5)
 
 if sum(layer_occupations) != num_bosons:
   raise ValueError("layer_occupations must sum to num_bosons.")
@@ -76,10 +84,10 @@ cfg.network.network_type = "BosonNet"
 cfg.network.complex = False
 cfg.network.BosonNet.architecture = "Transformer"
 cfg.network.BosonNet.num_layers = 3
-cfg.network.BosonNet.mlp_dim = 128
+cfg.network.BosonNet.mlp_dim = 64
 cfg.network.BosonNet.num_heads = 4
-cfg.network.BosonNet.attn_dim = 32
-cfg.network.BosonNet.value_dim = 32
+cfg.network.BosonNet.attn_dim = 16
+cfg.network.BosonNet.value_dim = 16
 cfg.network.BosonNet.num_perceptrons_per_layer = 2
 cfg.network.BosonNet.use_layer_norm = True
 cfg.network.BosonNet.mlp_activation_fct = "GELU"
@@ -91,19 +99,13 @@ cfg.mcmc.move_width = 0.05
 cfg.mcmc.move_width_updater = "adaptive"
 cfg.mcmc.adapt_frequency = 10
 cfg.mcmc.target_acceptance = 0.5
-cfg.mcmc.adapt_rate = 0.02
+cfg.mcmc.adapt_rate = 0.05
 cfg.mcmc.min_move_width = 1e-3
-cfg.mcmc.max_move_width = 1.0
-cfg.mcmc.low_acceptance = 0.05
-cfg.mcmc.moderate_low_acceptance = 0.20
-cfg.mcmc.high_acceptance = 0.90
-cfg.mcmc.low_acceptance_factor = 0.5
-cfg.mcmc.moderate_low_acceptance_factor = 0.8
-cfg.mcmc.high_acceptance_factor = 1.02
+cfg.mcmc.max_move_width = 2.0
 cfg.mcmc.adaptive_steps = 1500
 
 cfg.optim.optimizer = "adam_kfac"
-cfg.optim.iterations = 8000
+cfg.optim.iterations = 5000
 cfg.optim.lr.rate = 1e-4
 cfg.optim.lr.delay = 1000
 cfg.optim.lr.decay = 1.0

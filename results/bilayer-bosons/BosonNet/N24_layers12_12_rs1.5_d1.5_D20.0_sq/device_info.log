@@ -1,0 +1,21 @@
+2026-06-02 16:41:56,532 - JAX version: 0.10.1
+2026-06-02 16:41:56,533 - jax_enable_x64: False
+2026-06-02 16:41:56,533 - JAXlib version: 0.10.1
+2026-06-02 16:41:56,533 - KFAC-JAX version: 0.0.8
+2026-06-02 16:41:56,534 - Available devices: ['cuda:0']
+2026-06-02 16:41:56,534 - Platform: gpu
+2026-06-02 16:41:56,534 - Default precision: float32
+2026-06-02 16:41:56,534 - Default matmul precision: float32
+2026-06-02 16:41:56,534 - GPU information: ['Tesla V100-PCIE-32GB']
+2026-06-02 16:41:56,534 - Python version: 3.13.13
+2026-06-02 16:41:56,534 - System: Linux #20260508 SMP PREEMPT_DYNAMIC Fri May  8 11:20:56 EDT 2026
+2026-06-02 16:41:56,534 - Processor: x86_64
+2026-06-02 16:41:56,534 - Numpy version: 2.4.6
+2026-06-02 16:41:56,534 - CUDA_VISIBLE_DEVICES: GPU-4ea74d42-4176-4aec-9b0b-4dd258a217e9
+2026-06-02 16:41:56,534 - NVIDIA driver version: 580.126.09
+580.126.09
+2026-06-02 16:41:56,534 - GPU models: Tesla V100-PCIE-32GB, Tesla V100-PCIE-32GB
+2026-06-02 16:41:56,551 - Starting QMC with 1 XLA devices per host across 1 hosts.
+2026-06-02 16:41:58,899 - No checkpoint found. Training new model.
+2026-06-02 16:42:00,737 - Using adam_kfac optimizer: Adam until step 500, then KFAC.
+2026-06-02 16:42:00,759 - Burning in MCMC chain for 2000 steps

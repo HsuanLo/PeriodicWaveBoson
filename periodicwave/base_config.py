@@ -136,17 +136,10 @@ def default() -> ml_collections.ConfigDict:
           # Target acceptance for adaptive random-walk Metropolis moves.
           'target_acceptance': 0.5,
           # Log-space adaptation rate for move_width.
-          'adapt_rate': 0.02,
+          'adapt_rate': 0.05,
           # Bounds for adaptive move_width.
           'min_move_width': 1.0e-4,
-          'max_move_width': 1.0,
-          # Emergency adaptation thresholds/factors for very poor acceptance.
-          'low_acceptance': 0.05,
-          'moderate_low_acceptance': 0.20,
-          'high_acceptance': 0.90,
-          'low_acceptance_factor': 0.5,
-          'moderate_low_acceptance_factor': 0.8,
-          'high_acceptance_factor': 1.02,
+          'max_move_width': 2.0,
           # Stop adapting the MCMC move width after this many optimization
           # iterations. This freezes the proposal scale for cleaner statistics.
           'adaptive_steps': 1000,

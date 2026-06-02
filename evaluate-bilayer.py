@@ -18,12 +18,12 @@ from matplotlib import pyplot as plt
 from periodicwave.pbc import lattices
 
 
-num_bosons = 32
-layer_occupations = (16,16)
-layer_separation = 1.0
-dipole_strength = 50.0
+num_bosons = 24
+layer_occupations = (12, 12)
+layer_separation = 2.0
+dipole_strength = 20.0
 supercell_shape = "sq"
-density_rs = 0.5
+density_rs = 1.0
 
 load_N_ckpts = 1
 snapshot_count = 12

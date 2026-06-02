@@ -15,12 +15,12 @@ matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 
-num_bosons = 32
-layer_occupations = (16,16)
-layer_separation = 1.0
-dipole_strength = 50.0
+num_bosons = 24
+layer_occupations = (12, 12)
+layer_separation = 4.0
+dipole_strength = 20.0
 supercell_shape = "sq"
-density_rs = 0.5
+density_rs = 1.0
 
 burn_in_cut = 0
 rolling_window = 100
@@ -106,11 +106,12 @@ plt.close(fig)
 fig, axs = plt.subplots(2, 2, figsize=(11, 8), sharex=True)
 axs = axs.ravel()
 steps = plot_data["step"]
+energy_per_particle = plot_data["energy"] / num_bosons
 
 add_rolling_average(
     axs[0],
     steps,
-    plot_data["energy"] / num_bosons,
+    energy_per_particle,
     "energy / N",
     color="#2a6fbb")
 if "ewmean" in plot_data:
@@ -121,6 +122,8 @@ if "ewmean" in plot_data:
       color="#111111",
       label="EW mean / N")
 axs[0].set_ylabel("energy / N")
+if (energy_per_particle > 0).all():
+  axs[0].set_yscale("log")
 axs[0].legend(fontsize=8)
 
 if "locstd" in plot_data:
