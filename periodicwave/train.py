@@ -755,9 +755,27 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
       # Update MCMC move width
       if cfg.mcmc.move_width_updater == 'adaptive':
         def do_width_update(w):
-            w = jnp.where(pmove > 0.55, w * 1.1, w)
-            w = jnp.where(pmove < 0.50, w * 0.9, w)
-            return w
+            target = cfg.mcmc.get('target_acceptance', 0.5)
+            adapt_rate = cfg.mcmc.get('adapt_rate', 0.02)
+            min_width = cfg.mcmc.get('min_move_width', 1.0e-4)
+            max_width = cfg.mcmc.get('max_move_width', 1.0)
+            low_acceptance = cfg.mcmc.get('low_acceptance', 0.05)
+            moderate_low_acceptance = cfg.mcmc.get(
+                'moderate_low_acceptance', 0.20)
+            high_acceptance = cfg.mcmc.get('high_acceptance', 0.90)
+            low_factor = cfg.mcmc.get('low_acceptance_factor', 0.5)
+            moderate_low_factor = cfg.mcmc.get(
+                'moderate_low_acceptance_factor', 0.8)
+            high_factor = cfg.mcmc.get('high_acceptance_factor', 1.02)
+            log_w = jnp.log(w) + adapt_rate * (pmove - target)
+            w_new = jnp.exp(log_w)
+            w_new = jnp.where(pmove < low_acceptance, w * low_factor, w_new)
+            w_new = jnp.where(
+                (pmove >= low_acceptance) & (pmove < moderate_low_acceptance),
+                w * moderate_low_factor,
+                w_new)
+            w_new = jnp.where(pmove > high_acceptance, w * high_factor, w_new)
+            return jnp.clip(w_new, min_width, max_width)
         adaptive_steps = cfg.mcmc.get('adaptive_steps', cfg.optim.iterations)
         pred = (
             (t < adaptive_steps) &

@@ -15,14 +15,14 @@ matplotlib.use("Agg")
 from matplotlib import pyplot as plt
 
 
-num_bosons = 7
-layer_occupations = (7, 0)
-layer_separation = 0.5
+num_bosons = 32
+layer_occupations = (16,16)
+layer_separation = 1.0
 dipole_strength = 50.0
 supercell_shape = "sq"
 density_rs = 0.5
 
-burn_in_cut = 500
+burn_in_cut = 0
 rolling_window = 100
 
 folder_name = (

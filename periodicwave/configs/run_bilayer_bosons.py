@@ -22,9 +22,9 @@ jax.config.update("jax_default_matmul_precision", "float32")
 
 
 # --------------------------- Physical parameters ---------------------------
-num_bosons = 7
-layer_occupations = (7, 0)
-layer_separation = 0.0
+num_bosons = 32
+layer_occupations = (16,16)
+layer_separation = 1.0
 dipole_strength = 50.0
 supercell_shape = "sq"
 density_rs = 0.5
@@ -76,33 +76,43 @@ cfg.network.network_type = "BosonNet"
 cfg.network.complex = False
 cfg.network.BosonNet.architecture = "Transformer"
 cfg.network.BosonNet.num_layers = 3
-cfg.network.BosonNet.mlp_dim = 64
+cfg.network.BosonNet.mlp_dim = 128
 cfg.network.BosonNet.num_heads = 4
-cfg.network.BosonNet.attn_dim = 16
-cfg.network.BosonNet.value_dim = 16
+cfg.network.BosonNet.attn_dim = 32
+cfg.network.BosonNet.value_dim = 32
 cfg.network.BosonNet.num_perceptrons_per_layer = 2
 cfg.network.BosonNet.use_layer_norm = True
 cfg.network.BosonNet.mlp_activation_fct = "GELU"
 
-cfg.mcmc.burn_in = 500
-cfg.mcmc.steps = 10
-cfg.mcmc.init_width = 0.5
-cfg.mcmc.move_width = 0.1
+cfg.mcmc.burn_in = 2000
+cfg.mcmc.steps = 20
+cfg.mcmc.init_width = 2.0
+cfg.mcmc.move_width = 0.05
 cfg.mcmc.move_width_updater = "adaptive"
 cfg.mcmc.adapt_frequency = 10
-cfg.mcmc.adaptive_steps = 500
+cfg.mcmc.target_acceptance = 0.5
+cfg.mcmc.adapt_rate = 0.02
+cfg.mcmc.min_move_width = 1e-3
+cfg.mcmc.max_move_width = 1.0
+cfg.mcmc.low_acceptance = 0.05
+cfg.mcmc.moderate_low_acceptance = 0.20
+cfg.mcmc.high_acceptance = 0.90
+cfg.mcmc.low_acceptance_factor = 0.5
+cfg.mcmc.moderate_low_acceptance_factor = 0.8
+cfg.mcmc.high_acceptance_factor = 1.02
+cfg.mcmc.adaptive_steps = 1500
 
 cfg.optim.optimizer = "adam_kfac"
-cfg.optim.iterations = 3000
+cfg.optim.iterations = 8000
 cfg.optim.lr.rate = 1e-4
 cfg.optim.lr.delay = 1000
 cfg.optim.lr.decay = 1.0
-cfg.optim.adam_kfac.switch_iteration = 300
+cfg.optim.adam_kfac.switch_iteration = 500
 cfg.optim.adam_kfac.kfac_lr_rate = 0.01
-cfg.optim.adam_kfac.kfac_lr_delay = 10000.0
+cfg.optim.adam_kfac.kfac_lr_delay = 1000.0
 cfg.optim.adam_kfac.kfac_lr_decay = 1.0
 
-cfg.log.save_frequency = 1.0
+cfg.log.save_frequency = 10.0
 cfg.debug.deterministic = True
 
 folder_name = (
