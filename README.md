@@ -5,13 +5,14 @@ system with periodic boundary conditions.
 
 The active simulation path is intentionally narrow:
 
-- `periodicwave/configs/run_bilayer_bosons.py`: run configuration and entry point.
-- `periodicwave/BosonNet.py`: permutation-symmetric bosonic wavefunction.
+- `periodicwave/configs/bilayer_bosons.py`: run configuration and entry point.
+- `periodicwave/boson_network.py`: permutation-symmetric bosonic wavefunction.
 - `periodicwave/pbc/bilayer_hamiltonian.py`: direct minimum-image dipolar
   bilayer Hamiltonian.
-- `evaluate-energies.py`: energy convergence plot from `train_stats.csv`.
-- `evaluate-bilayer.py`: density, layer density, z-density, and structure-factor
-  diagnostics.
+- `scripts/evaluate/evaluate_energies.py`: energy convergence plots from
+  `train_stats.csv`.
+- `scripts/evaluate/evaluate_observables.py`: density, layer density,
+  z-density, pair-correlation, and structure-factor diagnostics.
 
 The walker container stores xy positions and fixed layer labels for each boson.
 
@@ -28,7 +29,7 @@ Install a JAX build appropriate for your machine if it is not already present.
 From the repository root:
 
 ```bash
-python3 periodicwave/configs/run_bilayer_bosons.py
+python3 periodicwave/configs/bilayer_bosons.py
 ```
 
 The default run writes to a folder like:
@@ -49,7 +50,9 @@ qmcjax_ckpt_000999.npz
 ## Plot Energy
 
 ```bash
-python3 evaluate-energies.py
+python3 scripts/evaluate/evaluate_energies.py \
+  --scan-dir <results-parent-folder> \
+  --pattern '<result-folder-name>'
 ```
 
 This writes:
@@ -63,7 +66,9 @@ inside the run folder.
 ## Plot Bilayer Diagnostics
 
 ```bash
-python3 evaluate-bilayer.py
+python3 scripts/evaluate/evaluate_observables.py \
+  --scan-dir <results-parent-folder> \
+  --pattern '<result-folder-name>'
 ```
 
 This writes:
@@ -72,10 +77,12 @@ This writes:
 bilayer_density_xy.png
 bilayer_density_layers.png
 bilayer_density_z.png
+bilayer_snapshots.png
+bilayer_pair_correlation.png
 bilayer_structure_factor.png
 ```
 
 inside the run folder.
 
-If you change the run parameters in `run_bilayer_bosons.py`, update the matching
-parameters at the top of `evaluate-energies.py` and `evaluate-bilayer.py`.
+For the `scan_260603` scan, omit these arguments and the evaluators will use
+their default scan directory and pattern.

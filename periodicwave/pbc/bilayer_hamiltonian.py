@@ -7,8 +7,8 @@
 from typing import Optional, Sequence, Tuple
 
 import chex
-from periodicwave import hamiltonian
-from periodicwave import networks
+from periodicwave import hamiltonians
+from periodicwave import network_interfaces as networks
 import jax
 import jax.numpy as jnp
 from jax.scipy import special
@@ -226,7 +226,7 @@ def local_energy(
     potential_type: str = "Dipolar",
     potential_kwargs: Optional[dict] = None,
     kinetic_kwargs: Optional[dict] = None,
-) -> hamiltonian.LocalEnergy:
+) -> hamiltonians.LocalEnergy:
   """Creates a local energy for bilayer bosons.
 
   `data.spins` is interpreted as fixed layer labels (+1 upper, -1 lower).
@@ -256,7 +256,7 @@ def local_energy(
     raise NotImplementedError(f"Unknown bilayer potential_type: {potential_type}")
 
   laplacian_method = kinetic_kwargs.get("laplacian_method", "folx")
-  kinetic = hamiltonian.local_kinetic_energy(
+  kinetic = hamiltonians.local_kinetic_energy(
       f,
       use_scan=use_scan,
       complex_output=complex_output,

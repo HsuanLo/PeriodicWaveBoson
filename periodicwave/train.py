@@ -30,14 +30,13 @@ from absl import logging
 import chex
 from periodicwave import checkpoint
 from periodicwave import constants
-from periodicwave import curvature_tags_and_blocks
-from periodicwave import hamiltonian
+from periodicwave import kfac_tags
+from periodicwave import hamiltonians
 from periodicwave import loss as qmc_loss_functions
 from periodicwave import mcmc
-from periodicwave import networks
+from periodicwave import network_interfaces as networks
 from periodicwave import BosonNet
 from periodicwave.utils import statistics
-from periodicwave.utils import utils
 from periodicwave.utils import writers
 from periodicwave.utils import jax_utils
 import jax
@@ -375,7 +374,7 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
 
   Args:
     cfg: ConfigDict containing the system and training parameters to run on. See
-      base_config.default for more details.
+      default_config.default for more details.
     writer_manager: context manager with a write method for logging output. If
       None, a default writer (ferminet.utils.writers.Writer) is used.
 
@@ -522,7 +521,7 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
   local_energy_module, local_energy_fn = (
       cfg.system.make_local_energy_fn.rsplit('.', maxsplit=1))
   local_energy_module = importlib.import_module(local_energy_module)
-  make_local_energy = getattr(local_energy_module, local_energy_fn)  # type: hamiltonian.MakeLocalEnergy
+  make_local_energy = getattr(local_energy_module, local_energy_fn)  # type: hamiltonians.MakeLocalEnergy
   local_energy_fn = make_local_energy(
       f=signed_network,
       charges=charges,
@@ -586,7 +585,7 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
         multi_device=True,
         pmap_axis_name=constants.PMAP_AXIS_NAME,
         auto_register_kwargs=dict(
-            graph_patterns=curvature_tags_and_blocks.GRAPH_PATTERNS,
+            graph_patterns=kfac_tags.GRAPH_PATTERNS,
         ),
         # debug=True
     )

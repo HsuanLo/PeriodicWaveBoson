@@ -24,8 +24,8 @@ from typing import Tuple
 
 import chex
 from periodicwave import constants
-from periodicwave import hamiltonian
-from periodicwave import networks
+from periodicwave import hamiltonians
+from periodicwave import network_interfaces as networks
 import folx
 import jax
 import jax.numpy as jnp
@@ -156,7 +156,7 @@ def clip_local_values(
 
 
 def make_loss(network: networks.LogNetworkLike,
-              local_energy: hamiltonian.LocalEnergy,
+              local_energy: hamiltonians.LocalEnergy,
               clip_local_energy: float = 0.0,
               clip_from_median: bool = True,
               center_at_clipped_energy: bool = True,

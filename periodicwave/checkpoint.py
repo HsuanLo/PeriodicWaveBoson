@@ -26,7 +26,7 @@ from typing import Optional
 import zipfile
 
 from absl import logging
-from periodicwave import networks
+from periodicwave import network_interfaces as networks
 import jax
 import jax.numpy as jnp
 import numpy as np

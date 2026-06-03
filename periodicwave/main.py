@@ -17,7 +17,7 @@
 from absl import app
 from absl import flags
 from absl import logging
-from periodicwave import base_config
+from periodicwave import default_config
 from periodicwave import train
 from ml_collections.config_flags import config_flags
 

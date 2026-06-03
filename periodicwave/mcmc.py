@@ -7,7 +7,7 @@
 
 import chex
 from periodicwave import constants
-from periodicwave import networks
+from periodicwave import network_interfaces as networks
 import jax
 from jax import lax
 from jax import numpy as jnp
