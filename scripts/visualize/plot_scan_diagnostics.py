@@ -23,7 +23,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 from matplotlib import pyplot as plt
-from matplotlib.colors import Normalize
+from matplotlib.colors import Normalize, TwoSlopeNorm
 import numpy as np
 import pandas as pd
 
@@ -32,8 +32,6 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SCAN_DIR = (
     REPO_ROOT
     / "results"
-    / "bilayer-bosons"
-    / "BosonNet"
     / "scan_260603"
 )
 DEFAULT_PATTERN = "N24_layers12_12_rs*_d*_D20.0_sq"
@@ -163,6 +161,47 @@ def _finite_norm(values: np.ndarray) -> Normalize:
   return Normalize(vmin=float(finite.min()), vmax=float(finite.max()))
 
 
+def _finite_percentile_norm(
+    values: np.ndarray,
+    low: float = 5.0,
+    high: float = 95.0,
+) -> Normalize:
+  finite = values[np.isfinite(values)]
+  if finite.size == 0:
+    return Normalize(vmin=0.0, vmax=1.0)
+  vmin, vmax = np.percentile(finite, [low, high])
+  if math.isclose(float(vmin), float(vmax)):
+    return Normalize(vmin=float(vmin) - 1.0, vmax=float(vmax) + 1.0)
+  return Normalize(vmin=float(vmin), vmax=float(vmax))
+
+
+def _finite_centered_norm(values: np.ndarray, center: float = 0.0) -> Normalize:
+  finite = values[np.isfinite(values)]
+  if finite.size == 0:
+    return TwoSlopeNorm(vmin=-1.0, vcenter=center, vmax=1.0)
+  vmin, vmax = np.percentile(finite, [5.0, 95.0])
+  vmin = min(float(vmin), center - 1e-6)
+  vmax = max(float(vmax), center + 1e-6)
+  return TwoSlopeNorm(vmin=vmin, vcenter=center, vmax=vmax)
+
+
+def _annotation_color(cmap: matplotlib.colors.Colormap,
+                      norm: Normalize,
+                      value: float) -> str:
+  normalized = norm(value)
+  if np.ma.is_masked(normalized):
+    return "black"
+  red, green, blue, _ = cmap(float(normalized))
+  luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue
+  return "black" if luminance > 0.58 else "white"
+
+
+def _format_metric_value(value: float, attr: str) -> str:
+  if attr == "final_pmove":
+    return f"{value:.2f}"
+  return f"{value:.3g}"
+
+
 def _plot_scan_energy_grid(
     runs: list[RunDiagnostics],
     rs_values: list[float],
@@ -175,18 +214,29 @@ def _plot_scan_energy_grid(
   cmap = plt.get_cmap("viridis")
   norm = _finite_norm(final_grid)
 
-  fig, axs = plt.subplots(
-      len(d_values),
-      len(rs_values),
-      figsize=(2.45 * len(rs_values), 1.95 * len(d_values)),
-      sharex=True,
-      squeeze=False)
+  fig_width = max(11.0, 2.35 * len(rs_values) + 0.75)
+  plot_d_values = list(reversed(d_values))
+  fig_height = max(7.0, 1.75 * len(plot_d_values))
+  fig = plt.figure(figsize=(fig_width, fig_height), constrained_layout=True)
+  gridspec = fig.add_gridspec(
+      len(plot_d_values),
+      len(rs_values) + 1,
+      width_ratios=[1.0] * len(rs_values) + [0.055],
+      wspace=0.035,
+      hspace=0.055)
+  axs = np.empty((len(plot_d_values), len(rs_values)), dtype=object)
+  for row in range(len(plot_d_values)):
+    for col in range(len(rs_values)):
+      sharex = axs[0, col] if row > 0 else None
+      axs[row, col] = fig.add_subplot(gridspec[row, col], sharex=sharex)
+  cbar_ax = fig.add_subplot(gridspec[:, -1])
   fig.suptitle(
       "Bilayer boson scan diagnostics: energy / N convergence",
       fontsize=18,
-      y=0.995)
+      y=1.025)
+  fig.supylabel("energy / N", fontsize=10)
 
-  for row, d_value in enumerate(d_values):
+  for row, d_value in enumerate(plot_d_values):
     for col, rs_value in enumerate(rs_values):
       ax = axs[row, col]
       run = run_by_param.get((rs_value, d_value))
@@ -239,19 +289,28 @@ def _plot_scan_energy_grid(
       if row == 0:
         ax.set_title(f"rs={rs_value:g}", fontsize=9)
       if col == 0:
-        ax.set_ylabel(f"d={d_value:g}\nenergy / N", fontsize=8)
-      if row == len(d_values) - 1:
+        ax.text(
+            -0.30,
+            0.5,
+            f"d={d_value:g}",
+            transform=ax.transAxes,
+            ha="right",
+            va="center",
+            rotation=90,
+            fontsize=7.5)
+      else:
+        ax.tick_params(labelleft=False)
+      if row == len(plot_d_values) - 1:
         ax.set_xlabel("step", fontsize=8)
+      else:
+        ax.tick_params(labelbottom=False)
 
   sm = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
   sm.set_array([])
-  cbar = fig.colorbar(
-      sm, ax=axs.ravel().tolist(), fraction=0.016, pad=0.01)
+  cbar = fig.colorbar(sm, cax=cbar_ax)
   cbar.set_label("final energy / N", fontsize=9)
   cbar.ax.tick_params(labelsize=8)
-  fig.subplots_adjust(
-      left=0.045, right=0.955, bottom=0.055, top=0.955, wspace=0.12, hspace=0.18)
-  fig.savefig(output_path, dpi=220)
+  fig.savefig(output_path, dpi=220, bbox_inches="tight")
   plt.close(fig)
 
 
@@ -262,22 +321,32 @@ def _plot_scan_metric_summary(
     output_path: Path,
 ) -> None:
   metrics = [
-      ("final_energy_per_boson", "final energy / N", "viridis"),
-      ("best_rolling_energy_per_boson", "best rolling energy / N", "viridis"),
-      ("final_locstd_per_boson", "final std(E_L) / N", "magma"),
-      ("final_pmove", "final pmove", "cividis"),
+      ("final_energy_per_boson", "final energy / N", "RdBu_r", "centered"),
+      ("best_rolling_energy_per_boson", "best rolling energy / N", "RdBu_r",
+       "centered"),
+      ("final_locstd_per_boson", "final std(E_L) / N", "magma_r",
+       "percentile"),
+      ("final_pmove", "final pmove", "cividis", "pmove"),
   ]
-  fig, axs = plt.subplots(2, 2, figsize=(12, 9), squeeze=False)
-  fig.suptitle("Bilayer boson scan summary", fontsize=16)
+  fig, axs = plt.subplots(
+      2, 2, figsize=(12, 9), squeeze=False, constrained_layout=True)
+  fig.suptitle("Bilayer boson scan summary", fontsize=16, y=1.02)
 
-  for ax, (attr, title, cmap_name) in zip(axs.ravel(), metrics):
+  for ax, (attr, title, cmap_name, norm_kind) in zip(axs.ravel(), metrics):
     grid = _metric_grid(runs, rs_values, d_values, attr)
+    if norm_kind == "centered":
+      norm = _finite_centered_norm(grid)
+    elif norm_kind == "pmove":
+      norm = Normalize(vmin=0.0, vmax=1.0)
+    else:
+      norm = _finite_percentile_norm(grid)
+    cmap = plt.get_cmap(cmap_name)
     image = ax.imshow(
         grid,
         origin="lower",
         aspect="auto",
-        cmap=cmap_name,
-        norm=_finite_norm(grid))
+        cmap=cmap,
+        norm=norm)
     ax.set_title(title)
     ax.set_xticks(range(len(rs_values)), [f"{value:g}" for value in rs_values])
     ax.set_yticks(range(len(d_values)), [f"{value:g}" for value in d_values])
@@ -290,16 +359,16 @@ def _plot_scan_metric_summary(
           ax.text(
               x_idx,
               y_idx,
-              f"{value:.3g}",
+              _format_metric_value(value, attr),
               ha="center",
               va="center",
               fontsize=7,
-              color="white")
+              color=_annotation_color(cmap, norm, value))
     cbar = fig.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
+    cbar.set_label(title, fontsize=8)
     cbar.ax.tick_params(labelsize=8)
 
-  fig.tight_layout()
-  fig.savefig(output_path, dpi=220)
+  fig.savefig(output_path, dpi=220, bbox_inches="tight")
   plt.close(fig)
 
 

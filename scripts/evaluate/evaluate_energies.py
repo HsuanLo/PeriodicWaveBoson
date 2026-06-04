@@ -127,7 +127,7 @@ def _plot_energy(params: RunParams, plot_data: pd.DataFrame) -> None:
   ax.set_title(f"rs={params.rs:g}, d={params.d:g}, D={params.dipole_strength:g}")
   ax.legend()
   fig.tight_layout()
-  output_path = params.path / "energy.png"
+  output_path = params.path / "fig_training_energy_trace.png"
   fig.savefig(output_path, dpi=200)
   print(f"Saved {output_path}")
   plt.close(fig)
@@ -230,7 +230,7 @@ def _plot_training_diagnostics(
       f"D={params.dipole_strength:g}",
       y=0.995)
   fig.tight_layout()
-  output_path = params.path / "training_diagnostics.png"
+  output_path = params.path / "fig_training_diagnostics_overview.png"
   fig.savefig(output_path, dpi=200)
   print(f"Saved {output_path}")
   plt.close(fig)
@@ -242,8 +242,8 @@ def _evaluate_run(
     rolling_window: int,
     skip_existing: bool,
 ) -> None:
-  if skip_existing and (run_dir / "energy.png").exists() and (
-      run_dir / "training_diagnostics.png").exists():
+  if skip_existing and (run_dir / "fig_training_energy_trace.png").exists() and (
+      run_dir / "fig_training_diagnostics_overview.png").exists():
     print(f"Skipping existing energy plots: {run_dir}")
     return
 
@@ -261,8 +261,28 @@ def _evaluate_run(
   _plot_training_diagnostics(params, plot_data, rolling_window)
 
 
+def _select_run_dirs(run_dir: Path | None, scan_dir: Path, pattern: str) -> list[Path]:
+  if run_dir is not None:
+    selected = run_dir.resolve()
+    if not selected.is_dir():
+      raise ValueError(f"--run-dir does not exist or is not a directory: {selected}")
+    return [selected]
+
+  scan_root = scan_dir.resolve()
+  run_dirs = sorted(path for path in scan_root.glob(pattern) if path.is_dir())
+  if not run_dirs:
+    raise ValueError(f"No run directories matched {scan_root / pattern}")
+  return run_dirs
+
+
 def main() -> None:
   parser = argparse.ArgumentParser(description=__doc__)
+  parser.add_argument(
+      "--run-dir",
+      type=Path,
+      default=None,
+      help="Evaluate one run directory directly; ignores --scan-dir and --pattern.",
+  )
   parser.add_argument("--scan-dir", type=Path, default=DEFAULT_SCAN_DIR)
   parser.add_argument("--pattern", default=DEFAULT_PATTERN)
   parser.add_argument("--burn-in-cut", type=int, default=0)
@@ -274,10 +294,7 @@ def main() -> None:
   )
   args = parser.parse_args()
 
-  scan_dir = args.scan_dir.resolve()
-  run_dirs = sorted(path for path in scan_dir.glob(args.pattern) if path.is_dir())
-  if not run_dirs:
-    raise ValueError(f"No run directories matched {scan_dir / args.pattern}")
+  run_dirs = _select_run_dirs(args.run_dir, args.scan_dir, args.pattern)
 
   failures = []
   for idx, run_dir in enumerate(run_dirs, start=1):

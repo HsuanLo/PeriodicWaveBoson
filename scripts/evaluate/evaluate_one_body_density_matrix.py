@@ -13,6 +13,7 @@ import json
 import os
 import re
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -261,8 +262,11 @@ def _chunked_logabs(
     atoms: np.ndarray,
     charges: np.ndarray,
     chunk_size: int,
+    progress_label: str | None = None,
 ) -> np.ndarray:
   values = []
+  total = positions.shape[0]
+  start_time = time.monotonic()
   for start in range(0, positions.shape[0], chunk_size):
     end = min(start + chunk_size, positions.shape[0])
     values.append(np.asarray(logabs_batch(
@@ -272,7 +276,27 @@ def _chunked_logabs(
         jnp.asarray(atoms[start:end]),
         jnp.asarray(charges[start:end]),
     )))
+    if progress_label is not None:
+      _print_progress(progress_label, end, total, start_time)
+  if progress_label is not None:
+    print()
   return np.concatenate(values, axis=0)
+
+
+def _print_progress(label: str, completed: int, total: int, start_time: float) -> None:
+  elapsed = max(time.monotonic() - start_time, 1e-9)
+  fraction = completed / total if total else 1.0
+  filled = int(round(30 * fraction))
+  bar = "#" * filled + "-" * (30 - filled)
+  rate = completed / elapsed
+  remaining = max(total - completed, 0)
+  eta = remaining / rate if rate > 0 else 0.0
+  print(
+      f"\r{label}: [{bar}] {completed}/{total} "
+      f"({100.0 * fraction:5.1f}%) elapsed={elapsed:6.1f}s eta={eta:6.1f}s",
+      end="",
+      flush=True,
+  )
 
 
 def _build_network(params: RunParams):
@@ -417,6 +441,7 @@ def _estimate_layer_momentum_gamma(
     particle_indices: np.ndarray,
     layer_size: int,
     chunk_size: int,
+    progress_label: str | None = None,
 ) -> MomentumEstimate:
   if len(particle_indices) == 0:
     raise ValueError("Cannot estimate momentum 1RDM with no selected particles.")
@@ -442,6 +467,7 @@ def _estimate_layer_momentum_gamma(
       atoms,
       charges,
       chunk_size,
+      progress_label,
   )
   ratios = np.exp(np.clip(new_logabs - old, -60.0, 60.0))
   ratios = ratios.reshape((nconfig, nreplace, nparticle))
@@ -706,8 +732,8 @@ def _evaluate_run(
   output_bottom = run_dir / "one_body_density_matrix_momentum_bottom.csv"
   output_occupations = run_dir / "one_body_density_matrix_momentum_occupations.csv"
   output_eigenvalues = run_dir / "one_body_density_matrix_momentum_eigenvalues.csv"
-  output_png = run_dir / "one_body_density_matrix_momentum.png"
-  output_nk_map_png = run_dir / "one_body_density_matrix_momentum_nk_map.png"
+  output_png = run_dir / "fig_obdm_momentum_space.png"
+  output_nk_map_png = run_dir / "fig_obdm_momentum_nk_map.png"
   outputs = [
       output_top,
       output_bottom,
@@ -748,6 +774,7 @@ def _evaluate_run(
       ckpt.atoms,
       ckpt.charges,
       chunk_size,
+      f"{run_dir.name} baseline logabs",
   )
 
   rng = np.random.default_rng(seed)
@@ -776,6 +803,7 @@ def _evaluate_run(
       top_indices,
       len(all_top_indices),
       chunk_size,
+      f"{run_dir.name} top layer",
   )
   bottom = _estimate_layer_momentum_gamma(
       logabs_batch,
@@ -787,6 +815,7 @@ def _evaluate_run(
       bottom_indices,
       len(all_bottom_indices),
       chunk_size,
+      f"{run_dir.name} bottom layer",
   )
   layer_estimates = {"top": top, "bottom": bottom}
   layer_sizes = {"top": len(all_top_indices), "bottom": len(all_bottom_indices)}
@@ -801,22 +830,41 @@ def _evaluate_run(
     print(f"Saved {path}")
 
 
+def _select_run_dirs(run_dir: Path | None, scan_dir: Path, pattern: str) -> list[Path]:
+  if run_dir is not None:
+    selected = run_dir.resolve()
+    if not selected.is_dir():
+      raise ValueError(f"--run-dir does not exist or is not a directory: {selected}")
+    return [selected]
+
+  scan_root = scan_dir.resolve()
+  run_dirs = sorted(path for path in scan_root.glob(pattern) if path.is_dir())
+  if not run_dirs:
+    raise ValueError(f"No run directories matched {scan_root / pattern}")
+  return run_dirs
+
+
 def main() -> None:
   parser = argparse.ArgumentParser(description=__doc__)
-  parser.add_argument("--run-dir", type=Path, default=None)
+  parser.add_argument(
+      "--run-dir",
+      type=Path,
+      default=None,
+      help="Evaluate one run directory directly; ignores --scan-dir and --pattern.",
+  )
   parser.add_argument("--scan-dir", type=Path, default=DEFAULT_SCAN_DIR)
   parser.add_argument("--pattern", default=DEFAULT_PATTERN)
-  parser.add_argument("--max-configs", type=int, default=512)
+  parser.add_argument("--max-configs", type=int, default=1024, help="Maximum number of configurations to use for each run.")
   parser.add_argument(
       "--kmax",
       type=int,
-      default=3,
+      default=4,
       help="Use reciprocal modes -kmax..kmax along each lattice direction.",
   )
   parser.add_argument(
       "--num-replacement-points",
       type=int,
-      default=64,
+      default=128,
       help="Uniform absolute particle replacement points sampled in the cell.",
   )
   parser.add_argument(
@@ -826,19 +874,13 @@ def main() -> None:
       help="Use this many particles per layer; use 0 for all particles.",
   )
   parser.add_argument("--chunk-size", type=int, default=2048)
-  parser.add_argument("--seed", type=int, default=17)
+  parser.add_argument("--seed", type=int, default=1)
   parser.add_argument("--skip-existing", action="store_true")
   args = parser.parse_args()
 
   _require_jax()
 
-  if args.run_dir is not None:
-    run_dirs = [args.run_dir.resolve()]
-  else:
-    scan_dir = args.scan_dir.resolve()
-    run_dirs = sorted(path for path in scan_dir.glob(args.pattern) if path.is_dir())
-  if not run_dirs:
-    raise ValueError("No run directories selected.")
+  run_dirs = _select_run_dirs(args.run_dir, args.scan_dir, args.pattern)
 
   failures = []
   for idx, run_dir in enumerate(run_dirs, start=1):

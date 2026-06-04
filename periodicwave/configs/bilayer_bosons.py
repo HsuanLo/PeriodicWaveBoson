@@ -114,7 +114,7 @@ cfg.optim.adam_kfac.kfac_lr_rate = 0.01
 cfg.optim.adam_kfac.kfac_lr_delay = 1000.0
 cfg.optim.adam_kfac.kfac_lr_decay = 1.0
 
-cfg.log.save_frequency = 10.0
+cfg.log.save_frequency = 30.0
 cfg.debug.deterministic = True
 
 folder_name = (

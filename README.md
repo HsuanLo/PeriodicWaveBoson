@@ -58,7 +58,8 @@ python3 scripts/evaluate/evaluate_energies.py \
 This writes:
 
 ```text
-energy.png
+fig_training_energy_trace.png
+fig_training_diagnostics_overview.png
 ```
 
 inside the run folder.
@@ -74,12 +75,12 @@ python3 scripts/evaluate/evaluate_observables.py \
 This writes:
 
 ```text
-bilayer_density_xy.png
-bilayer_density_layers.png
-bilayer_density_z.png
-bilayer_snapshots.png
-bilayer_pair_correlation.png
-bilayer_structure_factor.png
+fig_density_xy_overall.png
+fig_density_xy_by_layer.png
+fig_density_z_layers.png
+fig_positions_xy_snapshots.png
+fig_pair_correlation_gr.png
+fig_structure_factor_sk.png
 ```
 
 inside the run folder.

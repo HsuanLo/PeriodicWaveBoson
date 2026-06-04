@@ -38,8 +38,6 @@ from periodicwave.pbc import lattices
 DEFAULT_SCAN_DIR = (
     REPO_ROOT
     / "results"
-    / "bilayer-bosons"
-    / "BosonNet"
     / "scan_260603"
 )
 DEFAULT_PATTERN = "N24_layers12_12_rs*_d*_D20.0_sq"
@@ -193,49 +191,34 @@ def _draw_density_panel(ax, obs: RunObservables, mode: str) -> None:
   params = obs.params
   if mode == "overall":
     flat = obs.positions.reshape((-1, 2))
-    color = "#2a6fbb"
+    color = "#2f6f9f"
   elif mode == "top":
     flat = obs.positions[:, params.layer_assignment == 1.0, :].reshape((-1, 2))
-    color = "#c7364f"
+    color = "#b23a48"
   elif mode == "bottom":
     flat = obs.positions[:, params.layer_assignment == -1.0, :].reshape((-1, 2))
     color = "#2f7d57"
   else:
     raise ValueError(f"Unknown density mode: {mode}")
 
-  npoints = flat.shape[0]
-  point_size = np.clip(1800 / max(npoints, 1), 1.5, 8.0)
   ax.scatter(
       flat[:, 0],
       flat[:, 1],
-      s=point_size,
-      alpha=0.7,
+      s=0.55,
+      alpha=0.45,
       color=color,
       linewidths=0,
       rasterized=True)
 
   outline = _cell_outline(params.lat_vec)
-  ax.plot(outline[:, 0], outline[:, 1], color="black", linewidth=0.55, alpha=0.65)
+  ax.plot(outline[:, 0], outline[:, 1], color="#333333",
+          linewidth=0.45, alpha=0.45)
   pad = 0.04 * np.max(np.ptp(outline, axis=0))
   ax.set_xlim(outline[:, 0].min() - pad, outline[:, 0].max() + pad)
   ax.set_ylim(outline[:, 1].min() - pad, outline[:, 1].max() + pad)
   ax.set_aspect("equal", adjustable="box")
   ax.set_xticks([])
   ax.set_yticks([])
-  ax.text(
-      0.03,
-      0.96,
-      f"{obs.positions.shape[0]} configs",
-      transform=ax.transAxes,
-      ha="left",
-      va="top",
-      fontsize=6.5,
-      bbox={
-          "boxstyle": "round,pad=0.16",
-          "facecolor": "white",
-          "edgecolor": "none",
-          "alpha": 0.72,
-      })
 
 
 def _compute_structure_factor(
@@ -286,6 +269,37 @@ def _finite_norm(values: np.ndarray) -> Normalize:
   return Normalize(vmin=vmin, vmax=vmax)
 
 
+def _finite_percentile_norm(
+    values: np.ndarray,
+    low: float = 2.0,
+    high: float = 98.0,
+) -> Normalize:
+  finite = values[np.isfinite(values)]
+  if finite.size == 0:
+    return Normalize(vmin=0.0, vmax=1.0)
+  vmin, vmax = np.percentile(finite, [low, high])
+  if np.isclose(vmin, vmax):
+    return Normalize(vmin=float(vmin) - 1.0, vmax=float(vmax) + 1.0)
+  return Normalize(vmin=float(vmin), vmax=float(vmax))
+
+
+def _plot_d_values(d_values: list[float]) -> list[float]:
+  return list(reversed(d_values))
+
+
+def _text_color_for_value(
+    cmap: matplotlib.colors.Colormap,
+    norm: Normalize,
+    value: float,
+) -> str:
+  normalized = norm(value)
+  if np.ma.is_masked(normalized):
+    return "black"
+  red, green, blue, _ = cmap(float(normalized))
+  luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue
+  return "black" if luminance > 0.58 else "white"
+
+
 def _plot_density_grid(
     observables: list[RunObservables],
     rs_values: list[float],
@@ -295,14 +309,27 @@ def _plot_density_grid(
     title: str,
 ) -> None:
   obs_by_param = {(obs.params.rs, obs.params.d): obs for obs in observables}
-  fig, axs = plt.subplots(
-      len(d_values),
+  plot_d_vals = _plot_d_values(d_values)
+  fig_width = max(11.0, 2.10 * len(rs_values) + 0.75)
+  fig_height = max(7.0, 1.85 * len(plot_d_vals))
+  fig = plt.figure(figsize=(fig_width, fig_height), constrained_layout=True)
+  gridspec = fig.add_gridspec(
+      len(plot_d_vals),
       len(rs_values),
-      figsize=(2.65 * len(rs_values), 2.65 * len(d_values)),
-      squeeze=False)
-  fig.suptitle(title, fontsize=18, y=0.995)
+      wspace=0.035,
+      hspace=0.055)
+  axs = np.empty((len(plot_d_vals), len(rs_values)), dtype=object)
+  for row in range(len(plot_d_vals)):
+    for col in range(len(rs_values)):
+      axs[row, col] = fig.add_subplot(gridspec[row, col])
+  nconfigs = sorted({obs.positions.shape[0] for obs in observables})
+  subtitle = (
+      f"{nconfigs[0]} configs/run" if len(nconfigs) == 1
+      else f"{min(nconfigs)}-{max(nconfigs)} configs/run")
+  fig.suptitle(f"{title} ({subtitle})", fontsize=18, y=1.025)
+  fig.supylabel("d", fontsize=10)
 
-  for row, d_value in enumerate(d_values):
+  for row, d_value in enumerate(plot_d_vals):
     for col, rs_value in enumerate(rs_values):
       ax = axs[row, col]
       obs = obs_by_param.get((rs_value, d_value))
@@ -315,11 +342,17 @@ def _plot_density_grid(
       if row == 0:
         ax.set_title(f"rs={rs_value:g}", fontsize=9)
       if col == 0:
-        ax.set_ylabel(f"d={d_value:g}", fontsize=9)
+        ax.text(
+            -0.18,
+            0.5,
+            f"d={d_value:g}",
+            transform=ax.transAxes,
+            ha="right",
+            va="center",
+            rotation=0,
+            fontsize=7.5)
 
-  fig.subplots_adjust(
-      left=0.035, right=0.99, bottom=0.025, top=0.955, wspace=0.08, hspace=0.12)
-  fig.savefig(output_path, dpi=220)
+  fig.savefig(output_path, dpi=220, bbox_inches="tight")
   plt.close(fig)
 
 
@@ -331,47 +364,145 @@ def _plot_structure_grid(
 ) -> None:
   obs_by_param = {(obs.params.rs, obs.params.d): obs for obs in observables}
   all_vals = np.concatenate([obs.structure_vals for obs in observables])
-  norm = _finite_norm(all_vals)
+  norm = _finite_percentile_norm(all_vals)
   cmap = plt.get_cmap("viridis")
-  fig, axs = plt.subplots(
-      len(d_values),
-      len(rs_values),
-      figsize=(2.1 * len(rs_values), 2.1 * len(d_values)),
-      squeeze=False)
-  fig.suptitle("Bilayer boson scan: static structure factor", fontsize=18, y=0.995)
+  plot_d_vals = _plot_d_values(d_values)
+  fig_width = max(11.0, 2.05 * len(rs_values) + 0.75)
+  fig_height = max(7.0, 1.80 * len(plot_d_vals))
+  fig = plt.figure(figsize=(fig_width, fig_height), constrained_layout=True)
+  gridspec = fig.add_gridspec(
+      len(plot_d_vals),
+      len(rs_values) + 1,
+      width_ratios=[1.0] * len(rs_values) + [0.055],
+      wspace=0.035,
+      hspace=0.055)
+  axs = np.empty((len(plot_d_vals), len(rs_values)), dtype=object)
+  for row in range(len(plot_d_vals)):
+    for col in range(len(rs_values)):
+      axs[row, col] = fig.add_subplot(gridspec[row, col])
+  cbar_ax = fig.add_subplot(gridspec[:, -1])
+  fig.suptitle("Bilayer boson scan: static structure factor", fontsize=18, y=1.025)
+  fig.supylabel("d", fontsize=10)
 
-  for row, d_value in enumerate(d_values):
+  image = None
+  for row, d_value in enumerate(plot_d_vals):
     for col, rs_value in enumerate(rs_values):
       ax = axs[row, col]
       obs = obs_by_param.get((rs_value, d_value))
       if obs is None:
         ax.text(0.5, 0.5, "missing", ha="center", va="center", fontsize=8)
       else:
-        ax.scatter(
+        sizes = 10 + 18 * np.clip(norm(obs.structure_vals), 0.0, 1.0)
+        image = ax.scatter(
             obs.structure_ms[:, 0],
             obs.structure_ms[:, 1],
             c=obs.structure_vals,
-            s=18,
+            s=sizes,
             cmap=cmap,
             norm=norm,
             linewidths=0)
+        ax.axhline(0, color="black", linewidth=0.35, alpha=0.28)
+        ax.axvline(0, color="black", linewidth=0.35, alpha=0.28)
+        peak_idx = int(np.argmax(obs.structure_vals))
+        peak_m = obs.structure_ms[peak_idx]
+        peak_value = obs.structure_vals[peak_idx]
+        ax.scatter(
+            [peak_m[0]], [peak_m[1]],
+            marker="o", s=46, facecolors="none", edgecolors="black",
+            linewidths=0.8)
+        ax.text(
+            0.04,
+            0.94,
+            f"max {peak_value:.2g}",
+            transform=ax.transAxes,
+            ha="left",
+            va="top",
+            fontsize=6.5,
+            bbox={
+                "boxstyle": "round,pad=0.14",
+                "facecolor": "white",
+                "edgecolor": "none",
+                "alpha": 0.72,
+            })
         ax.set_aspect("equal", adjustable="box")
       ax.set_xticks([])
       ax.set_yticks([])
       if row == 0:
         ax.set_title(f"rs={rs_value:g}", fontsize=9)
       if col == 0:
-        ax.set_ylabel(f"d={d_value:g}", fontsize=9)
+        ax.text(
+            -0.18,
+            0.5,
+            f"{d_value:g}",
+            transform=ax.transAxes,
+            ha="right",
+            va="center",
+            rotation=90,
+            fontsize=7.5)
 
-  sm = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
-  sm.set_array([])
-  cbar = fig.colorbar(
-      sm, ax=axs.ravel().tolist(), fraction=0.016, pad=0.01)
-  cbar.set_label("S(k)", fontsize=9)
-  cbar.ax.tick_params(labelsize=8)
-  fig.subplots_adjust(
-      left=0.035, right=0.955, bottom=0.025, top=0.955, wspace=0.08, hspace=0.12)
-  fig.savefig(output_path, dpi=220)
+  if image is not None:
+    cbar = fig.colorbar(image, cax=cbar_ax, extend="max")
+    cbar.set_label("S(k)", fontsize=9)
+    cbar.ax.tick_params(labelsize=8)
+  fig.savefig(output_path, dpi=220, bbox_inches="tight")
+  plt.close(fig)
+
+
+def _plot_structure_summary(
+    observables: list[RunObservables],
+    rs_values: list[float],
+    d_values: list[float],
+    output_path: Path,
+) -> None:
+  max_grid = np.full((len(d_values), len(rs_values)), np.nan)
+  peak_radius_grid = np.full_like(max_grid, np.nan, dtype=float)
+  peak_labels = np.full((len(d_values), len(rs_values)), "", dtype=object)
+  rs_index = {value: idx for idx, value in enumerate(rs_values)}
+  d_index = {value: idx for idx, value in enumerate(d_values)}
+  for obs in observables:
+    x_idx = rs_index[obs.params.rs]
+    y_idx = d_index[obs.params.d]
+    peak_idx = int(np.argmax(obs.structure_vals))
+    peak_m = obs.structure_ms[peak_idx]
+    max_grid[y_idx, x_idx] = obs.structure_vals[peak_idx]
+    peak_radius_grid[y_idx, x_idx] = np.linalg.norm(peak_m)
+    peak_labels[y_idx, x_idx] = f"({peak_m[0]},{peak_m[1]})"
+
+  fig, axs = plt.subplots(
+      1, 2, figsize=(12, 4.8), squeeze=False, constrained_layout=True)
+  fig.suptitle("Bilayer boson scan: structure factor summary", fontsize=16, y=1.03)
+  panels = [
+      (axs[0, 0], max_grid, "max S(k)", "viridis",
+       _finite_percentile_norm(max_grid), None),
+      (axs[0, 1], peak_radius_grid, "dominant reciprocal index m", "magma",
+       _finite_norm(peak_radius_grid), peak_labels),
+  ]
+  for ax, grid, title, cmap_name, norm, labels in panels:
+    cmap = plt.get_cmap(cmap_name)
+    image = ax.imshow(grid, origin="lower", aspect="auto", cmap=cmap, norm=norm)
+    ax.set_title(title)
+    ax.set_xlabel("rs")
+    ax.set_ylabel("d")
+    ax.set_xticks(range(len(rs_values)), [f"{value:g}" for value in rs_values])
+    ax.set_yticks(range(len(d_values)), [f"{value:g}" for value in d_values])
+    for y_idx in range(len(d_values)):
+      for x_idx in range(len(rs_values)):
+        value = grid[y_idx, x_idx]
+        if np.isfinite(value):
+          label = labels[y_idx, x_idx] if labels is not None else f"{value:.2g}"
+          ax.text(
+              x_idx,
+              y_idx,
+              label,
+              ha="center",
+              va="center",
+              fontsize=7,
+              color=_text_color_for_value(cmap, norm, value))
+    cbar = fig.colorbar(image, ax=ax, fraction=0.046, pad=0.04)
+    cbar_label = "|m|" if labels is not None else title
+    cbar.set_label(cbar_label, fontsize=8)
+    cbar.ax.tick_params(labelsize=8)
+  fig.savefig(output_path, dpi=220, bbox_inches="tight")
   plt.close(fig)
 
 
@@ -416,6 +547,7 @@ def main() -> None:
   top_density_output = scan_dir / f"{args.output_prefix}_density_top_grid.png"
   bottom_density_output = scan_dir / f"{args.output_prefix}_density_bottom_grid.png"
   structure_output = scan_dir / f"{args.output_prefix}_structure_factor_grid.png"
+  structure_summary_output = scan_dir / f"{args.output_prefix}_structure_summary.png"
   _plot_density_grid(
       observables,
       rs_values,
@@ -438,6 +570,11 @@ def main() -> None:
       mode="bottom",
       title="Bilayer boson scan: bottom-layer xy density")
   _plot_structure_grid(observables, rs_values, d_values, structure_output)
+  _plot_structure_summary(
+      observables,
+      rs_values,
+      d_values,
+      structure_summary_output)
 
   print(f"Loaded observables for {len(observables)} runs from {scan_dir}")
   if skipped:
@@ -448,6 +585,7 @@ def main() -> None:
   print(f"Saved top-layer density grid to {top_density_output}")
   print(f"Saved bottom-layer density grid to {bottom_density_output}")
   print(f"Saved structure factor grid to {structure_output}")
+  print(f"Saved structure factor summary to {structure_summary_output}")
 
 
 if __name__ == "__main__":

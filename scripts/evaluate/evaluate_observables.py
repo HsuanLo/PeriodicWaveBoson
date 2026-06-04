@@ -251,7 +251,7 @@ def _save_snapshot_plots(
     ax.axis("off")
   fig.suptitle(f"rs={params.rs:g}, d={params.d:g}", y=0.995)
   fig.tight_layout()
-  path = params.path / "bilayer_snapshots.png"
+  path = params.path / "fig_positions_xy_snapshots.png"
   fig.savefig(path, dpi=200)
   print(f"Saved {path}")
   plt.close(fig)
@@ -299,7 +299,7 @@ def _save_pair_correlation(
   ax.set_title(f"Pair correlation: rs={params.rs:g}, d={params.d:g}")
   ax.grid(alpha=0.25, linewidth=0.5)
   fig.tight_layout()
-  path = params.path / "bilayer_pair_correlation.png"
+  path = params.path / "fig_pair_correlation_gr.png"
   fig.savefig(path, dpi=200)
   print(f"Saved {path}")
   plt.close(fig)
@@ -309,7 +309,7 @@ def _save_density_plots(params: RunParams, positions: np.ndarray) -> None:
   fig, ax = plt.subplots(1, 1, figsize=(6, 5))
   _scatter_density(ax, params, positions, "Overall xy density", color="#2a6fbb")
   fig.tight_layout()
-  path = params.path / "bilayer_density_xy.png"
+  path = params.path / "fig_density_xy_overall.png"
   fig.savefig(path, dpi=200)
   print(f"Saved {path}")
   plt.close(fig)
@@ -322,7 +322,7 @@ def _save_density_plots(params: RunParams, positions: np.ndarray) -> None:
     _scatter_density(ax, params, positions[:, mask, :], title, color)
   fig.suptitle(f"Layer densities: rs={params.rs:g}, d={params.d:g}", y=0.995)
   fig.tight_layout()
-  path = params.path / "bilayer_density_layers.png"
+  path = params.path / "fig_density_xy_by_layer.png"
   fig.savefig(path, dpi=200)
   print(f"Saved {path}")
   plt.close(fig)
@@ -338,7 +338,7 @@ def _save_density_plots(params: RunParams, positions: np.ndarray) -> None:
   ax.set_ylabel("particle count")
   ax.set_title("Density along z")
   fig.tight_layout()
-  path = params.path / "bilayer_density_z.png"
+  path = params.path / "fig_density_z_layers.png"
   fig.savefig(path, dpi=200)
   print(f"Saved {path}")
   plt.close(fig)
@@ -378,7 +378,7 @@ def _save_structure_factor(
   ax.set_title(f"Static structure factor: rs={params.rs:g}, d={params.d:g}")
   ax.set_aspect("equal", adjustable="box")
   fig.tight_layout()
-  path = params.path / "bilayer_structure_factor.png"
+  path = params.path / "fig_structure_factor_sk.png"
   fig.savefig(path, dpi=200)
   print(f"Saved {path}")
   plt.close(fig)
@@ -386,12 +386,12 @@ def _save_structure_factor(
 
 def _outputs_exist(run_dir: Path) -> bool:
   names = [
-      "bilayer_density_xy.png",
-      "bilayer_density_layers.png",
-      "bilayer_density_z.png",
-      "bilayer_snapshots.png",
-      "bilayer_pair_correlation.png",
-      "bilayer_structure_factor.png",
+      "fig_density_xy_overall.png",
+      "fig_density_xy_by_layer.png",
+      "fig_density_z_layers.png",
+      "fig_positions_xy_snapshots.png",
+      "fig_pair_correlation_gr.png",
+      "fig_structure_factor_sk.png",
   ]
   return all((run_dir / name).exists() for name in names)
 
@@ -417,8 +417,28 @@ def _evaluate_run(
   _save_structure_factor(params, positions, kmax)
 
 
+def _select_run_dirs(run_dir: Path | None, scan_dir: Path, pattern: str) -> list[Path]:
+  if run_dir is not None:
+    selected = run_dir.resolve()
+    if not selected.is_dir():
+      raise ValueError(f"--run-dir does not exist or is not a directory: {selected}")
+    return [selected]
+
+  scan_root = scan_dir.resolve()
+  run_dirs = sorted(path for path in scan_root.glob(pattern) if path.is_dir())
+  if not run_dirs:
+    raise ValueError(f"No run directories matched {scan_root / pattern}")
+  return run_dirs
+
+
 def main() -> None:
   parser = argparse.ArgumentParser(description=__doc__)
+  parser.add_argument(
+      "--run-dir",
+      type=Path,
+      default=None,
+      help="Evaluate one run directory directly; ignores --scan-dir and --pattern.",
+  )
   parser.add_argument("--scan-dir", type=Path, default=DEFAULT_SCAN_DIR)
   parser.add_argument("--pattern", default=DEFAULT_PATTERN)
   parser.add_argument("--load-n-ckpts", type=int, default=1)
@@ -438,11 +458,8 @@ def main() -> None:
   )
   args = parser.parse_args()
 
-  scan_dir = args.scan_dir.resolve()
   max_configs = None if args.max_configs == 0 else args.max_configs
-  run_dirs = sorted(path for path in scan_dir.glob(args.pattern) if path.is_dir())
-  if not run_dirs:
-    raise ValueError(f"No run directories matched {scan_dir / args.pattern}")
+  run_dirs = _select_run_dirs(args.run_dir, args.scan_dir, args.pattern)
 
   failures = []
   for idx, run_dir in enumerate(run_dirs, start=1):

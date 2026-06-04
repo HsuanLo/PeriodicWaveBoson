@@ -163,10 +163,10 @@ scripts/evaluate/evaluate_observables.py
 This loads bilayer boson checkpoints and saves:
 
 ```text
-bilayer_density_xy.png
-bilayer_density_layers.png
-bilayer_density_z.png
-bilayer_structure_factor.png
+fig_density_xy_overall.png
+fig_density_xy_by_layer.png
+fig_density_z_layers.png
+fig_structure_factor_sk.png
 ```
 
 The structure factor is computed as:
@@ -259,10 +259,10 @@ python3 scripts/evaluate/evaluate_observables.py \
 It writes images into the same result folder:
 
 ```text
-results/bilayer-bosons/BosonNet/N14_layers7_7_rs10.0_d1.0_D200.0_tri/bilayer_density_xy.png
-results/bilayer-bosons/BosonNet/N14_layers7_7_rs10.0_d1.0_D200.0_tri/bilayer_density_layers.png
-results/bilayer-bosons/BosonNet/N14_layers7_7_rs10.0_d1.0_D200.0_tri/bilayer_density_z.png
-results/bilayer-bosons/BosonNet/N14_layers7_7_rs10.0_d1.0_D200.0_tri/bilayer_structure_factor.png
+results/bilayer-bosons/BosonNet/N14_layers7_7_rs10.0_d1.0_D200.0_tri/fig_density_xy_overall.png
+results/bilayer-bosons/BosonNet/N14_layers7_7_rs10.0_d1.0_D200.0_tri/fig_density_xy_by_layer.png
+results/bilayer-bosons/BosonNet/N14_layers7_7_rs10.0_d1.0_D200.0_tri/fig_density_z_layers.png
+results/bilayer-bosons/BosonNet/N14_layers7_7_rs10.0_d1.0_D200.0_tri/fig_structure_factor_sk.png
 ```
 
 If you change parameters in `bilayer_bosons.py`, pass the matching parent
