@@ -32,10 +32,11 @@ DEFAULT_SCAN_DIR = (
     / "BosonNet"
     / "scan_260603"
 )
-DEFAULT_PATTERN = "N24_layers12_12_rs*_d*_D20.0_sq"
+DEFAULT_PATTERN = "N24_layers12_12_rs*_d*_D20.0*_sq"
 RUN_RE = re.compile(
     r"N(?P<num_bosons>\d+)_layers(?P<layer_a>\d+)_(?P<layer_b>\d+)"
-    r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)_"
+    r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)"
+    r"(?:_seed(?P<seed>\d+))?_"
     r"(?P<cell>[^/]+)$"
 )
 
@@ -105,6 +106,41 @@ def _add_rolling_average(ax, x, y, label, rolling_window, color=None):
         label=f"{label}, rolling mean")
 
 
+def _format_float(value: float) -> str:
+  return f"{value:.6g}"
+
+
+def _add_text_box(ax, text: str) -> None:
+  ax.text(
+      0.03,
+      0.97,
+      text,
+      transform=ax.transAxes,
+      ha="left",
+      va="top",
+      fontsize=8,
+      bbox={
+          "boxstyle": "round,pad=0.25",
+          "facecolor": "white",
+          "edgecolor": "0.75",
+          "alpha": 0.85,
+      })
+
+
+def _final_energy_summary(params: RunParams, plot_data: pd.DataFrame) -> str:
+  lines = [
+      f"final E/N = {_format_float(plot_data['energy'].iloc[-1] / params.num_bosons)}"
+  ]
+  if "locstd" in plot_data:
+    final_std = plot_data["locstd"].iloc[-1] / params.num_bosons
+    lines.append(f"final std/N = {_format_float(final_std)}")
+    lines.append(f"final var(E/N) = {_format_float(final_std ** 2)}")
+  elif "ewvar" in plot_data:
+    final_var = plot_data["ewvar"].iloc[-1] / (params.num_bosons ** 2)
+    lines.append(f"final EW var(E/N) = {_format_float(final_var)}")
+  return "\n".join(lines)
+
+
 def _plot_energy(params: RunParams, plot_data: pd.DataFrame) -> None:
   fig, ax = plt.subplots(1, 1, figsize=(7, 5))
   ax.plot(
@@ -125,6 +161,7 @@ def _plot_energy(params: RunParams, plot_data: pd.DataFrame) -> None:
   ax.set_xlabel("step")
   ax.set_ylabel("energy per boson")
   ax.set_title(f"rs={params.rs:g}, d={params.d:g}, D={params.dipole_strength:g}")
+  _add_text_box(ax, _final_energy_summary(params, plot_data))
   ax.legend()
   fig.tight_layout()
   output_path = params.path / "fig_training_energy_trace.png"
@@ -160,6 +197,9 @@ def _plot_training_diagnostics(
   axs[0].set_ylabel("energy / N")
   if (energy_per_particle > 0).all():
     axs[0].set_yscale("log")
+  _add_text_box(
+      axs[0],
+      f"final E/N = {_format_float(energy_per_particle.iloc[-1])}")
   axs[0].legend(fontsize=8)
 
   if "locstd" in plot_data:
@@ -174,6 +214,9 @@ def _plot_training_diagnostics(
     axs[1].set_ylabel("std(E_L) / N")
     if (locstd_per_particle > 0).all():
       axs[1].set_yscale("log")
+    _add_text_box(
+        axs[1],
+        f"final std/N = {_format_float(locstd_per_particle.iloc[-1])}")
     axs[1].legend(fontsize=8)
   else:
     axs[1].text(0.5, 0.5, "locstd unavailable", ha="center", va="center")
@@ -190,6 +233,9 @@ def _plot_training_diagnostics(
     axs[2].set_ylabel("var(E_L / N)")
     if (variance_per_particle > 0).all():
       axs[2].set_yscale("log")
+    _add_text_box(
+        axs[2],
+        f"final var(E/N) = {_format_float(variance_per_particle.iloc[-1])}")
     axs[2].legend(fontsize=8)
   elif "ewvar" in plot_data:
     ewvar_per_particle = plot_data["ewvar"] / (params.num_bosons ** 2)
@@ -203,6 +249,9 @@ def _plot_training_diagnostics(
     axs[2].set_ylabel("EW var(E_L / N)")
     if (ewvar_per_particle > 0).all():
       axs[2].set_yscale("log")
+    _add_text_box(
+        axs[2],
+        f"final EW var(E/N) = {_format_float(ewvar_per_particle.iloc[-1])}")
     axs[2].legend(fontsize=8)
   else:
     axs[2].text(0.5, 0.5, "variance unavailable", ha="center", va="center")

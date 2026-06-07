@@ -66,10 +66,11 @@ DEFAULT_SCAN_DIR = (
     / "BosonNet"
     / "scan_260603"
 )
-DEFAULT_PATTERN = "N24_layers12_12_rs*_d*_D20.0_sq"
+DEFAULT_PATTERN = "N24_layers12_12_rs*_d*_D20.0*_sq"
 RUN_RE = re.compile(
     r"N(?P<num_bosons>\d+)_layers(?P<layer_a>\d+)_(?P<layer_b>\d+)"
-    r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)_"
+    r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)"
+    r"(?:_seed(?P<seed>\d+))?_"
     r"(?P<cell>[^/]+)$"
 )
 
@@ -597,6 +598,23 @@ def _plot_rho1(output_path: Path, radii, top, top_err, bottom, bottom_err, param
   plt.close(fig)
 
 
+def _add_text_box(ax, text: str) -> None:
+  ax.text(
+      0.03,
+      0.97,
+      text,
+      transform=ax.transAxes,
+      ha="left",
+      va="top",
+      fontsize=8,
+      bbox={
+          "boxstyle": "round,pad=0.25",
+          "facecolor": "white",
+          "edgecolor": "0.75",
+          "alpha": 0.85,
+      })
+
+
 def _plot_momentum_summary(
     output_path: Path,
     basis: MomentumBasis,
@@ -606,10 +624,13 @@ def _plot_momentum_summary(
 ) -> None:
   k_norms = np.linalg.norm(basis.k_vectors, axis=1)
   fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
+  max_fraction_lines = []
 
   for layer, estimate in layer_estimates.items():
     order = np.argsort(k_norms)
     trace_fraction = float(np.sum(estimate.occupations) / layer_sizes[layer])
+    max_fraction = float(np.max(estimate.eigenvalues) / layer_sizes[layer])
+    max_fraction_lines.append(f"{layer} max occ/N = {max_fraction:.4g}")
     label = f"{layer} (trace/N={trace_fraction:.3f})"
     axes[0].plot(
         k_norms[order],
@@ -637,6 +658,7 @@ def _plot_momentum_summary(
   axes[1].set_ylabel("occupation / N_layer")
   axes[1].set_title("1RDM eigenvalue fractions")
   axes[1].grid(alpha=0.25, linewidth=0.5)
+  _add_text_box(axes[1], "\n".join(max_fraction_lines))
   axes[1].legend()
   fig.suptitle(
       f"Momentum 1RDM: rs={params.rs:g}, d={params.d:g}, "

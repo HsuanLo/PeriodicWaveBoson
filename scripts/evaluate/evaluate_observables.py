@@ -41,10 +41,11 @@ DEFAULT_SCAN_DIR = (
     / "BosonNet"
     / "scan_260603"
 )
-DEFAULT_PATTERN = "N24_layers12_12_rs*_d*_D20.0_sq"
+DEFAULT_PATTERN = "N24_layers12_12_rs*_d*_D20.0*_sq"
 RUN_RE = re.compile(
     r"N(?P<num_bosons>\d+)_layers(?P<layer_a>\d+)_(?P<layer_b>\d+)"
-    r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)_"
+    r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)"
+    r"(?:_seed(?P<seed>\d+))?_"
     r"(?P<cell>[^/]+)$"
 )
 
@@ -348,7 +349,10 @@ def _compute_structure_factor(
     params: RunParams,
     positions: np.ndarray,
     kmax: int,
+    normalization: int | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
+  if normalization is None:
+    normalization = positions.shape[1]
   ms = []
   vals = []
   for m1 in range(-kmax, kmax + 1):
@@ -358,7 +362,7 @@ def _compute_structure_factor(
       kvec = params.rec @ np.array([m1, m2])
       phases = np.exp(1j * np.einsum("cnd,d->cn", positions, kvec))
       rho_k = np.sum(phases, axis=1)
-      sk = np.mean(np.abs(rho_k) ** 2) / params.num_bosons
+      sk = np.mean(np.abs(rho_k) ** 2) / normalization
       ms.append((m1, m2))
       vals.append(sk)
   return np.asarray(ms), np.asarray(vals)
@@ -384,6 +388,49 @@ def _save_structure_factor(
   plt.close(fig)
 
 
+def _save_layer_structure_factors(
+    params: RunParams,
+    positions: np.ndarray,
+    kmax: int,
+) -> None:
+  layers = [
+      ("top", params.layer_assignment == 1.0),
+      ("bottom", params.layer_assignment == -1.0),
+  ]
+  layer_results = []
+  for label, mask in layers:
+    layer_positions = positions[:, mask, :]
+    ms, vals = _compute_structure_factor(
+        params,
+        layer_positions,
+        kmax,
+        normalization=layer_positions.shape[1])
+    layer_results.append((label, ms, vals))
+
+  vmax = max(float(np.max(vals)) for _, _, vals in layer_results)
+  fig, axs = plt.subplots(1, 2, figsize=(11, 5), constrained_layout=True)
+  for ax, (label, ms, vals) in zip(axs, layer_results):
+    scatter = ax.scatter(
+        ms[:, 0],
+        ms[:, 1],
+        c=vals,
+        s=80,
+        cmap="viridis",
+        vmin=0.0,
+        vmax=vmax)
+    ax.set_xlabel("m1")
+    ax.set_ylabel("m2")
+    ax.set_title(f"{label} layer S(k)")
+    ax.set_aspect("equal", adjustable="box")
+  fig.colorbar(scatter, ax=axs, shrink=0.88, label="S_layer(k)")
+  fig.suptitle(
+      f"Layer static structure factors: rs={params.rs:g}, d={params.d:g}")
+  path = params.path / "fig_structure_factor_sk_by_layer.png"
+  fig.savefig(path, dpi=200)
+  print(f"Saved {path}")
+  plt.close(fig)
+
+
 def _outputs_exist(run_dir: Path) -> bool:
   names = [
       "fig_density_xy_overall.png",
@@ -392,6 +439,7 @@ def _outputs_exist(run_dir: Path) -> bool:
       "fig_positions_xy_snapshots.png",
       "fig_pair_correlation_gr.png",
       "fig_structure_factor_sk.png",
+      "fig_structure_factor_sk_by_layer.png",
   ]
   return all((run_dir / name).exists() for name in names)
 
@@ -415,6 +463,7 @@ def _evaluate_run(
   _save_snapshot_plots(params, positions, snapshot_count)
   _save_pair_correlation(params, positions, pair_correlation_bins)
   _save_structure_factor(params, positions, kmax)
+  _save_layer_structure_factors(params, positions, kmax)
 
 
 def _select_run_dirs(run_dir: Path | None, scan_dir: Path, pattern: str) -> list[Path]:

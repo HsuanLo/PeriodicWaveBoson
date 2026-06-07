@@ -34,10 +34,11 @@ DEFAULT_SCAN_DIR = (
     / "results"
     / "scan_260603"
 )
-DEFAULT_PATTERN = "N24_layers12_12_rs*_d*_D20.0_sq"
+DEFAULT_PATTERN = "N24_layers12_12_rs*_d*_D20.0*_sq"
 RUN_RE = re.compile(
     r"N(?P<num_bosons>\d+)_layers(?P<layer_a>\d+)_(?P<layer_b>\d+)"
-    r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)_"
+    r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)"
+    r"(?:_seed(?P<seed>\d+))?_"
     r"(?P<cell>[^/]+)$"
 )
 

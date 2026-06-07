@@ -37,6 +37,10 @@ def _as_config_float_string(value: str) -> str:
   return str(float(value))
 
 
+def _as_config_int(value: str) -> int:
+  return int(float(value))
+
+
 def _read_manifest(path: Path) -> list[dict[str, str]]:
   with path.open(newline="", encoding="utf-8") as f:
     rows = list(csv.DictReader(f))
@@ -48,13 +52,13 @@ def _read_manifest(path: Path) -> list[dict[str, str]]:
   return rows
 
 
-def _result_glob(rs: str, d: str) -> str:
+def _result_glob(rs: str, d: str, seed: int) -> str:
   return str(
       REPO_ROOT
       / "results"
       / "bilayer-bosons"
       / "BosonNet"
-      / f"*_rs{rs}_d{d}_D*")
+      / f"*_rs{rs}_d{d}_D*_seed{seed}_*")
 
 
 def _max_recorded_step(result_dir: Path) -> int | None:
@@ -71,8 +75,8 @@ def _max_recorded_step(result_dir: Path) -> int | None:
   return max_step
 
 
-def _already_complete(rs: str, d: str, min_step: int) -> bool:
-  for result_name in glob.glob(_result_glob(rs, d)):
+def _already_complete(rs: str, d: str, seed: int, min_step: int) -> bool:
+  for result_name in glob.glob(_result_glob(rs, d, seed)):
     result_dir = Path(result_name)
     if not (result_dir / "config.json").exists():
       continue
@@ -82,10 +86,11 @@ def _already_complete(rs: str, d: str, min_step: int) -> bool:
   return False
 
 
-def _run_point(run_script: Path, rs: str, d: str) -> None:
+def _run_point(run_script: Path, rs: str, d: str, seed: int) -> None:
   env = os.environ.copy()
   env["SCAN_RS"] = rs
   env["SCAN_D"] = d
+  env["SCAN_SEED"] = str(seed)
   env.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
   env.setdefault("XDG_CACHE_HOME", "/tmp")
   old_pythonpath = env.get("PYTHONPATH")
@@ -94,7 +99,7 @@ def _run_point(run_script: Path, rs: str, d: str) -> None:
       else f"{REPO_ROOT}{os.pathsep}{old_pythonpath}")
 
   cmd = [sys.executable, str(run_script)]
-  print(f"Running rs={rs}, d={d}: {' '.join(cmd)}", flush=True)
+  print(f"Running rs={rs}, d={d}, seed={seed}: {' '.join(cmd)}", flush=True)
   subprocess.run(cmd, cwd=REPO_ROOT, env=env, check=True)
 
 
@@ -109,6 +114,9 @@ def main() -> None:
   parser.add_argument("--min-completed-step", type=int,
                       default=_default_int_from_env(
                           "SCAN_MIN_COMPLETED_STEP", 0))
+  parser.add_argument("--seed", type=int,
+                      default=_default_int_from_env("SCAN_SEED", 42),
+                      help="Deterministic seed for this scan batch.")
   parser.add_argument("--force", action="store_true",
                       help="Run points even if matching results already exist.")
   parser.add_argument("--dry-run", action="store_true",
@@ -130,13 +138,15 @@ def main() -> None:
   for row in assigned_rows:
     rs = _as_config_float_string(row["rs"])
     d = _as_config_float_string(row["d"])
+    seed = _as_config_int(row["seed"]) if row.get("seed") else args.seed
     if args.dry_run:
-      print(f"Would run rs={rs}, d={d}", flush=True)
+      print(f"Would run rs={rs}, d={d}, seed={seed}", flush=True)
       continue
-    if not args.force and _already_complete(rs, d, args.min_completed_step):
-      print(f"Skipping existing rs={rs}, d={d}", flush=True)
+    if not args.force and _already_complete(
+        rs, d, seed, args.min_completed_step):
+      print(f"Skipping existing rs={rs}, d={d}, seed={seed}", flush=True)
       continue
-    _run_point(args.run_script, rs, d)
+    _run_point(args.run_script, rs, d, seed)
 
 
 if __name__ == "__main__":

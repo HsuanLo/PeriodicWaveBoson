@@ -167,6 +167,7 @@ def default() -> ml_collections.ConfigDict:
           # NaN is found.
           'check_nan': False,
           'deterministic': False,  # Use a deterministic seed.
+          'seed': 42,  # Seed used when deterministic is true.
       },
   })
 

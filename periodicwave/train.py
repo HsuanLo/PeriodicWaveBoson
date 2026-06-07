@@ -407,7 +407,7 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
   batch_charges = kfac_jax.utils.replicate_all_local_devices(batch_charges)
 
   if cfg.debug.deterministic:
-    seed = 42
+    seed = cfg.debug.seed
   else:
     seed = jnp.asarray([1e6 * time.time()])
     seed = int(multihost_utils.broadcast_one_to_all(seed)[0])

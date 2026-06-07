@@ -29,6 +29,13 @@ def _env_float(name, default):
   return float(value)
 
 
+def _env_int(name, default):
+  value = os.environ.get(name)
+  if value is None:
+    return default
+  return int(value)
+
+
 # --------------------------- Physical parameters ---------------------------
 num_bosons = 24
 layer_occupations = (12, 12)
@@ -36,6 +43,7 @@ layer_separation = _env_float("SCAN_D", 1.0)
 dipole_strength = 20.0
 supercell_shape = "sq"
 density_rs = _env_float("SCAN_RS", 0.5)
+seed = _env_int("SCAN_SEED", 42)
 
 if sum(layer_occupations) != num_bosons:
   raise ValueError("layer_occupations must sum to num_bosons.")
@@ -93,7 +101,7 @@ cfg.network.BosonNet.use_layer_norm = True
 cfg.network.BosonNet.mlp_activation_fct = "GELU"
 
 cfg.mcmc.burn_in = 2000
-cfg.mcmc.steps = 20
+cfg.mcmc.steps = 40
 cfg.mcmc.init_width = 2.0
 cfg.mcmc.move_width = 0.05
 cfg.mcmc.move_width_updater = "adaptive"
@@ -116,11 +124,13 @@ cfg.optim.adam_kfac.kfac_lr_decay = 1.0
 
 cfg.log.save_frequency = 30.0
 cfg.debug.deterministic = True
+cfg.debug.seed = seed
 
 folder_name = (
     "results/"
     f"N{num_bosons}_layers{layer_occupations[0]}_{layer_occupations[1]}"
-    f"_rs{density_rs}_d{layer_separation}_D{dipole_strength}_{supercell_shape}"
+    f"_rs{density_rs}_d{layer_separation}_D{dipole_strength}"
+    f"_seed{seed}_{supercell_shape}"
 )
 cfg.log.save_path = folder_name
 
