@@ -99,6 +99,13 @@ def default() -> ml_collections.ConfigDict:
           # Path containing checkpoint to restore network from.
           # Ignored if falsy or save_path contains a checkpoint.
           'restore_path': '',
+          # Checkpoint retention. Regular qmcjax_ckpt_*.npz files keep the most
+          # recent keep_latest_checkpoints. Best checkpoints are copied into
+          # qmcjax_best_*.npz and ranked by the checkpoint score.
+          'keep_latest_checkpoints': 5,
+          'keep_best_checkpoints': 3,
+          'best_checkpoint_min_step': 500,
+          'best_checkpoint_metric': 'ewmean',  # one of ewmean, energy, variance
       },
       'system': {
           # Specify the system by setting variables below.

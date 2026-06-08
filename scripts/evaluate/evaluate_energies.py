@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 from dataclasses import dataclass
@@ -52,6 +53,15 @@ class RunParams:
   supercell_shape: str
 
 
+@dataclass(frozen=True)
+class BestSelection:
+  step: int
+  score: float
+  metric: str
+  row: pd.Series
+  source: str
+
+
 def _parse_run_dir(run_dir: Path) -> RunParams:
   match = RUN_RE.match(run_dir.name)
   if not match:
@@ -83,6 +93,57 @@ def _load_train_stats(folder_path: Path) -> pd.DataFrame:
   if "step" in data:
     data = data.sort_values("step").reset_index(drop=True)
   return data
+
+
+def _best_checkpoint_metric(run_dir: Path) -> str:
+  config_path = run_dir / "config.json"
+  if not config_path.exists():
+    return "ewmean"
+  with config_path.open(encoding="utf-8") as f:
+    config = json.load(f)
+  return config.get("log", {}).get("best_checkpoint_metric", "ewmean")
+
+
+def _row_at_step(data: pd.DataFrame, step: int) -> pd.Series:
+  exact = data[data["step"] == step]
+  if not exact.empty:
+    return exact.iloc[0]
+  nearest = (data["step"] - step).abs().idxmin()
+  return data.loc[nearest]
+
+
+def _best_selection(params: RunParams, plot_data: pd.DataFrame) -> BestSelection:
+  metric = _best_checkpoint_metric(params.path)
+  manifest_path = params.path / "qmcjax_best_checkpoints.csv"
+  if manifest_path.exists() and manifest_path.stat().st_size > 0:
+    manifest = pd.read_csv(manifest_path)
+    if not manifest.empty and {"step", "score"}.issubset(manifest.columns):
+      best = manifest.sort_values(["score", "step"]).iloc[0]
+      step = int(best["step"])
+      return BestSelection(
+          step=step,
+          score=float(best["score"]),
+          metric=metric,
+          row=_row_at_step(plot_data, step),
+          source="checkpoint")
+
+  if metric == "ewmean" and "ewmean" in plot_data:
+    idx = plot_data["ewmean"].idxmin()
+    score = float(plot_data.loc[idx, "ewmean"])
+  elif metric == "variance" and "locstd" in plot_data:
+    idx = (plot_data["locstd"] ** 2).idxmin()
+    score = float(plot_data.loc[idx, "locstd"] ** 2)
+  else:
+    metric = "energy"
+    idx = plot_data["energy"].idxmin()
+    score = float(plot_data.loc[idx, "energy"])
+  row = plot_data.loc[idx]
+  return BestSelection(
+      step=int(row["step"]),
+      score=score,
+      metric=metric,
+      row=row,
+      source="train_stats")
 
 
 def _add_rolling_average(ax, x, y, label, rolling_window, color=None):
@@ -127,22 +188,39 @@ def _add_text_box(ax, text: str) -> None:
       })
 
 
-def _final_energy_summary(params: RunParams, plot_data: pd.DataFrame) -> str:
+def _score_per_particle(selection: BestSelection, params: RunParams) -> float:
+  if selection.metric in ("ewmean", "energy"):
+    return selection.score / params.num_bosons
+  if selection.metric == "variance":
+    return selection.score / (params.num_bosons ** 2)
+  return selection.score
+
+
+def _selection_summary(
+    params: RunParams,
+    selection: BestSelection,
+    include_variance: bool = True,
+) -> str:
   lines = [
-      f"final E/N = {_format_float(plot_data['energy'].iloc[-1] / params.num_bosons)}"
+      f"best step = {selection.step} ({selection.metric})",
+      f"best score/N = {_format_float(_score_per_particle(selection, params))}",
+      f"E/N at best = "
+      f"{_format_float(selection.row['energy'] / params.num_bosons)}",
   ]
-  if "locstd" in plot_data:
-    final_std = plot_data["locstd"].iloc[-1] / params.num_bosons
-    lines.append(f"final std/N = {_format_float(final_std)}")
-    lines.append(f"final var(E/N) = {_format_float(final_std ** 2)}")
-  elif "ewvar" in plot_data:
-    final_var = plot_data["ewvar"].iloc[-1] / (params.num_bosons ** 2)
-    lines.append(f"final EW var(E/N) = {_format_float(final_var)}")
+  if not include_variance:
+    return "\n".join(lines)
+  if "locstd" in selection.row:
+    variance = (selection.row["locstd"] / params.num_bosons) ** 2
+    lines.append(f"var(E/N) at best = {_format_float(variance)}")
+  elif "ewvar" in selection.row:
+    ewvar = selection.row["ewvar"] / (params.num_bosons ** 2)
+    lines.append(f"EW var(E/N) at best = {_format_float(ewvar)}")
   return "\n".join(lines)
 
 
 def _plot_energy(params: RunParams, plot_data: pd.DataFrame) -> None:
-  fig, ax = plt.subplots(1, 1, figsize=(7, 5))
+  selection = _best_selection(params, plot_data)
+  fig, ax = plt.subplots(1, 1, figsize=(11, 5.5))
   ax.plot(
       plot_data["step"],
       plot_data["energy"] / params.num_bosons,
@@ -152,16 +230,10 @@ def _plot_energy(params: RunParams, plot_data: pd.DataFrame) -> None:
       markersize=1,
       alpha=0.35,
       label="energy per boson")
-  if "ewmean" in plot_data:
-    ax.plot(
-        plot_data["step"],
-        plot_data["ewmean"] / params.num_bosons,
-        linewidth=1.6,
-        label="weighted mean per boson")
   ax.set_xlabel("step")
   ax.set_ylabel("energy per boson")
   ax.set_title(f"rs={params.rs:g}, d={params.d:g}, D={params.dipole_strength:g}")
-  _add_text_box(ax, _final_energy_summary(params, plot_data))
+  _add_text_box(ax, _selection_summary(params, selection))
   ax.legend()
   fig.tight_layout()
   output_path = params.path / "fig_training_energy_trace.png"
@@ -175,7 +247,8 @@ def _plot_training_diagnostics(
     plot_data: pd.DataFrame,
     rolling_window: int,
 ) -> None:
-  fig, axs = plt.subplots(2, 2, figsize=(11, 8), sharex=True)
+  selection = _best_selection(params, plot_data)
+  fig, axs = plt.subplots(4, 1, figsize=(9.5, 13), sharex=True)
   axs = axs.ravel()
   steps = plot_data["step"]
   energy_per_particle = plot_data["energy"] / params.num_bosons
@@ -187,74 +260,67 @@ def _plot_training_diagnostics(
       "energy / N",
       rolling_window,
       color="#2a6fbb")
-  if "ewmean" in plot_data:
-    axs[0].plot(
-        steps,
-        plot_data["ewmean"] / params.num_bosons,
-        linewidth=1.5,
-        color="#111111",
-        label="EW mean / N")
   axs[0].set_ylabel("energy / N")
   if (energy_per_particle > 0).all():
     axs[0].set_yscale("log")
-  _add_text_box(
-      axs[0],
-      f"final E/N = {_format_float(energy_per_particle.iloc[-1])}")
+  _add_text_box(axs[0], _selection_summary(
+      params, selection, include_variance=False))
   axs[0].legend(fontsize=8)
-
-  if "locstd" in plot_data:
-    locstd_per_particle = plot_data["locstd"] / params.num_bosons
-    _add_rolling_average(
-        axs[1],
-        steps,
-        locstd_per_particle,
-        "std(E_L) / N",
-        rolling_window,
-        color="#c7364f")
-    axs[1].set_ylabel("std(E_L) / N")
-    if (locstd_per_particle > 0).all():
-      axs[1].set_yscale("log")
-    _add_text_box(
-        axs[1],
-        f"final std/N = {_format_float(locstd_per_particle.iloc[-1])}")
-    axs[1].legend(fontsize=8)
-  else:
-    axs[1].text(0.5, 0.5, "locstd unavailable", ha="center", va="center")
 
   if "locstd" in plot_data:
     variance_per_particle = (plot_data["locstd"] / params.num_bosons) ** 2
     _add_rolling_average(
-        axs[2],
+        axs[1],
         steps,
         variance_per_particle,
         "var(E_L / N)",
         rolling_window,
         color="#2f7d57")
-    axs[2].set_ylabel("var(E_L / N)")
+    axs[1].set_ylabel("var(E_L / N)")
     if (variance_per_particle > 0).all():
-      axs[2].set_yscale("log")
+      axs[1].set_yscale("log")
+    variance_at_best = (selection.row["locstd"] / params.num_bosons) ** 2
     _add_text_box(
-        axs[2],
-        f"final var(E/N) = {_format_float(variance_per_particle.iloc[-1])}")
-    axs[2].legend(fontsize=8)
+        axs[1],
+        f"var(E/N) at best = {_format_float(variance_at_best)}")
+    axs[1].legend(fontsize=8)
   elif "ewvar" in plot_data:
     ewvar_per_particle = plot_data["ewvar"] / (params.num_bosons ** 2)
     _add_rolling_average(
-        axs[2],
+        axs[1],
         steps,
         ewvar_per_particle,
         "EW var(E_L / N)",
         rolling_window,
         color="#2f7d57")
-    axs[2].set_ylabel("EW var(E_L / N)")
+    axs[1].set_ylabel("EW var(E_L / N)")
     if (ewvar_per_particle > 0).all():
+      axs[1].set_yscale("log")
+    ewvar_at_best = selection.row["ewvar"] / (params.num_bosons ** 2)
+    _add_text_box(
+        axs[1],
+        f"EW var(E/N) at best = {_format_float(ewvar_at_best)}")
+    axs[1].legend(fontsize=8)
+  else:
+    axs[1].text(0.5, 0.5, "variance unavailable", ha="center", va="center")
+
+  if "mcmc_width" in plot_data:
+    _add_rolling_average(
+        axs[2],
+        steps,
+        plot_data["mcmc_width"],
+        "MCMC move width",
+        rolling_window,
+        color="#c7364f")
+    axs[2].set_ylabel("MCMC move width")
+    if (plot_data["mcmc_width"] > 0).all():
       axs[2].set_yscale("log")
     _add_text_box(
         axs[2],
-        f"final EW var(E/N) = {_format_float(ewvar_per_particle.iloc[-1])}")
+        f"final width = {_format_float(plot_data['mcmc_width'].iloc[-1])}")
     axs[2].legend(fontsize=8)
   else:
-    axs[2].text(0.5, 0.5, "variance unavailable", ha="center", va="center")
+    axs[2].text(0.5, 0.5, "mcmc_width unavailable", ha="center", va="center")
 
   if "pmove" in plot_data:
     _add_rolling_average(
@@ -271,14 +337,14 @@ def _plot_training_diagnostics(
     axs[3].text(0.5, 0.5, "pmove unavailable", ha="center", va="center")
 
   for ax in axs:
-    ax.set_xlabel("step")
     ax.grid(alpha=0.25, linewidth=0.5)
+  axs[-1].set_xlabel("step")
 
   fig.suptitle(
       f"Training diagnostics: rs={params.rs:g}, d={params.d:g}, "
       f"D={params.dipole_strength:g}",
       y=0.995)
-  fig.tight_layout()
+  fig.tight_layout(rect=(0.0, 0.0, 1.0, 0.985))
   output_path = params.path / "fig_training_diagnostics_overview.png"
   fig.savefig(output_path, dpi=200)
   print(f"Saved {output_path}")

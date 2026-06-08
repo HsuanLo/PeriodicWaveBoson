@@ -1,0 +1,1389 @@
+2026-06-08 02:36:17,389 - JAX version: 0.10.1
+2026-06-08 02:36:17,391 - jax_enable_x64: False
+2026-06-08 02:36:17,391 - JAXlib version: 0.10.1
+2026-06-08 02:36:17,391 - KFAC-JAX version: 0.0.8
+2026-06-08 02:36:17,392 - Available devices: ['cuda:0', 'cuda:1']
+2026-06-08 02:36:17,392 - Platform: gpu
+2026-06-08 02:36:17,392 - Default precision: float32
+2026-06-08 02:36:17,392 - Default matmul precision: float32
+2026-06-08 02:36:17,392 - GPU information: ['Tesla V100-PCIE-32GB', 'Tesla V100-PCIE-32GB']
+2026-06-08 02:36:17,392 - Python version: 3.13.13
+2026-06-08 02:36:17,392 - System: Linux #20260508 SMP PREEMPT_DYNAMIC Fri May  8 11:20:56 EDT 2026
+2026-06-08 02:36:17,392 - Processor: x86_64
+2026-06-08 02:36:17,392 - Numpy version: 2.4.6
+2026-06-08 02:36:17,392 - CUDA_VISIBLE_DEVICES: GPU-1d380397-8dde-1b08-31f5-f4180985810d,GPU-b399bad2-a233-929e-94f4-7fc022ec4b63
+2026-06-08 02:36:17,392 - NVIDIA driver version: 580.126.09
+580.126.09
+2026-06-08 02:36:17,392 - GPU models: Tesla V100-PCIE-32GB, Tesla V100-PCIE-32GB
+2026-06-08 02:36:17,412 - Starting QMC with 2 XLA devices per host across 1 hosts.
+2026-06-08 02:36:20,708 - Loading checkpoint /home/gridsan/hlo1/project/PeriodicWaveBoson/results/anneal_rs_seed12/N24_layers12_12_rs0.9_d4.0_D20.0_seed12_sq/qmcjax_ckpt_004999.npz
+2026-06-08 02:36:20,753 - Resetting iteration counter after checkpoint restore.
+2026-06-08 02:36:20,753 - Resetting optimizer state after checkpoint restore.
+2026-06-08 02:36:22,242 - Unregularized parameters masking info (for curvature calculations and L2 regularization)
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='embed'), DictKey(key='b'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='embed'), DictKey(key='w'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=0), SequenceKey(idx=0), DictKey(key='b'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=0), SequenceKey(idx=0), DictKey(key='w'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=0), SequenceKey(idx=1), DictKey(key='b'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=0), SequenceKey(idx=1), DictKey(key='w'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=1), SequenceKey(idx=0), DictKey(key='b'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=1), SequenceKey(idx=0), DictKey(key='w'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=1), SequenceKey(idx=1), DictKey(key='b'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=1), SequenceKey(idx=1), DictKey(key='w'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=2), SequenceKey(idx=0), DictKey(key='b'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=2), SequenceKey(idx=0), DictKey(key='w'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=2), SequenceKey(idx=1), DictKey(key='b'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=2), SequenceKey(idx=1), DictKey(key='w'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='rho'), SequenceKey(idx=0), DictKey(key='b'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='rho'), SequenceKey(idx=0), DictKey(key='w'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='rho'), SequenceKey(idx=1), DictKey(key='b'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='rho'), SequenceKey(idx=1), DictKey(key='w'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='attn_ln'), DictKey(key='offset'))
+2026-06-08 02:36:22,243 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='attn_ln'), DictKey(key='scale'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff1'), DictKey(key='b'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff1'), DictKey(key='w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff2'), DictKey(key='b'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff2'), DictKey(key='w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff_ln'), DictKey(key='offset'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff_ln'), DictKey(key='scale'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='k_w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='out_w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='q_w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='v_w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='attn_ln'), DictKey(key='offset'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='attn_ln'), DictKey(key='scale'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff1'), DictKey(key='b'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff1'), DictKey(key='w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff2'), DictKey(key='b'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff2'), DictKey(key='w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff_ln'), DictKey(key='offset'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff_ln'), DictKey(key='scale'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='k_w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='out_w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='q_w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='v_w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='attn_ln'), DictKey(key='offset'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='attn_ln'), DictKey(key='scale'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff1'), DictKey(key='b'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff1'), DictKey(key='w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff2'), DictKey(key='b'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff2'), DictKey(key='w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff_ln'), DictKey(key='offset'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff_ln'), DictKey(key='scale'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='k_w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='out_w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='q_w'))
+2026-06-08 02:36:22,244 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='v_w'))
+2026-06-08 02:36:24,244 - ==================================================
+2026-06-08 02:36:24,244 - Graph parameter registrations:
+2026-06-08 02:36:24,245 - {'embed': {'b': 'Auto[tag_variant=repeated_dense(0)|match_type=repeated_dense1_with_bias]',
+2026-06-08 02:36:24,245 -            'w': 'Auto[tag_variant=repeated_dense(0)|match_type=repeated_dense1_with_bias]'},
+2026-06-08 02:36:24,245 -  'ln': [],
+2026-06-08 02:36:24,245 -  'phi': [[{'b': 'Auto[generic(0)]', 'w': 'Auto[generic(1)]'},
+2026-06-08 02:36:24,245 -           {'b': 'Auto[generic(2)]', 'w': 'Auto[generic(3)]'}],
+2026-06-08 02:36:24,245 -          [{'b': 'Auto[generic(4)]', 'w': 'Auto[generic(5)]'},
+2026-06-08 02:36:24,245 -           {'b': 'Auto[generic(6)]', 'w': 'Auto[generic(7)]'}],
+2026-06-08 02:36:24,245 -          [{'b': 'Auto[generic(8)]', 'w': 'Auto[generic(9)]'},
+2026-06-08 02:36:24,245 -           {'b': 'Auto[generic(10)]', 'w': 'Auto[generic(11)]'}]],
+2026-06-08 02:36:24,245 -  'rho': [{'b': 'Auto[tag_variant=dense(0)|match_type=dense_with_bias_no_reshape]',
+2026-06-08 02:36:24,245 -           'w': 'Auto[tag_variant=dense(0)|match_type=dense_with_bias_no_reshape]'},
+2026-06-08 02:36:24,245 -          {'b': 'Auto[tag_variant=dense(1)|match_type=dense_with_bias_no_reshape]',
+2026-06-08 02:36:24,245 -           'w': 'Auto[tag_variant=dense(1)|match_type=dense_with_bias_no_reshape]'}],
+2026-06-08 02:36:24,245 -  'transformer': [{'attn_ln': {'offset': 'Auto[tag_variant=scale_and_shift(0)|match_type=normalization_haiku_broadcast_1]',
+2026-06-08 02:36:24,245 -                               'scale': 'Auto[tag_variant=scale_and_shift(0)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-08 02:36:24,245 -                   'ff1': {'b': 'Auto[tag_variant=repeated_dense(5)|match_type=repeated_dense1_with_bias]',
+2026-06-08 02:36:24,245 -                           'w': 'Auto[tag_variant=repeated_dense(5)|match_type=repeated_dense1_with_bias]'},
+2026-06-08 02:36:24,245 -                   'ff2': {'b': 'Auto[tag_variant=repeated_dense(6)|match_type=repeated_dense1_with_bias]',
+2026-06-08 02:36:24,245 -                           'w': 'Auto[tag_variant=repeated_dense(6)|match_type=repeated_dense1_with_bias]'},
+2026-06-08 02:36:24,246 -                   'ff_ln': {'offset': 'Auto[tag_variant=scale_and_shift(1)|match_type=normalization_haiku_broadcast_1]',
+2026-06-08 02:36:24,246 -                             'scale': 'Auto[tag_variant=scale_and_shift(1)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-08 02:36:24,246 -                   'k_w': 'Auto[tag_variant=repeated_dense(2)|match_type=repeated_dense1_no_bias]',
+2026-06-08 02:36:24,246 -                   'out_w': 'Auto[tag_variant=repeated_dense(4)|match_type=repeated_dense1_no_bias]',
+2026-06-08 02:36:24,246 -                   'q_w': 'Auto[tag_variant=repeated_dense(1)|match_type=repeated_dense1_no_bias]',
+2026-06-08 02:36:24,246 -                   'v_w': 'Auto[tag_variant=repeated_dense(3)|match_type=repeated_dense1_no_bias]'},
+2026-06-08 02:36:24,246 -                  {'attn_ln': {'offset': 'Auto[tag_variant=scale_and_shift(2)|match_type=normalization_haiku_broadcast_1]',
+2026-06-08 02:36:24,246 -                               'scale': 'Auto[tag_variant=scale_and_shift(2)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-08 02:36:24,246 -                   'ff1': {'b': 'Auto[tag_variant=repeated_dense(11)|match_type=repeated_dense1_with_bias]',
+2026-06-08 02:36:24,246 -                           'w': 'Auto[tag_variant=repeated_dense(11)|match_type=repeated_dense1_with_bias]'},
+2026-06-08 02:36:24,246 -                   'ff2': {'b': 'Auto[tag_variant=repeated_dense(12)|match_type=repeated_dense1_with_bias]',
+2026-06-08 02:36:24,246 -                           'w': 'Auto[tag_variant=repeated_dense(12)|match_type=repeated_dense1_with_bias]'},
+2026-06-08 02:36:24,246 -                   'ff_ln': {'offset': 'Auto[tag_variant=scale_and_shift(3)|match_type=normalization_haiku_broadcast_1]',
+2026-06-08 02:36:24,246 -                             'scale': 'Auto[tag_variant=scale_and_shift(3)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-08 02:36:24,246 -                   'k_w': 'Auto[tag_variant=repeated_dense(8)|match_type=repeated_dense1_no_bias]',
+2026-06-08 02:36:24,246 -                   'out_w': 'Auto[tag_variant=repeated_dense(10)|match_type=repeated_dense1_no_bias]',
+2026-06-08 02:36:24,246 -                   'q_w': 'Auto[tag_variant=repeated_dense(7)|match_type=repeated_dense1_no_bias]',
+2026-06-08 02:36:24,246 -                   'v_w': 'Auto[tag_variant=repeated_dense(9)|match_type=repeated_dense1_no_bias]'},
+2026-06-08 02:36:24,246 -                  {'attn_ln': {'offset': 'Auto[tag_variant=scale_and_shift(4)|match_type=normalization_haiku_broadcast_1]',
+2026-06-08 02:36:24,246 -                               'scale': 'Auto[tag_variant=scale_and_shift(4)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-08 02:36:24,246 -                   'ff1': {'b': 'Auto[tag_variant=repeated_dense(17)|match_type=repeated_dense1_with_bias]',
+2026-06-08 02:36:24,246 -                           'w': 'Auto[tag_variant=repeated_dense(17)|match_type=repeated_dense1_with_bias]'},
+2026-06-08 02:36:24,246 -                   'ff2': {'b': 'Auto[tag_variant=repeated_dense(18)|match_type=repeated_dense1_with_bias]',
+2026-06-08 02:36:24,246 -                           'w': 'Auto[tag_variant=repeated_dense(18)|match_type=repeated_dense1_with_bias]'},
+2026-06-08 02:36:24,246 -                   'ff_ln': {'offset': 'Auto[tag_variant=scale_and_shift(5)|match_type=normalization_haiku_broadcast_1]',
+2026-06-08 02:36:24,246 -                             'scale': 'Auto[tag_variant=scale_and_shift(5)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-08 02:36:24,246 -                   'k_w': 'Auto[tag_variant=repeated_dense(14)|match_type=repeated_dense1_no_bias]',
+2026-06-08 02:36:24,246 -                   'out_w': 'Auto[tag_variant=repeated_dense(16)|match_type=repeated_dense1_no_bias]',
+2026-06-08 02:36:24,246 -                   'q_w': 'Auto[tag_variant=repeated_dense(13)|match_type=repeated_dense1_no_bias]',
+2026-06-08 02:36:24,246 -                   'v_w': 'Auto[tag_variant=repeated_dense(15)|match_type=repeated_dense1_no_bias]'}]}
+2026-06-08 02:36:24,246 - ==================================================
+2026-06-08 02:36:24,260 - Graph registered losses:
+2026-06-08 02:36:24,260 - NormalMeanNegativeLogProbLoss(mean=Var(id=139651066324800):float32[1024,1], variance=Literal(0.5), weight=Literal(1.0), normalize_log_prob=Literal(True))
+2026-06-08 02:36:24,260 - ==================================================
+2026-06-08 02:36:24,262 - BlockDiagonalCurvature blocks:
+2026-06-08 02:36:24,262 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(0)|match_type=repeated_dense1_with_bias], params shapes: ((5, 64), (64,))
+2026-06-08 02:36:24,262 - NaiveDiagonal, tag name: Auto[generic(0)], params shapes: ((64,),)
+2026-06-08 02:36:24,262 - NaiveDiagonal, tag name: Auto[generic(1)], params shapes: ((64, 64),)
+2026-06-08 02:36:24,262 - NaiveDiagonal, tag name: Auto[generic(2)], params shapes: ((64,),)
+2026-06-08 02:36:24,263 - NaiveDiagonal, tag name: Auto[generic(3)], params shapes: ((64, 64),)
+2026-06-08 02:36:24,263 - NaiveDiagonal, tag name: Auto[generic(4)], params shapes: ((64,),)
+2026-06-08 02:36:24,263 - NaiveDiagonal, tag name: Auto[generic(5)], params shapes: ((64, 64),)
+2026-06-08 02:36:24,263 - NaiveDiagonal, tag name: Auto[generic(6)], params shapes: ((64,),)
+2026-06-08 02:36:24,263 - NaiveDiagonal, tag name: Auto[generic(7)], params shapes: ((64, 64),)
+2026-06-08 02:36:24,263 - NaiveDiagonal, tag name: Auto[generic(8)], params shapes: ((64,),)
+2026-06-08 02:36:24,263 - NaiveDiagonal, tag name: Auto[generic(9)], params shapes: ((64, 64),)
+2026-06-08 02:36:24,263 - NaiveDiagonal, tag name: Auto[generic(10)], params shapes: ((64,),)
+2026-06-08 02:36:24,263 - NaiveDiagonal, tag name: Auto[generic(11)], params shapes: ((64, 64),)
+2026-06-08 02:36:24,263 - DenseTwoKroneckerFactored(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=dense(0)|match_type=dense_with_bias_no_reshape], params shapes: ((64, 64), (64,))
+2026-06-08 02:36:24,263 - DenseTwoKroneckerFactored(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=dense(1)|match_type=dense_with_bias_no_reshape], params shapes: ((64, 1), (1,))
+2026-06-08 02:36:24,263 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(0)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-06-08 02:36:24,263 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(5)|match_type=repeated_dense1_with_bias], params shapes: ((64, 256), (256,))
+2026-06-08 02:36:24,264 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(6)|match_type=repeated_dense1_with_bias], params shapes: ((256, 64), (64,))
+2026-06-08 02:36:24,264 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(1)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-06-08 02:36:24,264 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(2)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-08 02:36:24,264 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(4)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-08 02:36:24,264 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(1)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-08 02:36:24,264 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(3)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-08 02:36:24,264 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(2)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-06-08 02:36:24,264 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(11)|match_type=repeated_dense1_with_bias], params shapes: ((64, 256), (256,))
+2026-06-08 02:36:24,264 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(12)|match_type=repeated_dense1_with_bias], params shapes: ((256, 64), (64,))
+2026-06-08 02:36:24,264 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(3)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-06-08 02:36:24,265 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(8)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-08 02:36:24,265 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(10)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-08 02:36:24,265 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(7)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-08 02:36:24,265 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(9)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-08 02:36:24,265 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(4)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-06-08 02:36:24,265 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(17)|match_type=repeated_dense1_with_bias], params shapes: ((64, 256), (256,))
+2026-06-08 02:36:24,265 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(18)|match_type=repeated_dense1_with_bias], params shapes: ((256, 64), (64,))
+2026-06-08 02:36:24,265 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(5)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-06-08 02:36:24,265 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(14)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-08 02:36:24,265 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(16)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-08 02:36:24,266 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(13)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-08 02:36:24,266 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(15)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-08 02:36:24,266 - ==================================================
+2026-06-08 02:36:24,652 - Burning in MCMC chain for 2000 steps
+2026-06-08 02:37:22,181 - Completed burn-in MCMC steps
+2026-06-08 02:37:27,923 - Initial energy: 345.1106 E_h
+2026-06-08 02:37:40,951 - Step 00000: 345.0660 E_h, exp. variance=0.0000 E_h^2, pmove=0.45
+2026-06-08 02:37:41,373 - Step 00001: 344.6629 E_h, exp. variance=0.0146 E_h^2, pmove=0.44
+2026-06-08 02:37:41,691 - Step 00002: 345.0563 E_h, exp. variance=0.0132 E_h^2, pmove=0.44
+2026-06-08 02:37:42,007 - Step 00003: 344.6694 E_h, exp. variance=0.0235 E_h^2, pmove=0.43
+2026-06-08 02:37:42,325 - Step 00004: 344.7846 E_h, exp. variance=0.0251 E_h^2, pmove=0.44
+2026-06-08 02:37:42,643 - Step 00005: 344.6674 E_h, exp. variance=0.0309 E_h^2, pmove=0.44
+2026-06-08 02:37:42,961 - Step 00006: 344.7945 E_h, exp. variance=0.0298 E_h^2, pmove=0.45
+2026-06-08 02:37:43,277 - Step 00007: 344.6055 E_h, exp. variance=0.0361 E_h^2, pmove=0.44
+2026-06-08 02:37:43,598 - Step 00008: 344.6806 E_h, exp. variance=0.0366 E_h^2, pmove=0.44
+2026-06-08 02:37:43,915 - Step 00009: 344.7188 E_h, exp. variance=0.0351 E_h^2, pmove=0.44
+2026-06-08 02:37:44,235 - Step 00010: 344.7064 E_h, exp. variance=0.0337 E_h^2, pmove=0.44
+2026-06-08 02:37:44,553 - Step 00011: 344.7258 E_h, exp. variance=0.0315 E_h^2, pmove=0.44
+2026-06-08 02:37:44,871 - Step 00012: 344.6935 E_h, exp. variance=0.0301 E_h^2, pmove=0.45
+2026-06-08 02:37:45,190 - Step 00013: 344.7159 E_h, exp. variance=0.0280 E_h^2, pmove=0.44
+2026-06-08 02:37:45,508 - Step 00014: 344.6623 E_h, exp. variance=0.0271 E_h^2, pmove=0.44
+2026-06-08 02:37:45,826 - Step 00015: 344.7236 E_h, exp. variance=0.0248 E_h^2, pmove=0.45
+2026-06-08 02:37:46,146 - Step 00016: 344.6558 E_h, exp. variance=0.0238 E_h^2, pmove=0.44
+2026-06-08 02:37:46,463 - Step 00017: 344.5831 E_h, exp. variance=0.0247 E_h^2, pmove=0.44
+2026-06-08 02:37:46,779 - Step 00018: 344.5696 E_h, exp. variance=0.0253 E_h^2, pmove=0.45
+2026-06-08 02:37:47,097 - Step 00019: 344.5832 E_h, exp. variance=0.0248 E_h^2, pmove=0.43
+2026-06-08 02:37:47,414 - Step 00020: 344.8034 E_h, exp. variance=0.0230 E_h^2, pmove=0.44
+2026-06-08 02:37:47,731 - Step 00021: 344.6299 E_h, exp. variance=0.0215 E_h^2, pmove=0.44
+2026-06-08 02:37:48,050 - Step 00022: 344.6765 E_h, exp. variance=0.0196 E_h^2, pmove=0.45
+2026-06-08 02:37:48,369 - Step 00023: 344.7143 E_h, exp. variance=0.0176 E_h^2, pmove=0.44
+2026-06-08 02:37:48,685 - Step 00024: 344.5248 E_h, exp. variance=0.0191 E_h^2, pmove=0.45
+2026-06-08 02:37:49,004 - Step 00025: 344.5994 E_h, exp. variance=0.0180 E_h^2, pmove=0.45
+2026-06-08 02:37:49,321 - Step 00026: 344.7271 E_h, exp. variance=0.0163 E_h^2, pmove=0.45
+2026-06-08 02:37:49,638 - Step 00027: 344.7317 E_h, exp. variance=0.0149 E_h^2, pmove=0.45
+2026-06-08 02:37:49,956 - Step 00028: 344.6211 E_h, exp. variance=0.0139 E_h^2, pmove=0.45
+2026-06-08 02:37:50,275 - Step 00029: 344.6607 E_h, exp. variance=0.0125 E_h^2, pmove=0.45
+2026-06-08 02:37:50,593 - Step 00030: 344.6672 E_h, exp. variance=0.0113 E_h^2, pmove=0.45
+2026-06-08 02:37:50,912 - Step 00031: 344.5219 E_h, exp. variance=0.0125 E_h^2, pmove=0.44
+2026-06-08 02:37:51,233 - Step 00032: 344.6426 E_h, exp. variance=0.0113 E_h^2, pmove=0.45
+2026-06-08 02:37:51,553 - Step 00033: 344.5493 E_h, exp. variance=0.0114 E_h^2, pmove=0.44
+2026-06-08 02:37:51,872 - Step 00034: 344.6796 E_h, exp. variance=0.0103 E_h^2, pmove=0.45
+2026-06-08 02:37:52,191 - Step 00035: 344.7764 E_h, exp. variance=0.0106 E_h^2, pmove=0.44
+2026-06-08 02:37:52,508 - Step 00036: 344.6732 E_h, exp. variance=0.0095 E_h^2, pmove=0.44
+2026-06-08 02:37:52,825 - Step 00037: 344.6285 E_h, exp. variance=0.0087 E_h^2, pmove=0.44
+2026-06-08 02:37:53,144 - Step 00038: 344.7049 E_h, exp. variance=0.0080 E_h^2, pmove=0.45
+2026-06-08 02:37:53,463 - Step 00039: 344.6560 E_h, exp. variance=0.0072 E_h^2, pmove=0.44
+2026-06-08 02:37:53,781 - Step 00040: 344.5848 E_h, exp. variance=0.0071 E_h^2, pmove=0.45
+2026-06-08 02:37:54,101 - Step 00041: 344.6433 E_h, exp. variance=0.0064 E_h^2, pmove=0.45
+2026-06-08 02:37:54,423 - Step 00042: 344.7593 E_h, exp. variance=0.0067 E_h^2, pmove=0.44
+2026-06-08 02:37:54,741 - Step 00043: 344.6774 E_h, exp. variance=0.0060 E_h^2, pmove=0.44
+2026-06-08 02:37:55,074 - Step 00044: 344.5962 E_h, exp. variance=0.0059 E_h^2, pmove=0.44
+2026-06-08 02:37:55,418 - Step 00045: 344.7222 E_h, exp. variance=0.0057 E_h^2, pmove=0.45
+2026-06-08 02:37:55,768 - Step 00046: 344.5129 E_h, exp. variance=0.0072 E_h^2, pmove=0.45
+2026-06-08 02:37:56,116 - Step 00047: 344.5847 E_h, exp. variance=0.0069 E_h^2, pmove=0.45
+2026-06-08 02:37:56,455 - Step 00048: 344.5760 E_h, exp. variance=0.0067 E_h^2, pmove=0.44
+2026-06-08 02:37:56,790 - Step 00049: 344.5547 E_h, exp. variance=0.0066 E_h^2, pmove=0.45
+2026-06-08 02:37:57,108 - Step 00050: 344.3915 E_h, exp. variance=0.0111 E_h^2, pmove=0.45
+2026-06-08 02:37:57,441 - Step 00051: 344.5452 E_h, exp. variance=0.0103 E_h^2, pmove=0.45
+2026-06-08 02:37:57,784 - Step 00052: 344.5925 E_h, exp. variance=0.0093 E_h^2, pmove=0.45
+2026-06-08 02:37:58,123 - Step 00053: 344.5188 E_h, exp. variance=0.0089 E_h^2, pmove=0.45
+2026-06-08 02:37:58,461 - Step 00054: 344.5933 E_h, exp. variance=0.0080 E_h^2, pmove=0.45
+2026-06-08 02:37:58,803 - Step 00055: 344.5695 E_h, exp. variance=0.0073 E_h^2, pmove=0.45
+2026-06-08 02:37:59,142 - Step 00056: 344.6023 E_h, exp. variance=0.0066 E_h^2, pmove=0.45
+2026-06-08 02:37:59,485 - Step 00057: 344.4815 E_h, exp. variance=0.0070 E_h^2, pmove=0.45
+2026-06-08 02:37:59,838 - Step 00058: 344.4667 E_h, exp. variance=0.0074 E_h^2, pmove=0.45
+2026-06-08 02:38:00,202 - Step 00059: 344.6172 E_h, exp. variance=0.0069 E_h^2, pmove=0.45
+2026-06-08 02:38:00,529 - Step 00060: 344.4549 E_h, exp. variance=0.0075 E_h^2, pmove=0.45
+2026-06-08 02:38:00,848 - Step 00061: 344.5644 E_h, exp. variance=0.0067 E_h^2, pmove=0.45
+2026-06-08 02:38:01,164 - Step 00062: 344.5768 E_h, exp. variance=0.0061 E_h^2, pmove=0.45
+2026-06-08 02:38:01,481 - Step 00063: 344.6456 E_h, exp. variance=0.0061 E_h^2, pmove=0.45
+2026-06-08 02:38:01,798 - Step 00064: 344.5849 E_h, exp. variance=0.0055 E_h^2, pmove=0.45
+2026-06-08 02:38:02,114 - Step 00065: 344.6223 E_h, exp. variance=0.0052 E_h^2, pmove=0.45
+2026-06-08 02:38:02,433 - Step 00066: 344.6266 E_h, exp. variance=0.0049 E_h^2, pmove=0.45
+2026-06-08 02:38:02,751 - Step 00067: 344.5546 E_h, exp. variance=0.0044 E_h^2, pmove=0.46
+2026-06-08 02:38:03,070 - Step 00068: 344.6792 E_h, exp. variance=0.0049 E_h^2, pmove=0.45
+2026-06-08 02:38:03,389 - Step 00069: 344.6026 E_h, exp. variance=0.0044 E_h^2, pmove=0.45
+2026-06-08 02:38:03,705 - Step 00070: 344.6227 E_h, exp. variance=0.0041 E_h^2, pmove=0.45
+2026-06-08 02:38:04,024 - Step 00071: 344.6161 E_h, exp. variance=0.0037 E_h^2, pmove=0.46
+2026-06-08 02:38:04,344 - Step 00072: 344.6182 E_h, exp. variance=0.0034 E_h^2, pmove=0.46
+2026-06-08 02:38:04,663 - Step 00073: 344.6773 E_h, exp. variance=0.0036 E_h^2, pmove=0.45
+2026-06-08 02:38:04,983 - Step 00074: 344.6120 E_h, exp. variance=0.0032 E_h^2, pmove=0.46
+2026-06-08 02:38:05,300 - Step 00075: 344.6834 E_h, exp. variance=0.0034 E_h^2, pmove=0.45
+2026-06-08 02:38:05,617 - Step 00076: 344.5555 E_h, exp. variance=0.0034 E_h^2, pmove=0.45
+2026-06-08 02:38:05,935 - Step 00077: 344.6362 E_h, exp. variance=0.0031 E_h^2, pmove=0.46
+2026-06-08 02:38:06,252 - Step 00078: 344.6199 E_h, exp. variance=0.0028 E_h^2, pmove=0.46
+2026-06-08 02:38:06,572 - Step 00079: 344.8302 E_h, exp. variance=0.0068 E_h^2, pmove=0.46
+2026-06-08 02:38:06,890 - Step 00080: 344.7975 E_h, exp. variance=0.0085 E_h^2, pmove=0.46
+2026-06-08 02:38:07,207 - Step 00081: 344.6290 E_h, exp. variance=0.0077 E_h^2, pmove=0.45
+2026-06-08 02:38:07,524 - Step 00082: 344.5949 E_h, exp. variance=0.0072 E_h^2, pmove=0.46
+2026-06-08 02:38:07,838 - Step 00083: 344.5914 E_h, exp. variance=0.0067 E_h^2, pmove=0.46
+2026-06-08 02:38:08,152 - Step 00084: 344.6730 E_h, exp. variance=0.0062 E_h^2, pmove=0.46
+2026-06-08 02:38:08,467 - Step 00085: 344.5214 E_h, exp. variance=0.0068 E_h^2, pmove=0.46
+2026-06-08 02:38:08,784 - Step 00086: 344.6612 E_h, exp. variance=0.0063 E_h^2, pmove=0.46
+2026-06-08 02:38:09,101 - Step 00087: 344.6412 E_h, exp. variance=0.0056 E_h^2, pmove=0.45
+2026-06-08 02:38:09,420 - Step 00088: 344.5202 E_h, exp. variance=0.0062 E_h^2, pmove=0.46
+2026-06-08 02:38:09,739 - Step 00089: 344.6418 E_h, exp. variance=0.0056 E_h^2, pmove=0.46
+2026-06-08 02:38:10,062 - Step 00090: 344.5469 E_h, exp. variance=0.0056 E_h^2, pmove=0.45
+2026-06-08 02:38:10,381 - Step 00091: 344.5605 E_h, exp. variance=0.0053 E_h^2, pmove=0.46
+2026-06-08 02:38:10,698 - Step 00092: 344.5149 E_h, exp. variance=0.0056 E_h^2, pmove=0.46
+2026-06-08 02:38:11,016 - Step 00093: 344.5411 E_h, exp. variance=0.0054 E_h^2, pmove=0.46
+2026-06-08 02:38:11,340 - Step 00094: 344.6444 E_h, exp. variance=0.0051 E_h^2, pmove=0.46
+2026-06-08 02:38:11,659 - Step 00095: 344.4121 E_h, exp. variance=0.0077 E_h^2, pmove=0.45
+2026-06-08 02:38:11,976 - Step 00096: 344.5645 E_h, exp. variance=0.0070 E_h^2, pmove=0.46
+2026-06-08 02:38:12,292 - Step 00097: 344.4589 E_h, exp. variance=0.0076 E_h^2, pmove=0.46
+2026-06-08 02:38:12,609 - Step 00098: 344.7281 E_h, exp. variance=0.0092 E_h^2, pmove=0.46
+2026-06-08 02:38:12,927 - Step 00099: 344.5745 E_h, exp. variance=0.0083 E_h^2, pmove=0.46
+2026-06-08 02:38:13,244 - Step 00100: 344.5293 E_h, exp. variance=0.0077 E_h^2, pmove=0.46
+2026-06-08 02:38:13,562 - Step 00101: 344.5605 E_h, exp. variance=0.0069 E_h^2, pmove=0.46
+2026-06-08 02:38:13,879 - Step 00102: 344.5394 E_h, exp. variance=0.0064 E_h^2, pmove=0.46
+2026-06-08 02:38:14,196 - Step 00103: 344.6194 E_h, exp. variance=0.0059 E_h^2, pmove=0.46
+2026-06-08 02:38:14,513 - Step 00104: 344.4705 E_h, exp. variance=0.0064 E_h^2, pmove=0.46
+2026-06-08 02:38:14,833 - Step 00105: 344.6185 E_h, exp. variance=0.0060 E_h^2, pmove=0.47
+2026-06-08 02:38:15,151 - Step 00106: 344.5840 E_h, exp. variance=0.0054 E_h^2, pmove=0.46
+2026-06-08 02:38:15,471 - Step 00107: 344.7610 E_h, exp. variance=0.0080 E_h^2, pmove=0.46
+2026-06-08 02:38:15,796 - Step 00108: 344.6034 E_h, exp. variance=0.0072 E_h^2, pmove=0.47
+2026-06-08 02:38:16,121 - Step 00109: 344.4299 E_h, exp. variance=0.0089 E_h^2, pmove=0.47
+2026-06-08 02:38:16,448 - Step 00110: 344.6161 E_h, exp. variance=0.0082 E_h^2, pmove=0.46
+2026-06-08 02:38:16,767 - Step 00111: 344.5143 E_h, exp. variance=0.0077 E_h^2, pmove=0.46
+2026-06-08 02:38:17,090 - Step 00112: 344.5137 E_h, exp. variance=0.0073 E_h^2, pmove=0.46
+2026-06-08 02:38:17,412 - Step 00113: 344.7028 E_h, exp. variance=0.0082 E_h^2, pmove=0.47
+2026-06-08 02:38:17,735 - Step 00114: 344.6912 E_h, exp. variance=0.0085 E_h^2, pmove=0.46
+2026-06-08 02:38:18,053 - Step 00115: 344.6207 E_h, exp. variance=0.0077 E_h^2, pmove=0.47
+2026-06-08 02:38:18,375 - Step 00116: 344.6403 E_h, exp. variance=0.0071 E_h^2, pmove=0.47
+2026-06-08 02:38:18,696 - Step 00117: 344.7346 E_h, exp. variance=0.0080 E_h^2, pmove=0.46
+2026-06-08 02:38:19,025 - Step 00118: 344.6409 E_h, exp. variance=0.0073 E_h^2, pmove=0.46
+2026-06-08 02:38:19,350 - Step 00119: 344.7441 E_h, exp. variance=0.0081 E_h^2, pmove=0.45
+2026-06-08 02:38:19,670 - Step 00120: 344.9146 E_h, exp. variance=0.0146 E_h^2, pmove=0.47
+2026-06-08 02:38:19,993 - Step 00121: 344.8391 E_h, exp. variance=0.0161 E_h^2, pmove=0.46
+2026-06-08 02:38:20,318 - Step 00122: 344.7033 E_h, exp. variance=0.0146 E_h^2, pmove=0.46
+2026-06-08 02:38:20,638 - Step 00123: 344.7577 E_h, exp. variance=0.0137 E_h^2, pmove=0.46
+2026-06-08 02:38:20,961 - Step 00124: 344.5729 E_h, exp. variance=0.0135 E_h^2, pmove=0.46
+2026-06-08 02:38:21,277 - Step 00125: 344.6999 E_h, exp. variance=0.0122 E_h^2, pmove=0.46
+2026-06-08 02:38:21,600 - Step 00126: 344.6788 E_h, exp. variance=0.0110 E_h^2, pmove=0.46
+2026-06-08 02:38:21,922 - Step 00127: 344.6582 E_h, exp. variance=0.0099 E_h^2, pmove=0.46
+2026-06-08 02:38:22,246 - Step 00128: 344.5734 E_h, exp. variance=0.0099 E_h^2, pmove=0.47
+2026-06-08 02:38:22,566 - Step 00129: 344.7294 E_h, exp. variance=0.0092 E_h^2, pmove=0.46
+2026-06-08 02:38:22,886 - Step 00130: 344.6761 E_h, exp. variance=0.0083 E_h^2, pmove=0.47
+2026-06-08 02:38:23,219 - Step 00131: 344.6318 E_h, exp. variance=0.0076 E_h^2, pmove=0.46
+2026-06-08 02:38:23,561 - Step 00132: 344.6634 E_h, exp. variance=0.0069 E_h^2, pmove=0.46
+2026-06-08 02:38:23,903 - Step 00133: 344.6224 E_h, exp. variance=0.0064 E_h^2, pmove=0.47
+2026-06-08 02:38:24,247 - Step 00134: 344.6452 E_h, exp. variance=0.0058 E_h^2, pmove=0.46
+2026-06-08 02:38:24,586 - Step 00135: 344.6510 E_h, exp. variance=0.0052 E_h^2, pmove=0.47
+2026-06-08 02:38:24,929 - Step 00136: 344.6080 E_h, exp. variance=0.0049 E_h^2, pmove=0.47
+2026-06-08 02:38:25,275 - Step 00137: 344.4889 E_h, exp. variance=0.0069 E_h^2, pmove=0.46
+2026-06-08 02:38:25,620 - Step 00138: 344.5909 E_h, exp. variance=0.0064 E_h^2, pmove=0.47
+2026-06-08 02:38:25,957 - Step 00139: 344.5881 E_h, exp. variance=0.0060 E_h^2, pmove=0.47
+2026-06-08 02:38:26,301 - Step 00140: 344.6758 E_h, exp. variance=0.0056 E_h^2, pmove=0.47
+2026-06-08 02:38:26,637 - Step 00141: 344.5867 E_h, exp. variance=0.0052 E_h^2, pmove=0.47
+2026-06-08 02:38:27,478 - Step 00142: 344.5053 E_h, exp. variance=0.0061 E_h^2, pmove=0.47
+2026-06-08 02:38:27,818 - Step 00143: 344.6257 E_h, exp. variance=0.0055 E_h^2, pmove=0.47
+2026-06-08 02:38:28,156 - Step 00144: 344.5083 E_h, exp. variance=0.0060 E_h^2, pmove=0.47
+2026-06-08 02:38:28,498 - Step 00145: 344.4110 E_h, exp. variance=0.0088 E_h^2, pmove=0.47
+2026-06-08 02:38:28,833 - Step 00146: 344.6638 E_h, exp. variance=0.0085 E_h^2, pmove=0.47
+2026-06-08 02:38:29,153 - Step 00147: 344.6602 E_h, exp. variance=0.0080 E_h^2, pmove=0.47
+2026-06-08 02:38:29,474 - Step 00148: 344.6212 E_h, exp. variance=0.0073 E_h^2, pmove=0.47
+2026-06-08 02:38:29,799 - Step 00149: 344.6673 E_h, exp. variance=0.0069 E_h^2, pmove=0.47
+2026-06-08 02:38:30,136 - Step 00150: 344.6938 E_h, exp. variance=0.0068 E_h^2, pmove=0.47
+2026-06-08 02:38:30,455 - Step 00151: 344.6295 E_h, exp. variance=0.0062 E_h^2, pmove=0.47
+2026-06-08 02:38:30,777 - Step 00152: 344.4553 E_h, exp. variance=0.0080 E_h^2, pmove=0.47
+2026-06-08 02:38:31,099 - Step 00153: 344.5923 E_h, exp. variance=0.0072 E_h^2, pmove=0.47
+2026-06-08 02:38:31,421 - Step 00154: 344.4699 E_h, exp. variance=0.0080 E_h^2, pmove=0.47
+2026-06-08 02:38:31,738 - Step 00155: 344.5879 E_h, exp. variance=0.0072 E_h^2, pmove=0.47
+2026-06-08 02:38:32,061 - Step 00156: 344.5829 E_h, exp. variance=0.0065 E_h^2, pmove=0.47
+2026-06-08 02:38:32,378 - Step 00157: 344.5735 E_h, exp. variance=0.0059 E_h^2, pmove=0.47
+2026-06-08 02:38:32,693 - Step 00158: 344.4195 E_h, exp. variance=0.0078 E_h^2, pmove=0.47
+2026-06-08 02:38:33,012 - Step 00159: 344.5578 E_h, exp. variance=0.0070 E_h^2, pmove=0.47
+2026-06-08 02:38:33,329 - Step 00160: 344.5900 E_h, exp. variance=0.0064 E_h^2, pmove=0.47
+2026-06-08 02:38:33,645 - Step 00161: 344.5781 E_h, exp. variance=0.0057 E_h^2, pmove=0.46
+2026-06-08 02:38:33,967 - Step 00162: 344.7708 E_h, exp. variance=0.0087 E_h^2, pmove=0.47
+2026-06-08 02:38:34,287 - Step 00163: 344.7330 E_h, exp. variance=0.0097 E_h^2, pmove=0.47
+2026-06-08 02:38:34,604 - Step 00164: 344.5930 E_h, exp. variance=0.0087 E_h^2, pmove=0.47
+2026-06-08 02:38:34,923 - Step 00165: 344.5204 E_h, exp. variance=0.0085 E_h^2, pmove=0.47
+2026-06-08 02:38:35,241 - Step 00166: 344.5703 E_h, exp. variance=0.0077 E_h^2, pmove=0.47
+2026-06-08 02:38:35,563 - Step 00167: 344.5758 E_h, exp. variance=0.0070 E_h^2, pmove=0.47
+2026-06-08 02:38:35,888 - Step 00168: 344.5089 E_h, exp. variance=0.0069 E_h^2, pmove=0.47
+2026-06-08 02:38:36,206 - Step 00169: 344.5847 E_h, exp. variance=0.0062 E_h^2, pmove=0.48
+2026-06-08 02:38:36,526 - Step 00170: 344.6271 E_h, exp. variance=0.0057 E_h^2, pmove=0.47
+2026-06-08 02:38:36,844 - Step 00171: 344.6364 E_h, exp. variance=0.0054 E_h^2, pmove=0.47
+2026-06-08 02:38:37,164 - Step 00172: 344.4711 E_h, exp. variance=0.0062 E_h^2, pmove=0.47
+2026-06-08 02:38:37,486 - Step 00173: 344.5895 E_h, exp. variance=0.0056 E_h^2, pmove=0.47
+2026-06-08 02:38:37,802 - Step 00174: 344.4998 E_h, exp. variance=0.0056 E_h^2, pmove=0.47
+2026-06-08 02:38:38,117 - Step 00175: 344.6170 E_h, exp. variance=0.0052 E_h^2, pmove=0.47
+2026-06-08 02:38:38,437 - Step 00176: 344.4207 E_h, exp. variance=0.0069 E_h^2, pmove=0.47
+2026-06-08 02:38:38,756 - Step 00177: 344.4933 E_h, exp. variance=0.0066 E_h^2, pmove=0.46
+2026-06-08 02:38:39,077 - Step 00178: 344.5927 E_h, exp. variance=0.0061 E_h^2, pmove=0.47
+2026-06-08 02:38:39,399 - Step 00179: 344.5211 E_h, exp. variance=0.0056 E_h^2, pmove=0.47
+2026-06-08 02:38:39,717 - Step 00180: 344.6080 E_h, exp. variance=0.0053 E_h^2, pmove=0.47
+2026-06-08 02:38:40,034 - Step 00181: 344.6595 E_h, exp. variance=0.0057 E_h^2, pmove=0.47
+2026-06-08 02:38:40,351 - Step 00182: 344.5858 E_h, exp. variance=0.0051 E_h^2, pmove=0.47
+2026-06-08 02:38:40,674 - Step 00183: 344.4858 E_h, exp. variance=0.0053 E_h^2, pmove=0.47
+2026-06-08 02:38:40,996 - Step 00184: 344.4713 E_h, exp. variance=0.0055 E_h^2, pmove=0.47
+2026-06-08 02:38:41,315 - Step 00185: 344.4273 E_h, exp. variance=0.0064 E_h^2, pmove=0.47
+2026-06-08 02:38:41,637 - Step 00186: 344.6315 E_h, exp. variance=0.0065 E_h^2, pmove=0.47
+2026-06-08 02:38:41,973 - Step 00187: 344.5411 E_h, exp. variance=0.0059 E_h^2, pmove=0.47
+2026-06-08 02:38:42,313 - Step 00188: 344.5150 E_h, exp. variance=0.0054 E_h^2, pmove=0.48
+2026-06-08 02:38:42,655 - Step 00189: 344.4989 E_h, exp. variance=0.0050 E_h^2, pmove=0.47
+2026-06-08 02:38:42,981 - Step 00190: 344.4352 E_h, exp. variance=0.0055 E_h^2, pmove=0.47
+2026-06-08 02:38:43,301 - Step 00191: 344.4671 E_h, exp. variance=0.0054 E_h^2, pmove=0.47
+2026-06-08 02:38:43,620 - Step 00192: 344.5309 E_h, exp. variance=0.0048 E_h^2, pmove=0.47
+2026-06-08 02:38:43,937 - Step 00193: 344.7135 E_h, exp. variance=0.0075 E_h^2, pmove=0.48
+2026-06-08 02:38:44,271 - Step 00194: 344.6027 E_h, exp. variance=0.0071 E_h^2, pmove=0.47
+2026-06-08 02:38:44,592 - Step 00195: 344.5076 E_h, exp. variance=0.0065 E_h^2, pmove=0.48
+2026-06-08 02:38:44,910 - Step 00196: 344.4873 E_h, exp. variance=0.0062 E_h^2, pmove=0.48
+2026-06-08 02:38:45,228 - Step 00197: 344.3317 E_h, exp. variance=0.0095 E_h^2, pmove=0.47
+2026-06-08 02:38:45,549 - Step 00198: 344.5607 E_h, exp. variance=0.0087 E_h^2, pmove=0.48
+2026-06-08 02:38:45,868 - Step 00199: 344.5385 E_h, exp. variance=0.0078 E_h^2, pmove=0.47
+2026-06-08 02:38:46,187 - Step 00200: 344.5618 E_h, exp. variance=0.0072 E_h^2, pmove=0.47
+2026-06-08 02:38:46,507 - Step 00201: 344.3747 E_h, exp. variance=0.0086 E_h^2, pmove=0.47
+2026-06-08 02:38:46,829 - Step 00202: 344.5132 E_h, exp. variance=0.0077 E_h^2, pmove=0.47
+2026-06-08 02:38:47,149 - Step 00203: 344.4878 E_h, exp. variance=0.0070 E_h^2, pmove=0.47
+2026-06-08 02:38:47,470 - Step 00204: 344.5541 E_h, exp. variance=0.0065 E_h^2, pmove=0.48
+2026-06-08 02:38:47,790 - Step 00205: 344.6612 E_h, exp. variance=0.0078 E_h^2, pmove=0.47
+2026-06-08 02:38:48,111 - Step 00206: 344.4423 E_h, exp. variance=0.0077 E_h^2, pmove=0.47
+2026-06-08 02:38:48,426 - Step 00207: 344.3732 E_h, exp. variance=0.0089 E_h^2, pmove=0.48
+2026-06-08 02:38:48,743 - Step 00208: 344.5112 E_h, exp. variance=0.0080 E_h^2, pmove=0.48
+2026-06-08 02:38:49,060 - Step 00209: 344.5202 E_h, exp. variance=0.0072 E_h^2, pmove=0.48
+2026-06-08 02:38:49,381 - Step 00210: 344.4424 E_h, exp. variance=0.0069 E_h^2, pmove=0.48
+2026-06-08 02:38:49,702 - Step 00211: 344.4177 E_h, exp. variance=0.0068 E_h^2, pmove=0.47
+2026-06-08 02:38:50,020 - Step 00212: 344.4126 E_h, exp. variance=0.0067 E_h^2, pmove=0.47
+2026-06-08 02:38:50,339 - Step 00213: 344.4304 E_h, exp. variance=0.0063 E_h^2, pmove=0.47
+2026-06-08 02:38:50,661 - Step 00214: 344.5026 E_h, exp. variance=0.0057 E_h^2, pmove=0.48
+2026-06-08 02:38:50,983 - Step 00215: 344.3661 E_h, exp. variance=0.0064 E_h^2, pmove=0.48
+2026-06-08 02:38:51,304 - Step 00216: 344.4436 E_h, exp. variance=0.0058 E_h^2, pmove=0.48
+2026-06-08 02:38:51,622 - Step 00217: 344.5620 E_h, exp. variance=0.0060 E_h^2, pmove=0.48
+2026-06-08 02:38:51,941 - Step 00218: 344.5982 E_h, exp. variance=0.0067 E_h^2, pmove=0.47
+2026-06-08 02:38:52,261 - Step 00219: 344.5988 E_h, exp. variance=0.0071 E_h^2, pmove=0.48
+2026-06-08 02:38:52,577 - Step 00220: 345.0175 E_h, exp. variance=0.0305 E_h^2, pmove=0.48
+2026-06-08 02:38:52,893 - Step 00221: 344.6304 E_h, exp. variance=0.0280 E_h^2, pmove=0.48
+2026-06-08 02:38:53,208 - Step 00222: 344.5997 E_h, exp. variance=0.0254 E_h^2, pmove=0.49
+2026-06-08 02:38:53,527 - Step 00223: 344.4138 E_h, exp. variance=0.0248 E_h^2, pmove=0.48
+2026-06-08 02:38:53,854 - Step 00224: 344.5385 E_h, exp. variance=0.0224 E_h^2, pmove=0.48
+2026-06-08 02:38:54,176 - Step 00225: 344.5102 E_h, exp. variance=0.0203 E_h^2, pmove=0.47
+2026-06-08 02:38:54,497 - Step 00226: 344.7000 E_h, exp. variance=0.0204 E_h^2, pmove=0.48
+2026-06-08 02:38:54,816 - Step 00227: 344.6248 E_h, exp. variance=0.0188 E_h^2, pmove=0.47
+2026-06-08 02:38:55,135 - Step 00228: 344.7571 E_h, exp. variance=0.0202 E_h^2, pmove=0.48
+2026-06-08 02:38:55,453 - Step 00229: 344.5838 E_h, exp. variance=0.0182 E_h^2, pmove=0.47
+2026-06-08 02:38:55,774 - Step 00230: 344.5668 E_h, exp. variance=0.0164 E_h^2, pmove=0.48
+2026-06-08 02:38:56,092 - Step 00231: 344.6597 E_h, exp. variance=0.0153 E_h^2, pmove=0.48
+2026-06-08 02:38:56,407 - Step 00232: 344.5591 E_h, exp. variance=0.0138 E_h^2, pmove=0.48
+2026-06-08 02:38:56,725 - Step 00233: 344.5409 E_h, exp. variance=0.0126 E_h^2, pmove=0.48
+2026-06-08 02:38:57,041 - Step 00234: 344.3818 E_h, exp. variance=0.0150 E_h^2, pmove=0.48
+2026-06-08 02:38:57,361 - Step 00235: 344.7919 E_h, exp. variance=0.0182 E_h^2, pmove=0.47
+2026-06-08 02:38:57,684 - Step 00236: 344.6346 E_h, exp. variance=0.0166 E_h^2, pmove=0.48
+2026-06-08 02:38:58,007 - Step 00237: 344.4135 E_h, exp. variance=0.0178 E_h^2, pmove=0.47
+2026-06-08 02:38:58,322 - Step 00238: 344.6950 E_h, exp. variance=0.0174 E_h^2, pmove=0.48
+2026-06-08 02:38:58,643 - Step 00239: 344.5139 E_h, exp. variance=0.0161 E_h^2, pmove=0.47
+2026-06-08 02:38:58,964 - Step 00240: 344.4385 E_h, exp. variance=0.0162 E_h^2, pmove=0.48
+2026-06-08 02:38:59,285 - Step 00241: 344.4724 E_h, exp. variance=0.0154 E_h^2, pmove=0.48
+2026-06-08 02:38:59,607 - Step 00242: 344.5310 E_h, exp. variance=0.0139 E_h^2, pmove=0.48
+2026-06-08 02:38:59,927 - Step 00243: 344.5289 E_h, exp. variance=0.0125 E_h^2, pmove=0.48
+2026-06-08 02:39:00,249 - Step 00244: 344.4511 E_h, exp. variance=0.0122 E_h^2, pmove=0.48
+2026-06-08 02:39:00,566 - Step 00245: 344.5213 E_h, exp. variance=0.0110 E_h^2, pmove=0.48
+2026-06-08 02:39:00,882 - Step 00246: 344.4390 E_h, exp. variance=0.0108 E_h^2, pmove=0.49
+2026-06-08 02:39:01,197 - Step 00247: 344.4302 E_h, exp. variance=0.0106 E_h^2, pmove=0.49
+2026-06-08 02:39:01,517 - Step 00248: 344.6084 E_h, exp. variance=0.0102 E_h^2, pmove=0.48
+2026-06-08 02:39:01,838 - Step 00249: 344.5594 E_h, exp. variance=0.0093 E_h^2, pmove=0.48
+2026-06-08 02:39:02,157 - Step 00250: 344.7301 E_h, exp. variance=0.0119 E_h^2, pmove=0.48
+2026-06-08 02:39:02,477 - Step 00251: 344.5735 E_h, exp. variance=0.0108 E_h^2, pmove=0.48
+2026-06-08 02:39:02,798 - Step 00252: 344.5717 E_h, exp. variance=0.0097 E_h^2, pmove=0.48
+2026-06-08 02:39:03,117 - Step 00253: 344.4514 E_h, exp. variance=0.0097 E_h^2, pmove=0.48
+2026-06-08 02:39:03,434 - Step 00254: 344.4891 E_h, exp. variance=0.0090 E_h^2, pmove=0.48
+2026-06-08 02:39:03,752 - Step 00255: 344.4193 E_h, exp. variance=0.0094 E_h^2, pmove=0.48
+2026-06-08 02:39:04,070 - Step 00256: 344.2659 E_h, exp. variance=0.0146 E_h^2, pmove=0.48
+2026-06-08 02:39:04,390 - Step 00257: 344.3410 E_h, exp. variance=0.0155 E_h^2, pmove=0.48
+2026-06-08 02:39:04,724 - Step 00258: 344.4415 E_h, exp. variance=0.0141 E_h^2, pmove=0.48
+2026-06-08 02:39:05,042 - Step 00259: 344.3657 E_h, exp. variance=0.0139 E_h^2, pmove=0.48
+2026-06-08 02:39:05,362 - Step 00260: 344.4478 E_h, exp. variance=0.0125 E_h^2, pmove=0.48
+2026-06-08 02:39:05,682 - Step 00261: 344.4233 E_h, exp. variance=0.0114 E_h^2, pmove=0.48
+2026-06-08 02:39:06,000 - Step 00262: 344.6700 E_h, exp. variance=0.0142 E_h^2, pmove=0.48
+2026-06-08 02:39:06,315 - Step 00263: 344.5307 E_h, exp. variance=0.0129 E_h^2, pmove=0.48
+2026-06-08 02:39:06,632 - Step 00264: 344.5014 E_h, exp. variance=0.0117 E_h^2, pmove=0.48
+2026-06-08 02:39:06,949 - Step 00265: 344.6516 E_h, exp. variance=0.0129 E_h^2, pmove=0.48
+2026-06-08 02:39:07,267 - Step 00266: 344.6218 E_h, exp. variance=0.0128 E_h^2, pmove=0.48
+2026-06-08 02:39:07,588 - Step 00267: 344.5775 E_h, exp. variance=0.0118 E_h^2, pmove=0.48
+2026-06-08 02:39:07,905 - Step 00268: 344.5314 E_h, exp. variance=0.0107 E_h^2, pmove=0.48
+2026-06-08 02:39:08,224 - Step 00269: 344.5882 E_h, exp. variance=0.0100 E_h^2, pmove=0.48
+2026-06-08 02:39:08,542 - Step 00270: 344.7176 E_h, exp. variance=0.0121 E_h^2, pmove=0.48
+2026-06-08 02:39:08,872 - Step 00271: 344.6826 E_h, exp. variance=0.0125 E_h^2, pmove=0.48
+2026-06-08 02:39:09,216 - Step 00272: 344.7338 E_h, exp. variance=0.0139 E_h^2, pmove=0.48
+2026-06-08 02:39:09,559 - Step 00273: 344.6551 E_h, exp. variance=0.0130 E_h^2, pmove=0.48
+2026-06-08 02:39:09,901 - Step 00274: 344.6896 E_h, exp. variance=0.0127 E_h^2, pmove=0.48
+2026-06-08 02:39:10,247 - Step 00275: 344.6149 E_h, exp. variance=0.0114 E_h^2, pmove=0.48
+2026-06-08 02:39:10,581 - Step 00276: 344.4413 E_h, exp. variance=0.0125 E_h^2, pmove=0.48
+2026-06-08 02:39:10,922 - Step 00277: 344.5168 E_h, exp. variance=0.0117 E_h^2, pmove=0.49
+2026-06-08 02:39:11,266 - Step 00278: 344.5394 E_h, exp. variance=0.0106 E_h^2, pmove=0.49
+2026-06-08 02:39:11,605 - Step 00279: 344.5385 E_h, exp. variance=0.0097 E_h^2, pmove=0.48
+2026-06-08 02:39:11,941 - Step 00280: 344.7479 E_h, exp. variance=0.0116 E_h^2, pmove=0.49
+2026-06-08 02:39:12,283 - Step 00281: 344.5364 E_h, exp. variance=0.0106 E_h^2, pmove=0.48
+2026-06-08 02:39:12,608 - Step 00282: 344.4880 E_h, exp. variance=0.0104 E_h^2, pmove=0.48
+2026-06-08 02:39:12,929 - Step 00283: 344.5708 E_h, exp. variance=0.0093 E_h^2, pmove=0.48
+2026-06-08 02:39:13,248 - Step 00284: 344.6424 E_h, exp. variance=0.0088 E_h^2, pmove=0.48
+2026-06-08 02:39:13,568 - Step 00285: 344.5389 E_h, exp. variance=0.0081 E_h^2, pmove=0.48
+2026-06-08 02:39:13,885 - Step 00286: 344.4498 E_h, exp. variance=0.0087 E_h^2, pmove=0.48
+2026-06-08 02:39:14,202 - Step 00287: 344.4277 E_h, exp. variance=0.0095 E_h^2, pmove=0.48
+2026-06-08 02:39:14,518 - Step 00288: 344.5358 E_h, exp. variance=0.0086 E_h^2, pmove=0.49
+2026-06-08 02:39:14,838 - Step 00289: 344.4759 E_h, exp. variance=0.0082 E_h^2, pmove=0.48
+2026-06-08 02:39:15,175 - Step 00290: 344.4935 E_h, exp. variance=0.0076 E_h^2, pmove=0.48
+2026-06-08 02:39:15,520 - Step 00291: 344.4358 E_h, exp. variance=0.0077 E_h^2, pmove=0.48
+2026-06-08 02:39:15,861 - Step 00292: 344.5125 E_h, exp. variance=0.0070 E_h^2, pmove=0.49
+2026-06-08 02:39:16,204 - Step 00293: 344.4135 E_h, exp. variance=0.0074 E_h^2, pmove=0.48
+2026-06-08 02:39:16,525 - Step 00294: 344.5514 E_h, exp. variance=0.0068 E_h^2, pmove=0.49
+2026-06-08 02:39:16,843 - Step 00295: 344.5333 E_h, exp. variance=0.0061 E_h^2, pmove=0.48
+2026-06-08 02:39:17,160 - Step 00296: 344.5659 E_h, exp. variance=0.0057 E_h^2, pmove=0.49
+2026-06-08 02:39:17,495 - Step 00297: 344.4810 E_h, exp. variance=0.0053 E_h^2, pmove=0.48
+2026-06-08 02:39:17,830 - Step 00298: 344.5305 E_h, exp. variance=0.0048 E_h^2, pmove=0.48
+2026-06-08 02:39:18,160 - Step 00299: 344.4073 E_h, exp. variance=0.0054 E_h^2, pmove=0.48
+2026-06-08 02:39:18,483 - Step 00300: 344.5939 E_h, exp. variance=0.0056 E_h^2, pmove=0.49
+2026-06-08 02:39:18,800 - Step 00301: 344.4499 E_h, exp. variance=0.0054 E_h^2, pmove=0.48
+2026-06-08 02:39:19,123 - Step 00302: 344.7057 E_h, exp. variance=0.0083 E_h^2, pmove=0.49
+2026-06-08 02:39:19,444 - Step 00303: 344.6678 E_h, exp. variance=0.0092 E_h^2, pmove=0.48
+2026-06-08 02:39:19,766 - Step 00304: 344.6561 E_h, exp. variance=0.0094 E_h^2, pmove=0.48
+2026-06-08 02:39:20,088 - Step 00305: 344.6446 E_h, exp. variance=0.0091 E_h^2, pmove=0.48
+2026-06-08 02:39:20,404 - Step 00306: 344.6636 E_h, exp. variance=0.0091 E_h^2, pmove=0.48
+2026-06-08 02:39:20,724 - Step 00307: 344.5294 E_h, exp. variance=0.0084 E_h^2, pmove=0.48
+2026-06-08 02:39:21,047 - Step 00308: 344.5502 E_h, exp. variance=0.0076 E_h^2, pmove=0.48
+2026-06-08 02:39:21,368 - Step 00309: 344.7316 E_h, exp. variance=0.0092 E_h^2, pmove=0.49
+2026-06-08 02:39:21,690 - Step 00310: 344.5398 E_h, exp. variance=0.0085 E_h^2, pmove=0.49
+2026-06-08 02:39:22,006 - Step 00311: 344.5283 E_h, exp. variance=0.0079 E_h^2, pmove=0.48
+2026-06-08 02:39:22,328 - Step 00312: 344.4150 E_h, exp. variance=0.0094 E_h^2, pmove=0.48
+2026-06-08 02:39:22,648 - Step 00313: 344.5395 E_h, exp. variance=0.0085 E_h^2, pmove=0.49
+2026-06-08 02:39:22,967 - Step 00314: 344.3989 E_h, exp. variance=0.0099 E_h^2, pmove=0.49
+2026-06-08 02:39:23,288 - Step 00315: 344.4889 E_h, exp. variance=0.0091 E_h^2, pmove=0.48
+2026-06-08 02:39:23,607 - Step 00316: 344.7679 E_h, exp. variance=0.0131 E_h^2, pmove=0.49
+2026-06-08 02:39:23,927 - Step 00317: 344.6448 E_h, exp. variance=0.0124 E_h^2, pmove=0.48
+2026-06-08 02:39:24,247 - Step 00318: 344.6107 E_h, exp. variance=0.0114 E_h^2, pmove=0.48
+2026-06-08 02:39:24,566 - Step 00319: 344.6770 E_h, exp. variance=0.0112 E_h^2, pmove=0.48
+2026-06-08 02:39:24,890 - Step 00320: 344.6389 E_h, exp. variance=0.0104 E_h^2, pmove=0.48
+2026-06-08 02:39:25,212 - Step 00321: 344.4969 E_h, exp. variance=0.0101 E_h^2, pmove=0.48
+2026-06-08 02:39:25,536 - Step 00322: 344.5054 E_h, exp. variance=0.0096 E_h^2, pmove=0.47
+2026-06-08 02:39:25,857 - Step 00323: 344.5069 E_h, exp. variance=0.0090 E_h^2, pmove=0.49
+2026-06-08 02:39:26,179 - Step 00324: 344.5925 E_h, exp. variance=0.0082 E_h^2, pmove=0.48
+2026-06-08 02:39:26,503 - Step 00325: 344.5897 E_h, exp. variance=0.0074 E_h^2, pmove=0.48
+2026-06-08 02:39:26,822 - Step 00326: 344.5172 E_h, exp. variance=0.0069 E_h^2, pmove=0.49
+2026-06-08 02:39:27,141 - Step 00327: 344.7936 E_h, exp. variance=0.0109 E_h^2, pmove=0.49
+2026-06-08 02:39:27,463 - Step 00328: 344.6273 E_h, exp. variance=0.0100 E_h^2, pmove=0.48
+2026-06-08 02:39:27,786 - Step 00329: 344.6218 E_h, exp. variance=0.0091 E_h^2, pmove=0.48
+2026-06-08 02:39:28,109 - Step 00330: 344.6222 E_h, exp. variance=0.0082 E_h^2, pmove=0.48
+2026-06-08 02:39:28,435 - Step 00331: 344.6037 E_h, exp. variance=0.0074 E_h^2, pmove=0.49
+2026-06-08 02:39:28,758 - Step 00332: 344.5555 E_h, exp. variance=0.0068 E_h^2, pmove=0.49
+2026-06-08 02:39:29,077 - Step 00333: 344.5640 E_h, exp. variance=0.0062 E_h^2, pmove=0.49
+2026-06-08 02:39:29,396 - Step 00334: 344.5755 E_h, exp. variance=0.0056 E_h^2, pmove=0.49
+2026-06-08 02:39:29,720 - Step 00335: 344.4971 E_h, exp. variance=0.0058 E_h^2, pmove=0.48
+2026-06-08 02:39:30,042 - Step 00336: 344.5594 E_h, exp. variance=0.0053 E_h^2, pmove=0.49
+2026-06-08 02:39:30,362 - Step 00337: 344.5813 E_h, exp. variance=0.0048 E_h^2, pmove=0.49
+2026-06-08 02:39:30,687 - Step 00338: 344.6179 E_h, exp. variance=0.0044 E_h^2, pmove=0.49
+2026-06-08 02:39:31,009 - Step 00339: 344.6334 E_h, exp. variance=0.0042 E_h^2, pmove=0.49
+2026-06-08 02:39:31,334 - Step 00340: 344.6677 E_h, exp. variance=0.0044 E_h^2, pmove=0.49
+2026-06-08 02:39:31,657 - Step 00341: 344.7402 E_h, exp. variance=0.0058 E_h^2, pmove=0.48
+2026-06-08 02:39:31,980 - Step 00342: 344.5970 E_h, exp. variance=0.0053 E_h^2, pmove=0.48
+2026-06-08 02:39:32,302 - Step 00343: 344.5456 E_h, exp. variance=0.0051 E_h^2, pmove=0.48
+2026-06-08 02:39:32,626 - Step 00344: 344.5356 E_h, exp. variance=0.0050 E_h^2, pmove=0.48
+2026-06-08 02:39:32,950 - Step 00345: 344.6817 E_h, exp. variance=0.0051 E_h^2, pmove=0.49
+2026-06-08 02:39:33,273 - Step 00346: 344.5501 E_h, exp. variance=0.0049 E_h^2, pmove=0.48
+2026-06-08 02:39:33,595 - Step 00347: 344.7144 E_h, exp. variance=0.0056 E_h^2, pmove=0.49
+2026-06-08 02:39:33,918 - Step 00348: 344.5022 E_h, exp. variance=0.0061 E_h^2, pmove=0.49
+2026-06-08 02:39:34,241 - Step 00349: 344.6041 E_h, exp. variance=0.0055 E_h^2, pmove=0.48
+2026-06-08 02:39:34,569 - Step 00350: 345.1572 E_h, exp. variance=0.0329 E_h^2, pmove=0.48
+2026-06-08 02:39:34,897 - Step 00351: 344.5300 E_h, exp. variance=0.0310 E_h^2, pmove=0.48
+2026-06-08 02:39:35,219 - Step 00352: 344.6072 E_h, exp. variance=0.0280 E_h^2, pmove=0.49
+2026-06-08 02:39:35,540 - Step 00353: 344.6240 E_h, exp. variance=0.0253 E_h^2, pmove=0.48
+2026-06-08 02:39:35,863 - Step 00354: 344.5760 E_h, exp. variance=0.0231 E_h^2, pmove=0.49
+2026-06-08 02:39:36,188 - Step 00355: 344.5779 E_h, exp. variance=0.0210 E_h^2, pmove=0.48
+2026-06-08 02:39:36,508 - Step 00356: 344.6030 E_h, exp. variance=0.0190 E_h^2, pmove=0.49
+2026-06-08 02:39:36,833 - Step 00357: 344.5457 E_h, exp. variance=0.0176 E_h^2, pmove=0.49
+2026-06-08 02:39:37,158 - Step 00358: 344.5777 E_h, exp. variance=0.0160 E_h^2, pmove=0.49
+2026-06-08 02:39:37,483 - Step 00359: 344.5603 E_h, exp. variance=0.0146 E_h^2, pmove=0.49
+2026-06-08 02:39:37,807 - Step 00360: 344.5190 E_h, exp. variance=0.0139 E_h^2, pmove=0.49
+2026-06-08 02:39:38,128 - Step 00361: 344.4236 E_h, exp. variance=0.0152 E_h^2, pmove=0.49
+2026-06-08 02:39:38,450 - Step 00362: 344.5583 E_h, exp. variance=0.0138 E_h^2, pmove=0.49
+2026-06-08 02:39:38,773 - Step 00363: 344.7518 E_h, exp. variance=0.0151 E_h^2, pmove=0.49
+2026-06-08 02:39:39,095 - Step 00364: 344.7403 E_h, exp. variance=0.0155 E_h^2, pmove=0.49
+2026-06-08 02:39:39,415 - Step 00365: 347.4937 E_h, exp. variance=0.7621 E_h^2, pmove=0.48
+2026-06-08 02:39:39,736 - Step 00366: 344.8382 E_h, exp. variance=0.6863 E_h^2, pmove=0.49
+2026-06-08 02:39:40,062 - Step 00367: 344.6836 E_h, exp. variance=0.6216 E_h^2, pmove=0.49
+2026-06-08 02:39:40,391 - Step 00368: 344.5262 E_h, exp. variance=0.5702 E_h^2, pmove=0.48
+2026-06-08 02:39:40,715 - Step 00369: 344.6296 E_h, exp. variance=0.5170 E_h^2, pmove=0.49
+2026-06-08 02:39:41,039 - Step 00370: 344.5154 E_h, exp. variance=0.4735 E_h^2, pmove=0.48
+2026-06-08 02:39:41,361 - Step 00371: 344.6739 E_h, exp. variance=0.4273 E_h^2, pmove=0.49
+2026-06-08 02:39:41,681 - Step 00372: 344.5430 E_h, exp. variance=0.3894 E_h^2, pmove=0.48
+2026-06-08 02:39:42,000 - Step 00373: 344.5847 E_h, exp. variance=0.3530 E_h^2, pmove=0.49
+2026-06-08 02:39:42,324 - Step 00374: 344.5851 E_h, exp. variance=0.3197 E_h^2, pmove=0.49
+2026-06-08 02:39:42,647 - Step 00375: 344.6594 E_h, exp. variance=0.2881 E_h^2, pmove=0.49
+2026-06-08 02:39:42,967 - Step 00376: 344.4259 E_h, exp. variance=0.2667 E_h^2, pmove=0.48
+2026-06-08 02:39:43,304 - Step 00377: 344.7770 E_h, exp. variance=0.2408 E_h^2, pmove=0.49
+2026-06-08 02:39:43,631 - Step 00378: 344.5164 E_h, exp. variance=0.2196 E_h^2, pmove=0.48
+2026-06-08 02:39:43,955 - Step 00379: 344.6025 E_h, exp. variance=0.1981 E_h^2, pmove=0.49
+2026-06-08 02:39:44,275 - Step 00380: 344.3352 E_h, exp. variance=0.1884 E_h^2, pmove=0.49
+2026-06-08 02:39:44,595 - Step 00381: 344.4531 E_h, exp. variance=0.1725 E_h^2, pmove=0.49
+2026-06-08 02:39:44,918 - Step 00382: 344.4434 E_h, exp. variance=0.1580 E_h^2, pmove=0.49
+2026-06-08 02:39:45,241 - Step 00383: 344.4254 E_h, exp. variance=0.1449 E_h^2, pmove=0.49
+2026-06-08 02:39:45,560 - Step 00384: 344.3835 E_h, exp. variance=0.1340 E_h^2, pmove=0.49
+2026-06-08 02:39:45,881 - Step 00385: 344.5548 E_h, exp. variance=0.1206 E_h^2, pmove=0.49
+2026-06-08 02:39:46,201 - Step 00386: 344.5098 E_h, exp. variance=0.1088 E_h^2, pmove=0.49
+2026-06-08 02:39:46,521 - Step 00387: 344.4418 E_h, exp. variance=0.0991 E_h^2, pmove=0.48
+2026-06-08 02:39:46,839 - Step 00388: 344.4533 E_h, exp. variance=0.0900 E_h^2, pmove=0.48
+2026-06-08 02:39:47,164 - Step 00389: 344.4718 E_h, exp. variance=0.0813 E_h^2, pmove=0.49
+2026-06-08 02:39:47,485 - Step 00390: 344.5034 E_h, exp. variance=0.0733 E_h^2, pmove=0.50
+2026-06-08 02:39:47,805 - Step 00391: 344.4782 E_h, exp. variance=0.0662 E_h^2, pmove=0.50
+2026-06-08 02:39:48,126 - Step 00392: 344.4310 E_h, exp. variance=0.0603 E_h^2, pmove=0.49
+2026-06-08 02:39:48,448 - Step 00393: 344.5215 E_h, exp. variance=0.0543 E_h^2, pmove=0.49
+2026-06-08 02:39:48,769 - Step 00394: 344.4510 E_h, exp. variance=0.0492 E_h^2, pmove=0.49
+2026-06-08 02:39:49,093 - Step 00395: 344.5601 E_h, exp. variance=0.0445 E_h^2, pmove=0.49
+2026-06-08 02:39:49,415 - Step 00396: 344.5815 E_h, exp. variance=0.0405 E_h^2, pmove=0.49
+2026-06-08 02:39:49,738 - Step 00397: 344.3919 E_h, exp. variance=0.0379 E_h^2, pmove=0.49
+2026-06-08 02:39:50,060 - Step 00398: 344.4179 E_h, exp. variance=0.0348 E_h^2, pmove=0.49
+2026-06-08 02:39:50,382 - Step 00399: 344.5333 E_h, exp. variance=0.0315 E_h^2, pmove=0.49
+2026-06-08 02:39:50,702 - Step 00400: 344.6365 E_h, exp. variance=0.0300 E_h^2, pmove=0.48
+2026-06-08 02:39:51,022 - Step 00401: 344.6011 E_h, exp. variance=0.0276 E_h^2, pmove=0.48
+2026-06-08 02:39:51,342 - Step 00402: 344.4788 E_h, exp. variance=0.0250 E_h^2, pmove=0.49
+2026-06-08 02:39:51,663 - Step 00403: 344.4763 E_h, exp. variance=0.0227 E_h^2, pmove=0.49
+2026-06-08 02:39:51,984 - Step 00404: 344.5636 E_h, exp. variance=0.0206 E_h^2, pmove=0.49
+2026-06-08 02:39:52,306 - Step 00405: 344.3489 E_h, exp. variance=0.0212 E_h^2, pmove=0.49
+2026-06-08 02:39:52,626 - Step 00406: 344.5513 E_h, exp. variance=0.0193 E_h^2, pmove=0.49
+2026-06-08 02:39:52,960 - Step 00407: 344.4495 E_h, exp. variance=0.0177 E_h^2, pmove=0.49
+2026-06-08 02:39:53,302 - Step 00408: 344.5094 E_h, exp. variance=0.0159 E_h^2, pmove=0.49
+2026-06-08 02:39:53,646 - Step 00409: 344.5165 E_h, exp. variance=0.0143 E_h^2, pmove=0.49
+2026-06-08 02:39:53,968 - Step 00410: 344.5810 E_h, exp. variance=0.0134 E_h^2, pmove=0.49
+2026-06-08 02:39:54,289 - Step 00411: 344.4568 E_h, exp. variance=0.0124 E_h^2, pmove=0.48
+2026-06-08 02:39:54,608 - Step 00412: 344.5103 E_h, exp. variance=0.0111 E_h^2, pmove=0.49
+2026-06-08 02:39:54,930 - Step 00413: 344.5228 E_h, exp. variance=0.0100 E_h^2, pmove=0.49
+2026-06-08 02:39:55,252 - Step 00414: 344.6259 E_h, exp. variance=0.0103 E_h^2, pmove=0.49
+2026-06-08 02:39:55,571 - Step 00415: 344.4836 E_h, exp. variance=0.0094 E_h^2, pmove=0.49
+2026-06-08 02:39:55,893 - Step 00416: 344.6710 E_h, exp. variance=0.0106 E_h^2, pmove=0.49
+2026-06-08 02:39:56,213 - Step 00417: 344.5572 E_h, exp. variance=0.0096 E_h^2, pmove=0.49
+2026-06-08 02:39:56,532 - Step 00418: 344.4696 E_h, exp. variance=0.0090 E_h^2, pmove=0.49
+2026-06-08 02:39:56,853 - Step 00419: 344.5982 E_h, exp. variance=0.0086 E_h^2, pmove=0.49
+2026-06-08 02:39:57,174 - Step 00420: 344.7960 E_h, exp. variance=0.0138 E_h^2, pmove=0.49
+2026-06-08 02:39:57,492 - Step 00421: 344.5673 E_h, exp. variance=0.0125 E_h^2, pmove=0.49
+2026-06-08 02:39:57,814 - Step 00422: 344.5076 E_h, exp. variance=0.0115 E_h^2, pmove=0.49
+2026-06-08 02:39:58,135 - Step 00423: 344.3730 E_h, exp. variance=0.0133 E_h^2, pmove=0.49
+2026-06-08 02:39:58,458 - Step 00424: 344.5333 E_h, exp. variance=0.0120 E_h^2, pmove=0.49
+2026-06-08 02:39:58,781 - Step 00425: 344.6305 E_h, exp. variance=0.0116 E_h^2, pmove=0.49
+2026-06-08 02:39:59,103 - Step 00426: 344.6990 E_h, exp. variance=0.0125 E_h^2, pmove=0.49
+2026-06-08 02:39:59,424 - Step 00427: 344.6534 E_h, exp. variance=0.0120 E_h^2, pmove=0.49
+2026-06-08 02:39:59,745 - Step 00428: 344.7508 E_h, exp. variance=0.0137 E_h^2, pmove=0.49
+2026-06-08 02:40:00,071 - Step 00429: 344.6047 E_h, exp. variance=0.0124 E_h^2, pmove=0.49
+2026-06-08 02:40:00,397 - Step 00430: 344.5515 E_h, exp. variance=0.0113 E_h^2, pmove=0.49
+2026-06-08 02:40:00,721 - Step 00431: 344.6001 E_h, exp. variance=0.0102 E_h^2, pmove=0.50
+2026-06-08 02:40:01,044 - Step 00432: 344.5986 E_h, exp. variance=0.0092 E_h^2, pmove=0.50
+2026-06-08 02:40:01,367 - Step 00433: 344.5240 E_h, exp. variance=0.0086 E_h^2, pmove=0.49
+2026-06-08 02:40:01,685 - Step 00434: 344.6566 E_h, exp. variance=0.0083 E_h^2, pmove=0.49
+2026-06-08 02:40:02,008 - Step 00435: 344.4987 E_h, exp. variance=0.0082 E_h^2, pmove=0.49
+2026-06-08 02:40:02,329 - Step 00436: 344.7197 E_h, exp. variance=0.0091 E_h^2, pmove=0.49
+2026-06-08 02:40:02,652 - Step 00437: 344.6010 E_h, exp. variance=0.0082 E_h^2, pmove=0.49
+2026-06-08 02:40:02,979 - Step 00438: 344.6222 E_h, exp. variance=0.0074 E_h^2, pmove=0.50
+2026-06-08 02:40:03,302 - Step 00439: 344.6312 E_h, exp. variance=0.0068 E_h^2, pmove=0.49
+2026-06-08 02:40:03,621 - Step 00440: 344.6061 E_h, exp. variance=0.0061 E_h^2, pmove=0.49
+2026-06-08 02:40:03,943 - Step 00441: 344.6217 E_h, exp. variance=0.0055 E_h^2, pmove=0.49
+2026-06-08 02:40:04,263 - Step 00442: 344.4366 E_h, exp. variance=0.0075 E_h^2, pmove=0.49
+2026-06-08 02:40:04,585 - Step 00443: 344.5809 E_h, exp. variance=0.0068 E_h^2, pmove=0.49
+2026-06-08 02:40:04,910 - Step 00444: 344.5234 E_h, exp. variance=0.0064 E_h^2, pmove=0.49
+2026-06-08 02:40:05,231 - Step 00445: 344.5352 E_h, exp. variance=0.0060 E_h^2, pmove=0.49
+2026-06-08 02:40:05,550 - Step 00446: 344.5201 E_h, exp. variance=0.0057 E_h^2, pmove=0.49
+2026-06-08 02:40:05,874 - Step 00447: 344.4112 E_h, exp. variance=0.0074 E_h^2, pmove=0.48
+2026-06-08 02:40:06,195 - Step 00448: 344.5854 E_h, exp. variance=0.0067 E_h^2, pmove=0.49
+2026-06-08 02:40:06,528 - Step 00449: 344.5411 E_h, exp. variance=0.0061 E_h^2, pmove=0.49
+2026-06-08 02:40:06,875 - Step 00450: 344.6505 E_h, exp. variance=0.0063 E_h^2, pmove=0.49
+2026-06-08 02:40:07,198 - Step 00451: 344.5755 E_h, exp. variance=0.0057 E_h^2, pmove=0.49
+2026-06-08 02:40:07,522 - Step 00452: 344.7245 E_h, exp. variance=0.0073 E_h^2, pmove=0.49
+2026-06-08 02:40:07,845 - Step 00453: 344.5138 E_h, exp. variance=0.0070 E_h^2, pmove=0.49
+2026-06-08 02:40:08,168 - Step 00454: 344.4109 E_h, exp. variance=0.0088 E_h^2, pmove=0.50
+2026-06-08 02:40:08,490 - Step 00455: 344.5102 E_h, exp. variance=0.0081 E_h^2, pmove=0.49
+2026-06-08 02:40:08,813 - Step 00456: 344.4838 E_h, exp. variance=0.0077 E_h^2, pmove=0.49
+2026-06-08 02:40:09,132 - Step 00457: 344.4736 E_h, exp. variance=0.0074 E_h^2, pmove=0.49
+2026-06-08 02:40:09,454 - Step 00458: 344.4697 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:40:09,775 - Step 00459: 344.5017 E_h, exp. variance=0.0065 E_h^2, pmove=0.49
+2026-06-08 02:40:10,095 - Step 00460: 344.4715 E_h, exp. variance=0.0062 E_h^2, pmove=0.49
+2026-06-08 02:40:10,416 - Step 00461: 344.4663 E_h, exp. variance=0.0058 E_h^2, pmove=0.49
+2026-06-08 02:40:10,739 - Step 00462: 344.6379 E_h, exp. variance=0.0065 E_h^2, pmove=0.49
+2026-06-08 02:40:11,066 - Step 00463: 344.3856 E_h, exp. variance=0.0078 E_h^2, pmove=0.49
+2026-06-08 02:40:11,389 - Step 00464: 344.5144 E_h, exp. variance=0.0070 E_h^2, pmove=0.49
+2026-06-08 02:40:11,709 - Step 00465: 344.5651 E_h, exp. variance=0.0065 E_h^2, pmove=0.49
+2026-06-08 02:40:12,032 - Step 00466: 344.5102 E_h, exp. variance=0.0059 E_h^2, pmove=0.49
+2026-06-08 02:40:12,356 - Step 00467: 344.3824 E_h, exp. variance=0.0070 E_h^2, pmove=0.49
+2026-06-08 02:40:12,679 - Step 00468: 344.4607 E_h, exp. variance=0.0065 E_h^2, pmove=0.49
+2026-06-08 02:40:13,001 - Step 00469: 344.4048 E_h, exp. variance=0.0066 E_h^2, pmove=0.49
+2026-06-08 02:40:13,326 - Step 00470: 344.8027 E_h, exp. variance=0.0147 E_h^2, pmove=0.50
+2026-06-08 02:40:13,652 - Step 00471: 344.5147 E_h, exp. variance=0.0132 E_h^2, pmove=0.49
+2026-06-08 02:40:13,973 - Step 00472: 344.6228 E_h, exp. variance=0.0128 E_h^2, pmove=0.50
+2026-06-08 02:40:14,293 - Step 00473: 344.5424 E_h, exp. variance=0.0116 E_h^2, pmove=0.49
+2026-06-08 02:40:14,615 - Step 00474: 344.6020 E_h, exp. variance=0.0108 E_h^2, pmove=0.49
+2026-06-08 02:40:14,935 - Step 00475: 344.5713 E_h, exp. variance=0.0098 E_h^2, pmove=0.49
+2026-06-08 02:40:15,260 - Step 00476: 344.6572 E_h, exp. variance=0.0100 E_h^2, pmove=0.49
+2026-06-08 02:40:15,583 - Step 00477: 344.5557 E_h, exp. variance=0.0090 E_h^2, pmove=0.49
+2026-06-08 02:40:15,905 - Step 00478: 344.5175 E_h, exp. variance=0.0082 E_h^2, pmove=0.49
+2026-06-08 02:40:16,229 - Step 00479: 344.6208 E_h, exp. variance=0.0079 E_h^2, pmove=0.50
+2026-06-08 02:40:16,551 - Step 00480: 344.5204 E_h, exp. variance=0.0072 E_h^2, pmove=0.49
+2026-06-08 02:40:16,871 - Step 00481: 344.5660 E_h, exp. variance=0.0065 E_h^2, pmove=0.49
+2026-06-08 02:40:17,193 - Step 00482: 344.4664 E_h, exp. variance=0.0066 E_h^2, pmove=0.49
+2026-06-08 02:40:17,517 - Step 00483: 344.3237 E_h, exp. variance=0.0104 E_h^2, pmove=0.49
+2026-06-08 02:40:17,839 - Step 00484: 344.3590 E_h, exp. variance=0.0118 E_h^2, pmove=0.49
+2026-06-08 02:40:18,163 - Step 00485: 344.4816 E_h, exp. variance=0.0107 E_h^2, pmove=0.49
+2026-06-08 02:40:18,484 - Step 00486: 344.4573 E_h, exp. variance=0.0098 E_h^2, pmove=0.49
+2026-06-08 02:40:18,804 - Step 00487: 344.5321 E_h, exp. variance=0.0089 E_h^2, pmove=0.50
+2026-06-08 02:40:19,126 - Step 00488: 344.6144 E_h, exp. variance=0.0091 E_h^2, pmove=0.50
+2026-06-08 02:40:19,447 - Step 00489: 344.5782 E_h, exp. variance=0.0086 E_h^2, pmove=0.49
+2026-06-08 02:40:19,770 - Step 00490: 344.4525 E_h, exp. variance=0.0081 E_h^2, pmove=0.49
+2026-06-08 02:40:20,094 - Step 00491: 344.6376 E_h, exp. variance=0.0087 E_h^2, pmove=0.49
+2026-06-08 02:40:20,415 - Step 00492: 344.5166 E_h, exp. variance=0.0078 E_h^2, pmove=0.49
+2026-06-08 02:40:20,734 - Step 00493: 344.4958 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:40:21,058 - Step 00494: 344.5461 E_h, exp. variance=0.0065 E_h^2, pmove=0.49
+2026-06-08 02:40:21,386 - Step 00495: 344.5661 E_h, exp. variance=0.0060 E_h^2, pmove=0.49
+2026-06-08 02:40:21,715 - Step 00496: 344.5284 E_h, exp. variance=0.0054 E_h^2, pmove=0.49
+2026-06-08 02:40:22,041 - Step 00497: 344.3717 E_h, exp. variance=0.0071 E_h^2, pmove=0.49
+2026-06-08 02:40:22,370 - Step 00498: 344.3997 E_h, exp. variance=0.0075 E_h^2, pmove=0.49
+2026-06-08 02:40:22,708 - Step 00499: 344.4577 E_h, exp. variance=0.0069 E_h^2, pmove=0.49
+2026-06-08 02:40:23,053 - Step 00500: 344.4618 E_h, exp. variance=0.0064 E_h^2, pmove=0.49
+2026-06-08 02:40:23,384 - Step 00501: 344.5165 E_h, exp. variance=0.0058 E_h^2, pmove=0.49
+2026-06-08 02:40:23,709 - Step 00502: 344.4769 E_h, exp. variance=0.0052 E_h^2, pmove=0.50
+2026-06-08 02:40:24,031 - Step 00503: 345.2079 E_h, exp. variance=0.0506 E_h^2, pmove=0.50
+2026-06-08 02:40:24,355 - Step 00504: 344.5648 E_h, exp. variance=0.0455 E_h^2, pmove=0.48
+2026-06-08 02:40:24,679 - Step 00505: 344.5102 E_h, exp. variance=0.0412 E_h^2, pmove=0.49
+2026-06-08 02:40:24,999 - Step 00506: 344.6855 E_h, exp. variance=0.0385 E_h^2, pmove=0.49
+2026-06-08 02:40:25,325 - Step 00507: 344.4810 E_h, exp. variance=0.0354 E_h^2, pmove=0.49
+2026-06-08 02:40:25,649 - Step 00508: 344.5411 E_h, exp. variance=0.0319 E_h^2, pmove=0.49
+2026-06-08 02:40:25,974 - Step 00509: 344.5905 E_h, exp. variance=0.0288 E_h^2, pmove=0.49
+2026-06-08 02:40:26,298 - Step 00510: 344.5687 E_h, exp. variance=0.0259 E_h^2, pmove=0.49
+2026-06-08 02:40:26,621 - Step 00511: 344.4826 E_h, exp. variance=0.0239 E_h^2, pmove=0.50
+2026-06-08 02:40:26,942 - Step 00512: 344.3840 E_h, exp. variance=0.0242 E_h^2, pmove=0.49
+2026-06-08 02:40:27,265 - Step 00513: 344.5359 E_h, exp. variance=0.0218 E_h^2, pmove=0.49
+2026-06-08 02:40:27,590 - Step 00514: 344.4892 E_h, exp. variance=0.0198 E_h^2, pmove=0.49
+2026-06-08 02:40:27,912 - Step 00515: 344.6057 E_h, exp. variance=0.0183 E_h^2, pmove=0.49
+2026-06-08 02:40:28,237 - Step 00516: 344.5400 E_h, exp. variance=0.0165 E_h^2, pmove=0.50
+2026-06-08 02:40:28,562 - Step 00517: 344.6086 E_h, exp. variance=0.0153 E_h^2, pmove=0.50
+2026-06-08 02:40:28,942 - Step 00518: 346.0819 E_h, exp. variance=0.2256 E_h^2, pmove=0.50
+2026-06-08 02:40:29,265 - Step 00519: 344.6133 E_h, exp. variance=0.2037 E_h^2, pmove=0.49
+2026-06-08 02:40:29,601 - Step 00520: 344.4621 E_h, exp. variance=0.1881 E_h^2, pmove=0.49
+2026-06-08 02:40:29,943 - Step 00521: 344.5804 E_h, exp. variance=0.1700 E_h^2, pmove=0.49
+2026-06-08 02:40:30,287 - Step 00522: 344.5269 E_h, exp. variance=0.1546 E_h^2, pmove=0.49
+2026-06-08 02:40:30,630 - Step 00523: 344.5245 E_h, exp. variance=0.1405 E_h^2, pmove=0.50
+2026-06-08 02:40:30,976 - Step 00524: 344.4809 E_h, exp. variance=0.1286 E_h^2, pmove=0.49
+2026-06-08 02:40:31,300 - Step 00525: 344.5593 E_h, exp. variance=0.1161 E_h^2, pmove=0.49
+2026-06-08 02:40:31,621 - Step 00526: 344.5176 E_h, exp. variance=0.1053 E_h^2, pmove=0.48
+2026-06-08 02:40:31,943 - Step 00527: 344.4848 E_h, exp. variance=0.0960 E_h^2, pmove=0.50
+2026-06-08 02:40:32,266 - Step 00528: 344.5026 E_h, exp. variance=0.0871 E_h^2, pmove=0.50
+2026-06-08 02:40:32,589 - Step 00529: 344.5551 E_h, exp. variance=0.0785 E_h^2, pmove=0.50
+2026-06-08 02:40:32,910 - Step 00530: 344.7197 E_h, exp. variance=0.0724 E_h^2, pmove=0.49
+2026-06-08 02:40:33,234 - Step 00531: 344.5832 E_h, exp. variance=0.0652 E_h^2, pmove=0.49
+2026-06-08 02:40:33,559 - Step 00532: 344.6858 E_h, exp. variance=0.0594 E_h^2, pmove=0.49
+2026-06-08 02:40:33,887 - Step 00533: 344.5772 E_h, exp. variance=0.0535 E_h^2, pmove=0.49
+2026-06-08 02:40:34,210 - Step 00534: 344.5309 E_h, exp. variance=0.0486 E_h^2, pmove=0.49
+2026-06-08 02:40:34,530 - Step 00535: 344.5581 E_h, exp. variance=0.0439 E_h^2, pmove=0.49
+2026-06-08 02:40:34,853 - Step 00536: 344.3902 E_h, exp. variance=0.0431 E_h^2, pmove=0.50
+2026-06-08 02:40:35,175 - Step 00537: 344.4504 E_h, exp. variance=0.0400 E_h^2, pmove=0.50
+2026-06-08 02:40:35,497 - Step 00538: 344.4962 E_h, exp. variance=0.0364 E_h^2, pmove=0.49
+2026-06-08 02:40:35,820 - Step 00539: 344.4050 E_h, exp. variance=0.0347 E_h^2, pmove=0.49
+2026-06-08 02:40:36,139 - Step 00540: 344.4583 E_h, exp. variance=0.0317 E_h^2, pmove=0.49
+2026-06-08 02:40:36,460 - Step 00541: 344.4346 E_h, exp. variance=0.0294 E_h^2, pmove=0.50
+2026-06-08 02:40:36,785 - Step 00542: 344.5785 E_h, exp. variance=0.0267 E_h^2, pmove=0.50
+2026-06-08 02:40:37,109 - Step 00543: 344.5964 E_h, exp. variance=0.0245 E_h^2, pmove=0.50
+2026-06-08 02:40:37,435 - Step 00544: 344.5183 E_h, exp. variance=0.0221 E_h^2, pmove=0.50
+2026-06-08 02:40:37,760 - Step 00545: 344.5697 E_h, exp. variance=0.0200 E_h^2, pmove=0.49
+2026-06-08 02:40:38,086 - Step 00546: 344.5373 E_h, exp. variance=0.0180 E_h^2, pmove=0.49
+2026-06-08 02:40:38,410 - Step 00547: 344.4540 E_h, exp. variance=0.0168 E_h^2, pmove=0.50
+2026-06-08 02:40:38,736 - Step 00548: 344.5034 E_h, exp. variance=0.0152 E_h^2, pmove=0.50
+2026-06-08 02:40:39,062 - Step 00549: 344.5521 E_h, exp. variance=0.0137 E_h^2, pmove=0.50
+2026-06-08 02:40:39,401 - Step 00550: 344.4536 E_h, exp. variance=0.0128 E_h^2, pmove=0.49
+2026-06-08 02:40:39,748 - Step 00551: 344.4915 E_h, exp. variance=0.0116 E_h^2, pmove=0.50
+2026-06-08 02:40:40,085 - Step 00552: 344.5232 E_h, exp. variance=0.0105 E_h^2, pmove=0.50
+2026-06-08 02:40:40,432 - Step 00553: 344.6360 E_h, exp. variance=0.0107 E_h^2, pmove=0.50
+2026-06-08 02:40:40,762 - Step 00554: 344.3613 E_h, exp. variance=0.0122 E_h^2, pmove=0.50
+2026-06-08 02:40:41,087 - Step 00555: 344.3788 E_h, exp. variance=0.0126 E_h^2, pmove=0.49
+2026-06-08 02:40:41,412 - Step 00556: 344.6721 E_h, exp. variance=0.0140 E_h^2, pmove=0.49
+2026-06-08 02:40:41,738 - Step 00557: 344.6206 E_h, exp. variance=0.0136 E_h^2, pmove=0.49
+2026-06-08 02:40:42,064 - Step 00558: 344.3904 E_h, exp. variance=0.0139 E_h^2, pmove=0.50
+2026-06-08 02:40:42,390 - Step 00559: 344.5031 E_h, exp. variance=0.0125 E_h^2, pmove=0.50
+2026-06-08 02:40:42,715 - Step 00560: 344.5041 E_h, exp. variance=0.0113 E_h^2, pmove=0.50
+2026-06-08 02:40:43,058 - Step 00561: 344.5684 E_h, exp. variance=0.0104 E_h^2, pmove=0.49
+2026-06-08 02:40:43,405 - Step 00562: 344.6783 E_h, exp. variance=0.0117 E_h^2, pmove=0.50
+2026-06-08 02:40:43,729 - Step 00563: 344.3695 E_h, exp. variance=0.0130 E_h^2, pmove=0.50
+2026-06-08 02:40:44,053 - Step 00564: 344.4014 E_h, exp. variance=0.0129 E_h^2, pmove=0.50
+2026-06-08 02:40:44,376 - Step 00565: 344.3738 E_h, exp. variance=0.0131 E_h^2, pmove=0.50
+2026-06-08 02:40:44,707 - Step 00566: 344.4807 E_h, exp. variance=0.0118 E_h^2, pmove=0.49
+2026-06-08 02:40:45,032 - Step 00567: 344.3387 E_h, exp. variance=0.0127 E_h^2, pmove=0.49
+2026-06-08 02:40:45,356 - Step 00568: 344.3987 E_h, exp. variance=0.0120 E_h^2, pmove=0.49
+2026-06-08 02:40:45,681 - Step 00569: 344.4427 E_h, exp. variance=0.0109 E_h^2, pmove=0.50
+2026-06-08 02:40:46,005 - Step 00570: 344.4933 E_h, exp. variance=0.0098 E_h^2, pmove=0.50
+2026-06-08 02:40:46,329 - Step 00571: 344.5718 E_h, exp. variance=0.0098 E_h^2, pmove=0.50
+2026-06-08 02:40:46,654 - Step 00572: 344.6038 E_h, exp. variance=0.0103 E_h^2, pmove=0.49
+2026-06-08 02:40:46,995 - Step 00573: 344.5557 E_h, exp. variance=0.0096 E_h^2, pmove=0.49
+2026-06-08 02:40:47,353 - Step 00574: 344.5492 E_h, exp. variance=0.0089 E_h^2, pmove=0.50
+2026-06-08 02:40:47,678 - Step 00575: 344.5558 E_h, exp. variance=0.0082 E_h^2, pmove=0.49
+2026-06-08 02:40:48,003 - Step 00576: 344.5336 E_h, exp. variance=0.0075 E_h^2, pmove=0.50
+2026-06-08 02:40:48,327 - Step 00577: 344.5486 E_h, exp. variance=0.0069 E_h^2, pmove=0.49
+2026-06-08 02:40:48,652 - Step 00578: 344.5291 E_h, exp. variance=0.0062 E_h^2, pmove=0.50
+2026-06-08 02:40:48,978 - Step 00579: 344.5160 E_h, exp. variance=0.0056 E_h^2, pmove=0.49
+2026-06-08 02:40:49,304 - Step 00580: 344.5785 E_h, exp. variance=0.0054 E_h^2, pmove=0.50
+2026-06-08 02:40:49,628 - Step 00581: 344.4963 E_h, exp. variance=0.0049 E_h^2, pmove=0.49
+2026-06-08 02:40:49,955 - Step 00582: 344.4683 E_h, exp. variance=0.0046 E_h^2, pmove=0.49
+2026-06-08 02:40:50,281 - Step 00583: 344.4689 E_h, exp. variance=0.0044 E_h^2, pmove=0.49
+2026-06-08 02:40:50,609 - Step 00584: 344.6221 E_h, exp. variance=0.0051 E_h^2, pmove=0.50
+2026-06-08 02:40:50,950 - Step 00585: 344.3931 E_h, exp. variance=0.0060 E_h^2, pmove=0.50
+2026-06-08 02:40:51,303 - Step 00586: 344.5030 E_h, exp. variance=0.0054 E_h^2, pmove=0.50
+2026-06-08 02:40:51,638 - Step 00587: 344.3784 E_h, exp. variance=0.0064 E_h^2, pmove=0.50
+2026-06-08 02:40:51,965 - Step 00588: 345.0980 E_h, exp. variance=0.0385 E_h^2, pmove=0.50
+2026-06-08 02:40:52,293 - Step 00589: 344.4811 E_h, exp. variance=0.0351 E_h^2, pmove=0.50
+2026-06-08 02:40:52,620 - Step 00590: 344.4039 E_h, exp. variance=0.0335 E_h^2, pmove=0.49
+2026-06-08 02:40:52,945 - Step 00591: 344.3992 E_h, exp. variance=0.0318 E_h^2, pmove=0.49
+2026-06-08 02:40:53,270 - Step 00592: 344.4336 E_h, exp. variance=0.0293 E_h^2, pmove=0.49
+2026-06-08 02:40:53,595 - Step 00593: 344.5611 E_h, exp. variance=0.0265 E_h^2, pmove=0.50
+2026-06-08 02:40:53,922 - Step 00594: 344.5167 E_h, exp. variance=0.0239 E_h^2, pmove=0.50
+2026-06-08 02:40:54,262 - Step 00595: 344.5865 E_h, exp. variance=0.0219 E_h^2, pmove=0.49
+2026-06-08 02:40:54,600 - Step 00596: 344.5586 E_h, exp. variance=0.0199 E_h^2, pmove=0.50
+2026-06-08 02:40:54,948 - Step 00597: 344.6750 E_h, exp. variance=0.0199 E_h^2, pmove=0.50
+2026-06-08 02:40:55,297 - Step 00598: 344.4354 E_h, exp. variance=0.0189 E_h^2, pmove=0.50
+2026-06-08 02:40:55,641 - Step 00599: 344.4688 E_h, exp. variance=0.0173 E_h^2, pmove=0.50
+2026-06-08 02:40:55,987 - Step 00600: 344.5007 E_h, exp. variance=0.0157 E_h^2, pmove=0.50
+2026-06-08 02:40:56,335 - Step 00601: 344.3275 E_h, exp. variance=0.0175 E_h^2, pmove=0.50
+2026-06-08 02:40:56,683 - Step 00602: 344.4355 E_h, exp. variance=0.0162 E_h^2, pmove=0.49
+2026-06-08 02:40:57,027 - Step 00603: 344.4584 E_h, exp. variance=0.0147 E_h^2, pmove=0.49
+2026-06-08 02:40:57,376 - Step 00604: 344.5454 E_h, exp. variance=0.0135 E_h^2, pmove=0.49
+2026-06-08 02:40:57,707 - Step 00605: 344.4435 E_h, exp. variance=0.0124 E_h^2, pmove=0.49
+2026-06-08 02:40:58,034 - Step 00606: 344.4793 E_h, exp. variance=0.0112 E_h^2, pmove=0.50
+2026-06-08 02:40:58,360 - Step 00607: 344.5170 E_h, exp. variance=0.0101 E_h^2, pmove=0.50
+2026-06-08 02:40:58,684 - Step 00608: 344.5346 E_h, exp. variance=0.0093 E_h^2, pmove=0.50
+2026-06-08 02:40:59,009 - Step 00609: 344.5243 E_h, exp. variance=0.0084 E_h^2, pmove=0.49
+2026-06-08 02:40:59,336 - Step 00610: 344.4459 E_h, exp. variance=0.0078 E_h^2, pmove=0.49
+2026-06-08 02:40:59,661 - Step 00611: 344.5580 E_h, exp. variance=0.0074 E_h^2, pmove=0.50
+2026-06-08 02:40:59,987 - Step 00612: 344.5721 E_h, exp. variance=0.0071 E_h^2, pmove=0.49
+2026-06-08 02:41:00,315 - Step 00613: 344.4402 E_h, exp. variance=0.0068 E_h^2, pmove=0.49
+2026-06-08 02:41:00,641 - Step 00614: 344.6461 E_h, exp. variance=0.0080 E_h^2, pmove=0.49
+2026-06-08 02:41:00,966 - Step 00615: 344.3835 E_h, exp. variance=0.0088 E_h^2, pmove=0.49
+2026-06-08 02:41:01,293 - Step 00616: 344.5653 E_h, exp. variance=0.0083 E_h^2, pmove=0.50
+2026-06-08 02:41:01,621 - Step 00617: 344.5739 E_h, exp. variance=0.0078 E_h^2, pmove=0.50
+2026-06-08 02:41:01,946 - Step 00618: 344.4226 E_h, exp. variance=0.0078 E_h^2, pmove=0.50
+2026-06-08 02:41:02,273 - Step 00619: 344.5644 E_h, exp. variance=0.0073 E_h^2, pmove=0.49
+2026-06-08 02:41:02,606 - Step 00620: 344.6262 E_h, exp. variance=0.0078 E_h^2, pmove=0.50
+2026-06-08 02:41:02,957 - Step 00621: 344.4874 E_h, exp. variance=0.0071 E_h^2, pmove=0.49
+2026-06-08 02:41:03,302 - Step 00622: 344.6243 E_h, exp. variance=0.0074 E_h^2, pmove=0.49
+2026-06-08 02:41:03,640 - Step 00623: 344.7750 E_h, exp. variance=0.0120 E_h^2, pmove=0.50
+2026-06-08 02:41:03,973 - Step 00624: 344.4676 E_h, exp. variance=0.0115 E_h^2, pmove=0.50
+2026-06-08 02:41:04,299 - Step 00625: 344.4370 E_h, exp. variance=0.0114 E_h^2, pmove=0.50
+2026-06-08 02:41:04,626 - Step 00626: 344.3860 E_h, exp. variance=0.0123 E_h^2, pmove=0.50
+2026-06-08 02:41:04,954 - Step 00627: 344.5619 E_h, exp. variance=0.0112 E_h^2, pmove=0.49
+2026-06-08 02:41:05,284 - Step 00628: 344.4559 E_h, exp. variance=0.0105 E_h^2, pmove=0.49
+2026-06-08 02:41:05,609 - Step 00629: 344.4691 E_h, exp. variance=0.0097 E_h^2, pmove=0.49
+2026-06-08 02:41:05,936 - Step 00630: 344.4423 E_h, exp. variance=0.0092 E_h^2, pmove=0.50
+2026-06-08 02:41:06,261 - Step 00631: 344.4469 E_h, exp. variance=0.0086 E_h^2, pmove=0.49
+2026-06-08 02:41:06,599 - Step 00632: 344.4689 E_h, exp. variance=0.0078 E_h^2, pmove=0.49
+2026-06-08 02:41:06,944 - Step 00633: 344.4013 E_h, exp. variance=0.0078 E_h^2, pmove=0.49
+2026-06-08 02:41:07,293 - Step 00634: 344.5256 E_h, exp. variance=0.0072 E_h^2, pmove=0.50
+2026-06-08 02:41:07,651 - Step 00635: 344.6801 E_h, exp. variance=0.0097 E_h^2, pmove=0.50
+2026-06-08 02:41:08,022 - Step 00636: 344.5158 E_h, exp. variance=0.0087 E_h^2, pmove=0.50
+2026-06-08 02:41:08,366 - Step 00637: 344.5261 E_h, exp. variance=0.0079 E_h^2, pmove=0.48
+2026-06-08 02:41:08,717 - Step 00638: 344.5278 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:41:09,056 - Step 00639: 344.4522 E_h, exp. variance=0.0067 E_h^2, pmove=0.49
+2026-06-08 02:41:09,381 - Step 00640: 344.5396 E_h, exp. variance=0.0061 E_h^2, pmove=0.49
+2026-06-08 02:41:09,707 - Step 00641: 344.4884 E_h, exp. variance=0.0056 E_h^2, pmove=0.49
+2026-06-08 02:41:10,032 - Step 00642: 344.5382 E_h, exp. variance=0.0051 E_h^2, pmove=0.49
+2026-06-08 02:41:10,356 - Step 00643: 344.4948 E_h, exp. variance=0.0046 E_h^2, pmove=0.49
+2026-06-08 02:41:10,680 - Step 00644: 344.5367 E_h, exp. variance=0.0042 E_h^2, pmove=0.50
+2026-06-08 02:41:11,005 - Step 00645: 344.4346 E_h, exp. variance=0.0043 E_h^2, pmove=0.49
+2026-06-08 02:41:11,331 - Step 00646: 344.7271 E_h, exp. variance=0.0084 E_h^2, pmove=0.50
+2026-06-08 02:41:11,655 - Step 00647: 344.4636 E_h, exp. variance=0.0079 E_h^2, pmove=0.49
+2026-06-08 02:41:11,984 - Step 00648: 344.5025 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:41:12,309 - Step 00649: 344.3980 E_h, exp. variance=0.0077 E_h^2, pmove=0.50
+2026-06-08 02:41:12,640 - Step 00650: 344.5080 E_h, exp. variance=0.0070 E_h^2, pmove=0.50
+2026-06-08 02:41:12,969 - Step 00651: 344.6168 E_h, exp. variance=0.0073 E_h^2, pmove=0.49
+2026-06-08 02:41:13,295 - Step 00652: 344.6337 E_h, exp. variance=0.0078 E_h^2, pmove=0.50
+2026-06-08 02:41:13,621 - Step 00653: 344.5604 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:41:13,947 - Step 00654: 344.4138 E_h, exp. variance=0.0077 E_h^2, pmove=0.49
+2026-06-08 02:41:14,273 - Step 00655: 344.5478 E_h, exp. variance=0.0070 E_h^2, pmove=0.50
+2026-06-08 02:41:14,600 - Step 00656: 344.3485 E_h, exp. variance=0.0090 E_h^2, pmove=0.49
+2026-06-08 02:41:14,927 - Step 00657: 344.5896 E_h, exp. variance=0.0088 E_h^2, pmove=0.50
+2026-06-08 02:41:15,253 - Step 00658: 344.5598 E_h, exp. variance=0.0081 E_h^2, pmove=0.49
+2026-06-08 02:41:15,581 - Step 00659: 344.5601 E_h, exp. variance=0.0074 E_h^2, pmove=0.49
+2026-06-08 02:41:15,908 - Step 00660: 344.4003 E_h, exp. variance=0.0080 E_h^2, pmove=0.49
+2026-06-08 02:41:16,234 - Step 00661: 344.4540 E_h, exp. variance=0.0075 E_h^2, pmove=0.50
+2026-06-08 02:41:16,561 - Step 00662: 344.6266 E_h, exp. variance=0.0081 E_h^2, pmove=0.50
+2026-06-08 02:41:16,887 - Step 00663: 344.4133 E_h, exp. variance=0.0083 E_h^2, pmove=0.49
+2026-06-08 02:41:17,214 - Step 00664: 344.6047 E_h, exp. variance=0.0083 E_h^2, pmove=0.50
+2026-06-08 02:41:17,541 - Step 00665: 344.3405 E_h, exp. variance=0.0103 E_h^2, pmove=0.50
+2026-06-08 02:41:17,865 - Step 00666: 344.4539 E_h, exp. variance=0.0094 E_h^2, pmove=0.50
+2026-06-08 02:41:18,192 - Step 00667: 344.6264 E_h, exp. variance=0.0100 E_h^2, pmove=0.50
+2026-06-08 02:41:18,518 - Step 00668: 344.6208 E_h, exp. variance=0.0102 E_h^2, pmove=0.50
+2026-06-08 02:41:18,844 - Step 00669: 344.5555 E_h, exp. variance=0.0093 E_h^2, pmove=0.50
+2026-06-08 02:41:19,169 - Step 00670: 344.5373 E_h, exp. variance=0.0084 E_h^2, pmove=0.50
+2026-06-08 02:41:19,493 - Step 00671: 344.5851 E_h, exp. variance=0.0079 E_h^2, pmove=0.50
+2026-06-08 02:41:19,820 - Step 00672: 344.6722 E_h, exp. variance=0.0089 E_h^2, pmove=0.49
+2026-06-08 02:41:20,145 - Step 00673: 344.7406 E_h, exp. variance=0.0115 E_h^2, pmove=0.50
+2026-06-08 02:41:20,470 - Step 00674: 344.5813 E_h, exp. variance=0.0104 E_h^2, pmove=0.49
+2026-06-08 02:41:20,796 - Step 00675: 344.5464 E_h, exp. variance=0.0094 E_h^2, pmove=0.50
+2026-06-08 02:41:21,122 - Step 00676: 344.4476 E_h, exp. variance=0.0096 E_h^2, pmove=0.50
+2026-06-08 02:41:21,447 - Step 00677: 344.3187 E_h, exp. variance=0.0136 E_h^2, pmove=0.50
+2026-06-08 02:41:21,774 - Step 00678: 344.3699 E_h, exp. variance=0.0145 E_h^2, pmove=0.49
+2026-06-08 02:41:22,115 - Step 00679: 344.5133 E_h, exp. variance=0.0130 E_h^2, pmove=0.50
+2026-06-08 02:41:22,467 - Step 00680: 344.5909 E_h, exp. variance=0.0123 E_h^2, pmove=0.50
+2026-06-08 02:41:22,805 - Step 00681: 344.6679 E_h, exp. variance=0.0130 E_h^2, pmove=0.50
+2026-06-08 02:41:23,132 - Step 00682: 344.5441 E_h, exp. variance=0.0117 E_h^2, pmove=0.50
+2026-06-08 02:41:23,460 - Step 00683: 344.3224 E_h, exp. variance=0.0147 E_h^2, pmove=0.50
+2026-06-08 02:41:23,786 - Step 00684: 344.4910 E_h, exp. variance=0.0132 E_h^2, pmove=0.50
+2026-06-08 02:41:24,113 - Step 00685: 344.5120 E_h, exp. variance=0.0119 E_h^2, pmove=0.49
+2026-06-08 02:41:24,439 - Step 00686: 344.5525 E_h, exp. variance=0.0109 E_h^2, pmove=0.50
+2026-06-08 02:41:24,766 - Step 00687: 344.5177 E_h, exp. variance=0.0098 E_h^2, pmove=0.49
+2026-06-08 02:41:25,091 - Step 00688: 344.4982 E_h, exp. variance=0.0088 E_h^2, pmove=0.50
+2026-06-08 02:41:25,424 - Step 00689: 344.4787 E_h, exp. variance=0.0081 E_h^2, pmove=0.50
+2026-06-08 02:41:25,752 - Step 00690: 344.4592 E_h, exp. variance=0.0075 E_h^2, pmove=0.50
+2026-06-08 02:41:26,077 - Step 00691: 344.3682 E_h, exp. variance=0.0085 E_h^2, pmove=0.50
+2026-06-08 02:41:26,402 - Step 00692: 344.4847 E_h, exp. variance=0.0076 E_h^2, pmove=0.49
+2026-06-08 02:41:26,730 - Step 00693: 344.4755 E_h, exp. variance=0.0069 E_h^2, pmove=0.50
+2026-06-08 02:41:27,058 - Step 00694: 344.6048 E_h, exp. variance=0.0074 E_h^2, pmove=0.50
+2026-06-08 02:41:27,384 - Step 00695: 344.4371 E_h, exp. variance=0.0070 E_h^2, pmove=0.50
+2026-06-08 02:41:27,712 - Step 00696: 344.4764 E_h, exp. variance=0.0063 E_h^2, pmove=0.50
+2026-06-08 02:41:28,039 - Step 00697: 344.4508 E_h, exp. variance=0.0059 E_h^2, pmove=0.50
+2026-06-08 02:41:28,365 - Step 00698: 344.6330 E_h, exp. variance=0.0072 E_h^2, pmove=0.50
+2026-06-08 02:41:28,691 - Step 00699: 344.5355 E_h, exp. variance=0.0065 E_h^2, pmove=0.50
+2026-06-08 02:41:29,017 - Step 00700: 344.4862 E_h, exp. variance=0.0059 E_h^2, pmove=0.50
+2026-06-08 02:41:29,342 - Step 00701: 344.3629 E_h, exp. variance=0.0071 E_h^2, pmove=0.49
+2026-06-08 02:41:29,667 - Step 00702: 344.3694 E_h, exp. variance=0.0077 E_h^2, pmove=0.50
+2026-06-08 02:41:29,994 - Step 00703: 344.4296 E_h, exp. variance=0.0072 E_h^2, pmove=0.50
+2026-06-08 02:41:30,320 - Step 00704: 344.4276 E_h, exp. variance=0.0066 E_h^2, pmove=0.50
+2026-06-08 02:41:30,646 - Step 00705: 344.4201 E_h, exp. variance=0.0062 E_h^2, pmove=0.50
+2026-06-08 02:41:30,974 - Step 00706: 344.4214 E_h, exp. variance=0.0057 E_h^2, pmove=0.50
+2026-06-08 02:41:31,315 - Step 00707: 344.5904 E_h, exp. variance=0.0067 E_h^2, pmove=0.49
+2026-06-08 02:41:31,655 - Step 00708: 344.4543 E_h, exp. variance=0.0061 E_h^2, pmove=0.49
+2026-06-08 02:41:32,003 - Step 00709: 344.3605 E_h, exp. variance=0.0065 E_h^2, pmove=0.49
+2026-06-08 02:41:32,350 - Step 00710: 344.3473 E_h, exp. variance=0.0070 E_h^2, pmove=0.50
+2026-06-08 02:41:32,700 - Step 00711: 344.3157 E_h, exp. variance=0.0079 E_h^2, pmove=0.49
+2026-06-08 02:41:33,049 - Step 00712: 344.4424 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:41:33,389 - Step 00713: 344.2870 E_h, exp. variance=0.0084 E_h^2, pmove=0.50
+2026-06-08 02:41:33,743 - Step 00714: 344.4169 E_h, exp. variance=0.0076 E_h^2, pmove=0.50
+2026-06-08 02:41:34,073 - Step 00715: 344.3514 E_h, exp. variance=0.0073 E_h^2, pmove=0.49
+2026-06-08 02:41:34,401 - Step 00716: 344.2958 E_h, exp. variance=0.0078 E_h^2, pmove=0.50
+2026-06-08 02:41:34,736 - Step 00717: 344.3988 E_h, exp. variance=0.0070 E_h^2, pmove=0.50
+2026-06-08 02:41:35,061 - Step 00718: 344.4640 E_h, exp. variance=0.0067 E_h^2, pmove=0.49
+2026-06-08 02:41:35,387 - Step 00719: 344.3936 E_h, exp. variance=0.0060 E_h^2, pmove=0.50
+2026-06-08 02:41:35,715 - Step 00720: 344.5597 E_h, exp. variance=0.0075 E_h^2, pmove=0.51
+2026-06-08 02:41:36,041 - Step 00721: 344.7148 E_h, exp. variance=0.0145 E_h^2, pmove=0.50
+2026-06-08 02:41:36,369 - Step 00722: 344.4613 E_h, exp. variance=0.0131 E_h^2, pmove=0.50
+2026-06-08 02:41:36,696 - Step 00723: 344.3964 E_h, exp. variance=0.0120 E_h^2, pmove=0.50
+2026-06-08 02:41:37,036 - Step 00724: 344.3157 E_h, exp. variance=0.0124 E_h^2, pmove=0.50
+2026-06-08 02:41:37,371 - Step 00725: 344.3312 E_h, exp. variance=0.0121 E_h^2, pmove=0.50
+2026-06-08 02:41:37,699 - Step 00726: 344.3118 E_h, exp. variance=0.0120 E_h^2, pmove=0.50
+2026-06-08 02:41:38,032 - Step 00727: 344.2805 E_h, exp. variance=0.0123 E_h^2, pmove=0.50
+2026-06-08 02:41:38,365 - Step 00728: 344.3161 E_h, exp. variance=0.0117 E_h^2, pmove=0.50
+2026-06-08 02:41:38,695 - Step 00729: 344.3791 E_h, exp. variance=0.0106 E_h^2, pmove=0.50
+2026-06-08 02:41:39,030 - Step 00730: 344.4466 E_h, exp. variance=0.0098 E_h^2, pmove=0.49
+2026-06-08 02:41:39,362 - Step 00731: 344.3913 E_h, exp. variance=0.0088 E_h^2, pmove=0.49
+2026-06-08 02:41:39,694 - Step 00732: 344.4127 E_h, exp. variance=0.0080 E_h^2, pmove=0.50
+2026-06-08 02:41:40,025 - Step 00733: 344.5281 E_h, exp. variance=0.0087 E_h^2, pmove=0.50
+2026-06-08 02:41:40,360 - Step 00734: 344.4510 E_h, exp. variance=0.0080 E_h^2, pmove=0.50
+2026-06-08 02:41:40,692 - Step 00735: 344.5531 E_h, exp. variance=0.0090 E_h^2, pmove=0.50
+2026-06-08 02:41:41,023 - Step 00736: 344.4595 E_h, exp. variance=0.0081 E_h^2, pmove=0.49
+2026-06-08 02:41:41,353 - Step 00737: 344.2967 E_h, exp. variance=0.0090 E_h^2, pmove=0.50
+2026-06-08 02:41:41,683 - Step 00738: 344.4401 E_h, exp. variance=0.0081 E_h^2, pmove=0.50
+2026-06-08 02:41:42,031 - Step 00739: 344.3554 E_h, exp. variance=0.0077 E_h^2, pmove=0.50
+2026-06-08 02:41:42,364 - Step 00740: 344.4651 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:41:42,696 - Step 00741: 344.3564 E_h, exp. variance=0.0068 E_h^2, pmove=0.50
+2026-06-08 02:41:43,024 - Step 00742: 344.5045 E_h, exp. variance=0.0069 E_h^2, pmove=0.50
+2026-06-08 02:41:43,355 - Step 00743: 344.4880 E_h, exp. variance=0.0066 E_h^2, pmove=0.50
+2026-06-08 02:41:43,685 - Step 00744: 344.3485 E_h, exp. variance=0.0065 E_h^2, pmove=0.49
+2026-06-08 02:41:44,029 - Step 00745: 344.7452 E_h, exp. variance=0.0153 E_h^2, pmove=0.50
+2026-06-08 02:41:44,382 - Step 00746: 344.4146 E_h, exp. variance=0.0139 E_h^2, pmove=0.50
+2026-06-08 02:41:44,742 - Step 00747: 344.3610 E_h, exp. variance=0.0132 E_h^2, pmove=0.50
+2026-06-08 02:41:45,078 - Step 00748: 344.3940 E_h, exp. variance=0.0121 E_h^2, pmove=0.50
+2026-06-08 02:41:45,417 - Step 00749: 344.4630 E_h, exp. variance=0.0110 E_h^2, pmove=0.49
+2026-06-08 02:41:45,748 - Step 00750: 344.4634 E_h, exp. variance=0.0099 E_h^2, pmove=0.49
+2026-06-08 02:41:46,078 - Step 00751: 344.3672 E_h, exp. variance=0.0094 E_h^2, pmove=0.50
+2026-06-08 02:41:46,410 - Step 00752: 344.4034 E_h, exp. variance=0.0086 E_h^2, pmove=0.50
+2026-06-08 02:41:46,742 - Step 00753: 344.5314 E_h, exp. variance=0.0086 E_h^2, pmove=0.50
+2026-06-08 02:41:47,519 - Step 00754: 344.3933 E_h, exp. variance=0.0080 E_h^2, pmove=0.49
+2026-06-08 02:41:47,850 - Step 00755: 344.5964 E_h, exp. variance=0.0095 E_h^2, pmove=0.49
+2026-06-08 02:41:48,183 - Step 00756: 344.3541 E_h, exp. variance=0.0094 E_h^2, pmove=0.49
+2026-06-08 02:41:48,530 - Step 00757: 344.4120 E_h, exp. variance=0.0085 E_h^2, pmove=0.50
+2026-06-08 02:41:48,884 - Step 00758: 344.5097 E_h, exp. variance=0.0081 E_h^2, pmove=0.50
+2026-06-08 02:41:49,241 - Step 00759: 344.6197 E_h, exp. variance=0.0100 E_h^2, pmove=0.50
+2026-06-08 02:41:49,595 - Step 00760: 344.5397 E_h, exp. variance=0.0096 E_h^2, pmove=0.50
+2026-06-08 02:41:49,949 - Step 00761: 344.5512 E_h, exp. variance=0.0092 E_h^2, pmove=0.50
+2026-06-08 02:41:50,305 - Step 00762: 344.4677 E_h, exp. variance=0.0083 E_h^2, pmove=0.49
+2026-06-08 02:41:50,660 - Step 00763: 344.4793 E_h, exp. variance=0.0074 E_h^2, pmove=0.50
+2026-06-08 02:41:51,015 - Step 00764: 344.3997 E_h, exp. variance=0.0073 E_h^2, pmove=0.50
+2026-06-08 02:41:51,378 - Step 00765: 344.4533 E_h, exp. variance=0.0066 E_h^2, pmove=0.50
+2026-06-08 02:41:51,751 - Step 00766: 344.4099 E_h, exp. variance=0.0062 E_h^2, pmove=0.50
+2026-06-08 02:41:52,106 - Step 00767: 344.5367 E_h, exp. variance=0.0061 E_h^2, pmove=0.50
+2026-06-08 02:41:52,458 - Step 00768: 344.4542 E_h, exp. variance=0.0055 E_h^2, pmove=0.49
+2026-06-08 02:41:52,815 - Step 00769: 344.5336 E_h, exp. variance=0.0053 E_h^2, pmove=0.50
+2026-06-08 02:41:53,164 - Step 00770: 344.6021 E_h, exp. variance=0.0062 E_h^2, pmove=0.50
+2026-06-08 02:41:53,505 - Step 00771: 344.5395 E_h, exp. variance=0.0059 E_h^2, pmove=0.50
+2026-06-08 02:41:53,863 - Step 00772: 344.5255 E_h, exp. variance=0.0054 E_h^2, pmove=0.50
+2026-06-08 02:41:54,214 - Step 00773: 344.5124 E_h, exp. variance=0.0049 E_h^2, pmove=0.49
+2026-06-08 02:41:54,569 - Step 00774: 344.4599 E_h, exp. variance=0.0045 E_h^2, pmove=0.50
+2026-06-08 02:41:54,924 - Step 00775: 344.3941 E_h, exp. variance=0.0050 E_h^2, pmove=0.50
+2026-06-08 02:41:55,276 - Step 00776: 344.3353 E_h, exp. variance=0.0064 E_h^2, pmove=0.51
+2026-06-08 02:41:55,629 - Step 00777: 344.3759 E_h, exp. variance=0.0066 E_h^2, pmove=0.50
+2026-06-08 02:41:55,981 - Step 00778: 344.4098 E_h, exp. variance=0.0062 E_h^2, pmove=0.50
+2026-06-08 02:41:56,351 - Step 00779: 344.2938 E_h, exp. variance=0.0079 E_h^2, pmove=0.49
+2026-06-08 02:41:56,713 - Step 00780: 344.3954 E_h, exp. variance=0.0073 E_h^2, pmove=0.50
+2026-06-08 02:41:57,067 - Step 00781: 344.5374 E_h, exp. variance=0.0075 E_h^2, pmove=0.50
+2026-06-08 02:41:57,425 - Step 00782: 344.4211 E_h, exp. variance=0.0068 E_h^2, pmove=0.49
+2026-06-08 02:41:57,764 - Step 00783: 344.4479 E_h, exp. variance=0.0061 E_h^2, pmove=0.51
+2026-06-08 02:41:58,108 - Step 00784: 344.4948 E_h, exp. variance=0.0057 E_h^2, pmove=0.49
+2026-06-08 02:41:58,463 - Step 00785: 344.5732 E_h, exp. variance=0.0066 E_h^2, pmove=0.50
+2026-06-08 02:41:58,817 - Step 00786: 344.3956 E_h, exp. variance=0.0063 E_h^2, pmove=0.49
+2026-06-08 02:41:59,171 - Step 00787: 344.4510 E_h, exp. variance=0.0057 E_h^2, pmove=0.50
+2026-06-08 02:41:59,527 - Step 00788: 344.3034 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:41:59,881 - Step 00789: 344.3505 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:42:00,237 - Step 00790: 344.3549 E_h, exp. variance=0.0069 E_h^2, pmove=0.49
+2026-06-08 02:42:00,591 - Step 00791: 344.4023 E_h, exp. variance=0.0063 E_h^2, pmove=0.50
+2026-06-08 02:42:00,948 - Step 00792: 344.4276 E_h, exp. variance=0.0056 E_h^2, pmove=0.50
+2026-06-08 02:42:01,303 - Step 00793: 344.4607 E_h, exp. variance=0.0052 E_h^2, pmove=0.50
+2026-06-08 02:42:01,632 - Step 00794: 344.4596 E_h, exp. variance=0.0048 E_h^2, pmove=0.49
+2026-06-08 02:42:01,965 - Step 00795: 344.5863 E_h, exp. variance=0.0066 E_h^2, pmove=0.50
+2026-06-08 02:42:02,296 - Step 00796: 344.4399 E_h, exp. variance=0.0059 E_h^2, pmove=0.50
+2026-06-08 02:42:02,626 - Step 00797: 344.3319 E_h, exp. variance=0.0064 E_h^2, pmove=0.50
+2026-06-08 02:42:02,959 - Step 00798: 344.3297 E_h, exp. variance=0.0068 E_h^2, pmove=0.50
+2026-06-08 02:42:03,290 - Step 00799: 344.4657 E_h, exp. variance=0.0063 E_h^2, pmove=0.50
+2026-06-08 02:42:03,625 - Step 00800: 344.5144 E_h, exp. variance=0.0063 E_h^2, pmove=0.50
+2026-06-08 02:42:03,954 - Step 00801: 344.5381 E_h, exp. variance=0.0066 E_h^2, pmove=0.50
+2026-06-08 02:42:04,282 - Step 00802: 344.4698 E_h, exp. variance=0.0060 E_h^2, pmove=0.50
+2026-06-08 02:42:04,612 - Step 00803: 344.4549 E_h, exp. variance=0.0054 E_h^2, pmove=0.50
+2026-06-08 02:42:04,943 - Step 00804: 344.4576 E_h, exp. variance=0.0049 E_h^2, pmove=0.50
+2026-06-08 02:42:05,274 - Step 00805: 344.5906 E_h, exp. variance=0.0062 E_h^2, pmove=0.50
+2026-06-08 02:42:05,605 - Step 00806: 344.5182 E_h, exp. variance=0.0058 E_h^2, pmove=0.49
+2026-06-08 02:42:05,933 - Step 00807: 344.5103 E_h, exp. variance=0.0054 E_h^2, pmove=0.50
+2026-06-08 02:42:06,264 - Step 00808: 344.5464 E_h, exp. variance=0.0053 E_h^2, pmove=0.50
+2026-06-08 02:42:06,594 - Step 00809: 344.8762 E_h, exp. variance=0.0189 E_h^2, pmove=0.50
+2026-06-08 02:42:06,924 - Step 00810: 344.7305 E_h, exp. variance=0.0210 E_h^2, pmove=0.49
+2026-06-08 02:42:07,253 - Step 00811: 344.4686 E_h, exp. variance=0.0194 E_h^2, pmove=0.50
+2026-06-08 02:42:07,584 - Step 00812: 344.3223 E_h, exp. variance=0.0215 E_h^2, pmove=0.50
+2026-06-08 02:42:07,914 - Step 00813: 344.3718 E_h, exp. variance=0.0211 E_h^2, pmove=0.49
+2026-06-08 02:42:08,244 - Step 00814: 344.2975 E_h, exp. variance=0.0226 E_h^2, pmove=0.50
+2026-06-08 02:42:08,574 - Step 00815: 344.2852 E_h, exp. variance=0.0237 E_h^2, pmove=0.50
+2026-06-08 02:42:08,903 - Step 00816: 344.3796 E_h, exp. variance=0.0219 E_h^2, pmove=0.50
+2026-06-08 02:42:09,234 - Step 00817: 344.5213 E_h, exp. variance=0.0202 E_h^2, pmove=0.50
+2026-06-08 02:42:09,563 - Step 00818: 344.4072 E_h, exp. variance=0.0184 E_h^2, pmove=0.50
+2026-06-08 02:42:09,893 - Step 00819: 344.3715 E_h, exp. variance=0.0172 E_h^2, pmove=0.50
+2026-06-08 02:42:10,222 - Step 00820: 344.3785 E_h, exp. variance=0.0158 E_h^2, pmove=0.50
+2026-06-08 02:42:10,553 - Step 00821: 344.4215 E_h, exp. variance=0.0143 E_h^2, pmove=0.50
+2026-06-08 02:42:10,883 - Step 00822: 344.4350 E_h, exp. variance=0.0129 E_h^2, pmove=0.50
+2026-06-08 02:42:11,215 - Step 00823: 344.4892 E_h, exp. variance=0.0118 E_h^2, pmove=0.50
+2026-06-08 02:42:11,545 - Step 00824: 344.4908 E_h, exp. variance=0.0109 E_h^2, pmove=0.50
+2026-06-08 02:42:11,876 - Step 00825: 344.3636 E_h, exp. variance=0.0104 E_h^2, pmove=0.50
+2026-06-08 02:42:12,223 - Step 00826: 344.3941 E_h, exp. variance=0.0095 E_h^2, pmove=0.50
+2026-06-08 02:42:12,573 - Step 00827: 344.4291 E_h, exp. variance=0.0086 E_h^2, pmove=0.49
+2026-06-08 02:42:12,928 - Step 00828: 344.5330 E_h, exp. variance=0.0086 E_h^2, pmove=0.50
+2026-06-08 02:42:13,283 - Step 00829: 345.1264 E_h, exp. variance=0.0497 E_h^2, pmove=0.50
+2026-06-08 02:42:13,640 - Step 00830: 344.5637 E_h, exp. variance=0.0450 E_h^2, pmove=0.49
+2026-06-08 02:42:13,997 - Step 00831: 344.5234 E_h, exp. variance=0.0405 E_h^2, pmove=0.50
+2026-06-08 02:42:14,347 - Step 00832: 344.5094 E_h, exp. variance=0.0365 E_h^2, pmove=0.50
+2026-06-08 02:42:14,697 - Step 00833: 344.2609 E_h, exp. variance=0.0387 E_h^2, pmove=0.50
+2026-06-08 02:42:15,050 - Step 00834: 344.4097 E_h, exp. variance=0.0354 E_h^2, pmove=0.50
+2026-06-08 02:42:15,400 - Step 00835: 344.4422 E_h, exp. variance=0.0320 E_h^2, pmove=0.51
+2026-06-08 02:42:15,758 - Step 00836: 344.4497 E_h, exp. variance=0.0289 E_h^2, pmove=0.50
+2026-06-08 02:42:16,089 - Step 00837: 344.3616 E_h, exp. variance=0.0272 E_h^2, pmove=0.50
+2026-06-08 02:42:16,420 - Step 00838: 344.3595 E_h, exp. variance=0.0255 E_h^2, pmove=0.50
+2026-06-08 02:42:16,751 - Step 00839: 344.6583 E_h, exp. variance=0.0267 E_h^2, pmove=0.50
+2026-06-08 02:42:17,084 - Step 00840: 344.4033 E_h, exp. variance=0.0245 E_h^2, pmove=0.50
+2026-06-08 02:42:17,417 - Step 00841: 344.4392 E_h, exp. variance=0.0221 E_h^2, pmove=0.51
+2026-06-08 02:42:17,746 - Step 00842: 344.2551 E_h, exp. variance=0.0238 E_h^2, pmove=0.49
+2026-06-08 02:42:18,076 - Step 00843: 344.4714 E_h, exp. variance=0.0215 E_h^2, pmove=0.50
+2026-06-08 02:42:18,407 - Step 00844: 344.4041 E_h, exp. variance=0.0195 E_h^2, pmove=0.50
+2026-06-08 02:42:18,736 - Step 00845: 344.4061 E_h, exp. variance=0.0177 E_h^2, pmove=0.49
+2026-06-08 02:42:19,066 - Step 00846: 344.3254 E_h, exp. variance=0.0171 E_h^2, pmove=0.50
+2026-06-08 02:42:19,410 - Step 00847: 344.3217 E_h, exp. variance=0.0164 E_h^2, pmove=0.50
+2026-06-08 02:42:19,744 - Step 00848: 344.5315 E_h, exp. variance=0.0159 E_h^2, pmove=0.50
+2026-06-08 02:42:20,075 - Step 00849: 344.3694 E_h, exp. variance=0.0146 E_h^2, pmove=0.50
+2026-06-08 02:42:20,405 - Step 00850: 344.3965 E_h, exp. variance=0.0132 E_h^2, pmove=0.50
+2026-06-08 02:42:20,736 - Step 00851: 344.5536 E_h, exp. variance=0.0135 E_h^2, pmove=0.50
+2026-06-08 02:42:21,065 - Step 00852: 344.4483 E_h, exp. variance=0.0122 E_h^2, pmove=0.49
+2026-06-08 02:42:21,396 - Step 00853: 344.3815 E_h, exp. variance=0.0112 E_h^2, pmove=0.49
+2026-06-08 02:42:21,726 - Step 00854: 344.2610 E_h, exp. variance=0.0127 E_h^2, pmove=0.49
+2026-06-08 02:42:22,055 - Step 00855: 344.4268 E_h, exp. variance=0.0114 E_h^2, pmove=0.49
+2026-06-08 02:42:22,386 - Step 00856: 344.3024 E_h, exp. variance=0.0114 E_h^2, pmove=0.49
+2026-06-08 02:42:22,724 - Step 00857: 344.3604 E_h, exp. variance=0.0104 E_h^2, pmove=0.50
+2026-06-08 02:42:23,063 - Step 00858: 344.3907 E_h, exp. variance=0.0094 E_h^2, pmove=0.49
+2026-06-08 02:42:23,392 - Step 00859: 344.3979 E_h, exp. variance=0.0084 E_h^2, pmove=0.50
+2026-06-08 02:42:23,722 - Step 00860: 344.3851 E_h, exp. variance=0.0076 E_h^2, pmove=0.51
+2026-06-08 02:42:24,075 - Step 00861: 344.6454 E_h, exp. variance=0.0124 E_h^2, pmove=0.50
+2026-06-08 02:42:24,432 - Step 00862: 344.4733 E_h, exp. variance=0.0114 E_h^2, pmove=0.49
+2026-06-08 02:42:24,789 - Step 00863: 344.4272 E_h, exp. variance=0.0103 E_h^2, pmove=0.50
+2026-06-08 02:42:25,124 - Step 00864: 344.3512 E_h, exp. variance=0.0098 E_h^2, pmove=0.50
+2026-06-08 02:42:25,455 - Step 00865: 344.3077 E_h, exp. variance=0.0099 E_h^2, pmove=0.50
+2026-06-08 02:42:25,785 - Step 00866: 344.3660 E_h, exp. variance=0.0091 E_h^2, pmove=0.50
+2026-06-08 02:42:26,114 - Step 00867: 344.2056 E_h, exp. variance=0.0117 E_h^2, pmove=0.50
+2026-06-08 02:42:26,448 - Step 00868: 344.3235 E_h, exp. variance=0.0109 E_h^2, pmove=0.50
+2026-06-08 02:42:26,778 - Step 00869: 344.3335 E_h, exp. variance=0.0100 E_h^2, pmove=0.50
+2026-06-08 02:42:27,111 - Step 00870: 344.3948 E_h, exp. variance=0.0090 E_h^2, pmove=0.49
+2026-06-08 02:42:27,444 - Step 00871: 344.3821 E_h, exp. variance=0.0081 E_h^2, pmove=0.50
+2026-06-08 02:42:27,774 - Step 00872: 344.4452 E_h, exp. variance=0.0077 E_h^2, pmove=0.50
+2026-06-08 02:42:28,105 - Step 00873: 344.4552 E_h, exp. variance=0.0074 E_h^2, pmove=0.50
+2026-06-08 02:42:28,436 - Step 00874: 344.4870 E_h, exp. variance=0.0075 E_h^2, pmove=0.50
+2026-06-08 02:42:28,768 - Step 00875: 344.5012 E_h, exp. variance=0.0077 E_h^2, pmove=0.49
+2026-06-08 02:42:29,100 - Step 00876: 344.6740 E_h, exp. variance=0.0132 E_h^2, pmove=0.50
+2026-06-08 02:42:29,431 - Step 00877: 344.5213 E_h, exp. variance=0.0125 E_h^2, pmove=0.50
+2026-06-08 02:42:29,776 - Step 00878: 344.4518 E_h, exp. variance=0.0113 E_h^2, pmove=0.50
+2026-06-08 02:42:30,125 - Step 00879: 344.4423 E_h, exp. variance=0.0101 E_h^2, pmove=0.50
+2026-06-08 02:42:30,482 - Step 00880: 344.3469 E_h, exp. variance=0.0100 E_h^2, pmove=0.50
+2026-06-08 02:42:30,837 - Step 00881: 344.6948 E_h, exp. variance=0.0150 E_h^2, pmove=0.50
+2026-06-08 02:42:31,196 - Step 00882: 344.5020 E_h, exp. variance=0.0137 E_h^2, pmove=0.50
+2026-06-08 02:42:31,551 - Step 00883: 344.5200 E_h, exp. variance=0.0126 E_h^2, pmove=0.50
+2026-06-08 02:42:31,907 - Step 00884: 344.5146 E_h, exp. variance=0.0115 E_h^2, pmove=0.50
+2026-06-08 02:42:32,265 - Step 00885: 344.4319 E_h, exp. variance=0.0105 E_h^2, pmove=0.49
+2026-06-08 02:42:32,619 - Step 00886: 344.3614 E_h, exp. variance=0.0105 E_h^2, pmove=0.50
+2026-06-08 02:42:32,975 - Step 00887: 344.4815 E_h, exp. variance=0.0095 E_h^2, pmove=0.50
+2026-06-08 02:42:33,328 - Step 00888: 344.5205 E_h, exp. variance=0.0089 E_h^2, pmove=0.50
+2026-06-08 02:42:33,683 - Step 00889: 344.3562 E_h, exp. variance=0.0091 E_h^2, pmove=0.50
+2026-06-08 02:42:34,028 - Step 00890: 344.4032 E_h, exp. variance=0.0085 E_h^2, pmove=0.49
+2026-06-08 02:42:34,363 - Step 00891: 344.4425 E_h, exp. variance=0.0076 E_h^2, pmove=0.49
+2026-06-08 02:42:34,694 - Step 00892: 344.3876 E_h, exp. variance=0.0072 E_h^2, pmove=0.49
+2026-06-08 02:42:35,025 - Step 00893: 344.1614 E_h, exp. variance=0.0137 E_h^2, pmove=0.50
+2026-06-08 02:42:35,356 - Step 00894: 344.3194 E_h, exp. variance=0.0132 E_h^2, pmove=0.50
+2026-06-08 02:42:35,687 - Step 00895: 344.3878 E_h, exp. variance=0.0119 E_h^2, pmove=0.50
+2026-06-08 02:42:36,019 - Step 00896: 344.5240 E_h, exp. variance=0.0120 E_h^2, pmove=0.49
+2026-06-08 02:42:36,352 - Step 00897: 344.3564 E_h, exp. variance=0.0111 E_h^2, pmove=0.50
+2026-06-08 02:42:36,682 - Step 00898: 344.3617 E_h, exp. variance=0.0102 E_h^2, pmove=0.50
+2026-06-08 02:42:37,020 - Step 00899: 344.4025 E_h, exp. variance=0.0092 E_h^2, pmove=0.50
+2026-06-08 02:42:37,368 - Step 00900: 344.2699 E_h, exp. variance=0.0099 E_h^2, pmove=0.50
+2026-06-08 02:42:37,702 - Step 00901: 344.4202 E_h, exp. variance=0.0090 E_h^2, pmove=0.50
+2026-06-08 02:42:38,033 - Step 00902: 344.4051 E_h, exp. variance=0.0081 E_h^2, pmove=0.50
+2026-06-08 02:42:38,363 - Step 00903: 344.4352 E_h, exp. variance=0.0074 E_h^2, pmove=0.50
+2026-06-08 02:42:38,693 - Step 00904: 344.2655 E_h, exp. variance=0.0083 E_h^2, pmove=0.50
+2026-06-08 02:42:39,023 - Step 00905: 344.4208 E_h, exp. variance=0.0076 E_h^2, pmove=0.50
+2026-06-08 02:42:39,354 - Step 00906: 344.5743 E_h, exp. variance=0.0099 E_h^2, pmove=0.50
+2026-06-08 02:42:39,684 - Step 00907: 344.4205 E_h, exp. variance=0.0089 E_h^2, pmove=0.49
+2026-06-08 02:42:40,015 - Step 00908: 344.5166 E_h, exp. variance=0.0091 E_h^2, pmove=0.50
+2026-06-08 02:42:40,345 - Step 00909: 344.4630 E_h, exp. variance=0.0083 E_h^2, pmove=0.50
+2026-06-08 02:42:40,675 - Step 00910: 344.4830 E_h, exp. variance=0.0078 E_h^2, pmove=0.49
+2026-06-08 02:42:41,005 - Step 00911: 344.5593 E_h, exp. variance=0.0085 E_h^2, pmove=0.50
+2026-06-08 02:42:41,351 - Step 00912: 344.5096 E_h, exp. variance=0.0081 E_h^2, pmove=0.50
+2026-06-08 02:42:41,712 - Step 00913: 344.5146 E_h, exp. variance=0.0076 E_h^2, pmove=0.50
+2026-06-08 02:42:42,077 - Step 00914: 344.3340 E_h, exp. variance=0.0082 E_h^2, pmove=0.50
+2026-06-08 02:42:42,441 - Step 00915: 344.3684 E_h, exp. variance=0.0079 E_h^2, pmove=0.49
+2026-06-08 02:42:42,776 - Step 00916: 344.4944 E_h, exp. variance=0.0074 E_h^2, pmove=0.50
+2026-06-08 02:42:43,109 - Step 00917: 344.4273 E_h, exp. variance=0.0067 E_h^2, pmove=0.50
+2026-06-08 02:42:43,439 - Step 00918: 344.4302 E_h, exp. variance=0.0060 E_h^2, pmove=0.50
+2026-06-08 02:42:43,769 - Step 00919: 344.3974 E_h, exp. variance=0.0056 E_h^2, pmove=0.50
+2026-06-08 02:42:44,101 - Step 00920: 344.2418 E_h, exp. variance=0.0084 E_h^2, pmove=0.50
+2026-06-08 02:42:44,438 - Step 00921: 344.2732 E_h, exp. variance=0.0094 E_h^2, pmove=0.50
+2026-06-08 02:42:44,768 - Step 00922: 344.2571 E_h, exp. variance=0.0104 E_h^2, pmove=0.49
+2026-06-08 02:42:45,099 - Step 00923: 344.2831 E_h, exp. variance=0.0103 E_h^2, pmove=0.50
+2026-06-08 02:42:45,431 - Step 00924: 344.4935 E_h, exp. variance=0.0105 E_h^2, pmove=0.50
+2026-06-08 02:42:45,761 - Step 00925: 344.8432 E_h, exp. variance=0.0280 E_h^2, pmove=0.49
+2026-06-08 02:42:46,092 - Step 00926: 344.6180 E_h, exp. variance=0.0283 E_h^2, pmove=0.50
+2026-06-08 02:42:46,424 - Step 00927: 344.5536 E_h, exp. variance=0.0264 E_h^2, pmove=0.50
+2026-06-08 02:42:46,755 - Step 00928: 344.4210 E_h, exp. variance=0.0239 E_h^2, pmove=0.50
+2026-06-08 02:42:47,085 - Step 00929: 344.5286 E_h, exp. variance=0.0219 E_h^2, pmove=0.50
+2026-06-08 02:42:47,416 - Step 00930: 344.5315 E_h, exp. variance=0.0201 E_h^2, pmove=0.50
+2026-06-08 02:42:47,746 - Step 00931: 344.3611 E_h, exp. variance=0.0192 E_h^2, pmove=0.50
+2026-06-08 02:42:48,076 - Step 00932: 344.4874 E_h, exp. variance=0.0174 E_h^2, pmove=0.50
+2026-06-08 02:42:48,408 - Step 00933: 344.4325 E_h, exp. variance=0.0157 E_h^2, pmove=0.50
+2026-06-08 02:42:48,740 - Step 00934: 344.5093 E_h, exp. variance=0.0144 E_h^2, pmove=0.50
+2026-06-08 02:42:49,071 - Step 00935: 344.5159 E_h, exp. variance=0.0132 E_h^2, pmove=0.50
+2026-06-08 02:42:49,402 - Step 00936: 344.4291 E_h, exp. variance=0.0120 E_h^2, pmove=0.50
+2026-06-08 02:42:49,734 - Step 00937: 344.2802 E_h, exp. variance=0.0139 E_h^2, pmove=0.50
+2026-06-08 02:42:50,063 - Step 00938: 344.4315 E_h, exp. variance=0.0125 E_h^2, pmove=0.49
+2026-06-08 02:42:50,393 - Step 00939: 344.5901 E_h, exp. variance=0.0132 E_h^2, pmove=0.50
+2026-06-08 02:42:50,726 - Step 00940: 344.4272 E_h, exp. variance=0.0119 E_h^2, pmove=0.50
+2026-06-08 02:42:51,058 - Step 00941: 344.4573 E_h, exp. variance=0.0107 E_h^2, pmove=0.50
+2026-06-08 02:42:51,388 - Step 00942: 344.3099 E_h, exp. variance=0.0116 E_h^2, pmove=0.50
+2026-06-08 02:42:51,717 - Step 00943: 344.4141 E_h, exp. variance=0.0105 E_h^2, pmove=0.50
+2026-06-08 02:42:52,051 - Step 00944: 344.2448 E_h, exp. variance=0.0129 E_h^2, pmove=0.50
+2026-06-08 02:42:52,393 - Step 00945: 344.3721 E_h, exp. variance=0.0118 E_h^2, pmove=0.50
+2026-06-08 02:42:52,743 - Step 00946: 344.3863 E_h, exp. variance=0.0107 E_h^2, pmove=0.50
+2026-06-08 02:42:53,098 - Step 00947: 344.4827 E_h, exp. variance=0.0101 E_h^2, pmove=0.50
+2026-06-08 02:42:53,454 - Step 00948: 344.4058 E_h, exp. variance=0.0091 E_h^2, pmove=0.49
+2026-06-08 02:42:53,810 - Step 00949: 344.3839 E_h, exp. variance=0.0083 E_h^2, pmove=0.50
+2026-06-08 02:42:54,166 - Step 00950: 344.3471 E_h, exp. variance=0.0079 E_h^2, pmove=0.50
+2026-06-08 02:42:54,522 - Step 00951: 344.3875 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:42:54,881 - Step 00952: 344.3159 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:42:55,236 - Step 00953: 344.5105 E_h, exp. variance=0.0076 E_h^2, pmove=0.50
+2026-06-08 02:42:55,569 - Step 00954: 344.2832 E_h, exp. variance=0.0082 E_h^2, pmove=0.50
+2026-06-08 02:42:55,903 - Step 00955: 344.6798 E_h, exp. variance=0.0147 E_h^2, pmove=0.50
+2026-06-08 02:42:56,235 - Step 00956: 344.4418 E_h, exp. variance=0.0132 E_h^2, pmove=0.49
+2026-06-08 02:42:56,568 - Step 00957: 344.4646 E_h, exp. variance=0.0120 E_h^2, pmove=0.50
+2026-06-08 02:42:56,901 - Step 00958: 344.4849 E_h, exp. variance=0.0111 E_h^2, pmove=0.49
+2026-06-08 02:42:57,232 - Step 00959: 344.4738 E_h, exp. variance=0.0101 E_h^2, pmove=0.50
+2026-06-08 02:42:57,565 - Step 00960: 344.4970 E_h, exp. variance=0.0094 E_h^2, pmove=0.50
+2026-06-08 02:42:57,896 - Step 00961: 344.4864 E_h, exp. variance=0.0086 E_h^2, pmove=0.49
+2026-06-08 02:42:58,227 - Step 00962: 344.4104 E_h, exp. variance=0.0079 E_h^2, pmove=0.50
+2026-06-08 02:42:58,573 - Step 00963: 344.4670 E_h, exp. variance=0.0072 E_h^2, pmove=0.50
+2026-06-08 02:42:58,931 - Step 00964: 344.4363 E_h, exp. variance=0.0065 E_h^2, pmove=0.49
+2026-06-08 02:42:59,290 - Step 00965: 344.4308 E_h, exp. variance=0.0058 E_h^2, pmove=0.50
+2026-06-08 02:42:59,647 - Step 00966: 344.5881 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:42:59,993 - Step 00967: 344.5066 E_h, exp. variance=0.0066 E_h^2, pmove=0.50
+2026-06-08 02:43:00,326 - Step 00968: 344.4697 E_h, exp. variance=0.0059 E_h^2, pmove=0.50
+2026-06-08 02:43:00,656 - Step 00969: 344.3771 E_h, exp. variance=0.0060 E_h^2, pmove=0.49
+2026-06-08 02:43:00,986 - Step 00970: 344.4271 E_h, exp. variance=0.0055 E_h^2, pmove=0.50
+2026-06-08 02:43:01,318 - Step 00971: 344.5196 E_h, exp. variance=0.0053 E_h^2, pmove=0.50
+2026-06-08 02:43:01,649 - Step 00972: 344.4568 E_h, exp. variance=0.0048 E_h^2, pmove=0.50
+2026-06-08 02:43:01,983 - Step 00973: 344.4250 E_h, exp. variance=0.0044 E_h^2, pmove=0.50
+2026-06-08 02:43:02,313 - Step 00974: 344.3370 E_h, exp. variance=0.0053 E_h^2, pmove=0.50
+2026-06-08 02:43:02,646 - Step 00975: 344.4297 E_h, exp. variance=0.0048 E_h^2, pmove=0.49
+2026-06-08 02:43:02,986 - Step 00976: 344.4599 E_h, exp. variance=0.0043 E_h^2, pmove=0.50
+2026-06-08 02:43:03,318 - Step 00977: 344.3354 E_h, exp. variance=0.0049 E_h^2, pmove=0.49
+2026-06-08 02:43:03,649 - Step 00978: 344.4338 E_h, exp. variance=0.0044 E_h^2, pmove=0.50
+2026-06-08 02:43:03,981 - Step 00979: 344.3884 E_h, exp. variance=0.0042 E_h^2, pmove=0.50
+2026-06-08 02:43:04,328 - Step 00980: 344.4156 E_h, exp. variance=0.0038 E_h^2, pmove=0.50
+2026-06-08 02:43:04,685 - Step 00981: 344.3703 E_h, exp. variance=0.0037 E_h^2, pmove=0.50
+2026-06-08 02:43:05,044 - Step 00982: 344.4589 E_h, exp. variance=0.0035 E_h^2, pmove=0.51
+2026-06-08 02:43:05,403 - Step 00983: 345.1439 E_h, exp. variance=0.0495 E_h^2, pmove=0.50
+2026-06-08 02:43:05,757 - Step 00984: 345.4334 E_h, exp. variance=0.1234 E_h^2, pmove=0.50
+2026-06-08 02:43:06,120 - Step 00985: 344.4031 E_h, exp. variance=0.1143 E_h^2, pmove=0.50
+2026-06-08 02:43:06,460 - Step 00986: 344.5487 E_h, exp. variance=0.1029 E_h^2, pmove=0.50
+2026-06-08 02:43:06,793 - Step 00987: 344.3945 E_h, exp. variance=0.0954 E_h^2, pmove=0.50
+2026-06-08 02:43:07,123 - Step 00988: 344.5314 E_h, exp. variance=0.0859 E_h^2, pmove=0.51
+2026-06-08 02:43:07,455 - Step 00989: 344.4098 E_h, exp. variance=0.0791 E_h^2, pmove=0.49
+2026-06-08 02:43:07,801 - Step 00990: 344.3807 E_h, exp. variance=0.0733 E_h^2, pmove=0.50
+2026-06-08 02:43:08,145 - Step 00991: 344.4452 E_h, exp. variance=0.0665 E_h^2, pmove=0.50
+2026-06-08 02:43:08,484 - Step 00992: 344.4838 E_h, exp. variance=0.0599 E_h^2, pmove=0.49
+2026-06-08 02:43:08,815 - Step 00993: 344.4413 E_h, exp. variance=0.0544 E_h^2, pmove=0.50
+2026-06-08 02:43:09,148 - Step 00994: 344.5551 E_h, exp. variance=0.0492 E_h^2, pmove=0.50
+2026-06-08 02:43:09,481 - Step 00995: 344.3988 E_h, exp. variance=0.0453 E_h^2, pmove=0.50
+2026-06-08 02:43:09,812 - Step 00996: 344.4644 E_h, exp. variance=0.0409 E_h^2, pmove=0.50
+2026-06-08 02:43:10,145 - Step 00997: 344.5512 E_h, exp. variance=0.0371 E_h^2, pmove=0.50
+2026-06-08 02:43:10,476 - Step 00998: 344.5177 E_h, exp. variance=0.0334 E_h^2, pmove=0.50
+2026-06-08 02:43:10,810 - Step 00999: 344.3384 E_h, exp. variance=0.0325 E_h^2, pmove=0.50
+2026-06-08 02:43:11,142 - Step 01000: 344.4515 E_h, exp. variance=0.0293 E_h^2, pmove=0.50
+2026-06-08 02:43:11,472 - Step 01001: 344.5107 E_h, exp. variance=0.0265 E_h^2, pmove=0.50
+2026-06-08 02:43:11,804 - Step 01002: 344.4207 E_h, exp. variance=0.0242 E_h^2, pmove=0.50
+2026-06-08 02:43:12,135 - Step 01003: 344.4799 E_h, exp. variance=0.0218 E_h^2, pmove=0.49
+2026-06-08 02:43:12,467 - Step 01004: 344.4662 E_h, exp. variance=0.0196 E_h^2, pmove=0.50
+2026-06-08 02:43:12,799 - Step 01005: 344.4458 E_h, exp. variance=0.0177 E_h^2, pmove=0.50
+2026-06-08 02:43:13,135 - Step 01006: 344.4492 E_h, exp. variance=0.0160 E_h^2, pmove=0.50
+2026-06-08 02:43:13,469 - Step 01007: 344.3830 E_h, exp. variance=0.0151 E_h^2, pmove=0.50
+2026-06-08 02:43:13,804 - Step 01008: 344.3933 E_h, exp. variance=0.0141 E_h^2, pmove=0.50
+2026-06-08 02:43:14,135 - Step 01009: 344.4138 E_h, exp. variance=0.0128 E_h^2, pmove=0.50
+2026-06-08 02:43:14,468 - Step 01010: 344.4033 E_h, exp. variance=0.0117 E_h^2, pmove=0.50
+2026-06-08 02:43:14,799 - Step 01011: 344.4405 E_h, exp. variance=0.0106 E_h^2, pmove=0.50
+2026-06-08 02:43:15,131 - Step 01012: 344.5840 E_h, exp. variance=0.0112 E_h^2, pmove=0.49
+2026-06-08 02:43:15,462 - Step 01013: 344.4140 E_h, exp. variance=0.0103 E_h^2, pmove=0.49
+2026-06-08 02:43:15,793 - Step 01014: 344.4825 E_h, exp. variance=0.0093 E_h^2, pmove=0.50
+2026-06-08 02:43:16,146 - Step 01015: 344.4042 E_h, exp. variance=0.0087 E_h^2, pmove=0.50
+2026-06-08 02:43:16,511 - Step 01016: 344.4701 E_h, exp. variance=0.0078 E_h^2, pmove=0.50
+2026-06-08 02:43:16,855 - Step 01017: 344.4356 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:43:17,188 - Step 01018: 344.3724 E_h, exp. variance=0.0069 E_h^2, pmove=0.50
+2026-06-08 02:43:17,522 - Step 01019: 344.4025 E_h, exp. variance=0.0064 E_h^2, pmove=0.50
+2026-06-08 02:43:17,853 - Step 01020: 344.3608 E_h, exp. variance=0.0063 E_h^2, pmove=0.50
+2026-06-08 02:43:18,184 - Step 01021: 344.4114 E_h, exp. variance=0.0057 E_h^2, pmove=0.49
+2026-06-08 02:43:18,516 - Step 01022: 344.3861 E_h, exp. variance=0.0053 E_h^2, pmove=0.50
+2026-06-08 02:43:18,849 - Step 01023: 344.4833 E_h, exp. variance=0.0051 E_h^2, pmove=0.50
+2026-06-08 02:43:19,181 - Step 01024: 344.4402 E_h, exp. variance=0.0046 E_h^2, pmove=0.50
+2026-06-08 02:43:19,514 - Step 01025: 344.3999 E_h, exp. variance=0.0042 E_h^2, pmove=0.50
+2026-06-08 02:43:19,847 - Step 01026: 344.3192 E_h, exp. variance=0.0049 E_h^2, pmove=0.51
+2026-06-08 02:43:20,179 - Step 01027: 344.3853 E_h, exp. variance=0.0045 E_h^2, pmove=0.50
+2026-06-08 02:43:20,513 - Step 01028: 344.4318 E_h, exp. variance=0.0041 E_h^2, pmove=0.50
+2026-06-08 02:43:20,845 - Step 01029: 344.6324 E_h, exp. variance=0.0079 E_h^2, pmove=0.50
+2026-06-08 02:43:21,176 - Step 01030: 344.4373 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:43:21,508 - Step 01031: 344.3664 E_h, exp. variance=0.0068 E_h^2, pmove=0.50
+2026-06-08 02:43:21,839 - Step 01032: 344.4887 E_h, exp. variance=0.0065 E_h^2, pmove=0.49
+2026-06-08 02:43:22,172 - Step 01033: 344.3854 E_h, exp. variance=0.0060 E_h^2, pmove=0.49
+2026-06-08 02:43:22,504 - Step 01034: 344.3924 E_h, exp. variance=0.0056 E_h^2, pmove=0.50
+2026-06-08 02:43:22,835 - Step 01035: 344.2160 E_h, exp. variance=0.0090 E_h^2, pmove=0.49
+2026-06-08 02:43:23,168 - Step 01036: 344.3881 E_h, exp. variance=0.0082 E_h^2, pmove=0.50
+2026-06-08 02:43:23,499 - Step 01037: 344.4091 E_h, exp. variance=0.0074 E_h^2, pmove=0.50
+2026-06-08 02:43:23,831 - Step 01038: 344.3755 E_h, exp. variance=0.0067 E_h^2, pmove=0.50
+2026-06-08 02:43:24,162 - Step 01039: 344.3507 E_h, exp. variance=0.0063 E_h^2, pmove=0.50
+2026-06-08 02:43:24,494 - Step 01040: 344.3179 E_h, exp. variance=0.0062 E_h^2, pmove=0.49
+2026-06-08 02:43:24,826 - Step 01041: 344.3225 E_h, exp. variance=0.0060 E_h^2, pmove=0.50
+2026-06-08 02:43:25,158 - Step 01042: 344.3706 E_h, exp. variance=0.0054 E_h^2, pmove=0.50
+2026-06-08 02:43:25,502 - Step 01043: 344.3669 E_h, exp. variance=0.0049 E_h^2, pmove=0.50
+2026-06-08 02:43:25,842 - Step 01044: 344.4017 E_h, exp. variance=0.0044 E_h^2, pmove=0.50
+2026-06-08 02:43:26,173 - Step 01045: 344.4165 E_h, exp. variance=0.0041 E_h^2, pmove=0.50
+2026-06-08 02:43:26,505 - Step 01046: 344.4758 E_h, exp. variance=0.0044 E_h^2, pmove=0.50
+2026-06-08 02:43:26,836 - Step 01047: 344.5615 E_h, exp. variance=0.0065 E_h^2, pmove=0.50
+2026-06-08 02:43:27,166 - Step 01048: 344.3943 E_h, exp. variance=0.0059 E_h^2, pmove=0.50
+2026-06-08 02:43:27,496 - Step 01049: 344.2238 E_h, exp. variance=0.0084 E_h^2, pmove=0.50
+2026-06-08 02:43:27,827 - Step 01050: 344.3511 E_h, exp. variance=0.0077 E_h^2, pmove=0.50
+2026-06-08 02:43:28,158 - Step 01051: 344.3977 E_h, exp. variance=0.0069 E_h^2, pmove=0.51
+2026-06-08 02:43:28,490 - Step 01052: 344.3534 E_h, exp. variance=0.0063 E_h^2, pmove=0.50
+2026-06-08 02:43:28,822 - Step 01053: 344.3760 E_h, exp. variance=0.0057 E_h^2, pmove=0.49
+2026-06-08 02:43:29,154 - Step 01054: 344.3532 E_h, exp. variance=0.0052 E_h^2, pmove=0.50
+2026-06-08 02:43:29,490 - Step 01055: 344.3645 E_h, exp. variance=0.0047 E_h^2, pmove=0.51
+2026-06-08 02:43:29,822 - Step 01056: 344.3895 E_h, exp. variance=0.0043 E_h^2, pmove=0.50
+2026-06-08 02:43:30,154 - Step 01057: 344.4829 E_h, exp. variance=0.0048 E_h^2, pmove=0.50
+2026-06-08 02:43:30,485 - Step 01058: 344.4113 E_h, exp. variance=0.0044 E_h^2, pmove=0.50
+2026-06-08 02:43:30,815 - Step 01059: 344.4169 E_h, exp. variance=0.0040 E_h^2, pmove=0.50
+2026-06-08 02:43:31,148 - Step 01060: 344.4760 E_h, exp. variance=0.0042 E_h^2, pmove=0.50
+2026-06-08 02:43:31,481 - Step 01061: 344.4795 E_h, exp. variance=0.0043 E_h^2, pmove=0.50
+2026-06-08 02:43:31,812 - Step 01062: 344.4955 E_h, exp. variance=0.0045 E_h^2, pmove=0.50
+2026-06-08 02:43:32,143 - Step 01063: 344.3741 E_h, exp. variance=0.0042 E_h^2, pmove=0.50
+2026-06-08 02:43:32,475 - Step 01064: 344.4824 E_h, exp. variance=0.0042 E_h^2, pmove=0.50
+2026-06-08 02:43:32,807 - Step 01065: 344.3208 E_h, exp. variance=0.0047 E_h^2, pmove=0.50
+2026-06-08 02:43:33,137 - Step 01066: 344.3203 E_h, exp. variance=0.0050 E_h^2, pmove=0.50
+2026-06-08 02:43:33,470 - Step 01067: 344.3869 E_h, exp. variance=0.0045 E_h^2, pmove=0.50
+2026-06-08 02:43:33,802 - Step 01068: 344.3677 E_h, exp. variance=0.0042 E_h^2, pmove=0.50
+2026-06-08 02:43:34,133 - Step 01069: 344.4385 E_h, exp. variance=0.0039 E_h^2, pmove=0.51
+2026-06-08 02:43:34,463 - Step 01070: 344.3139 E_h, exp. variance=0.0042 E_h^2, pmove=0.50
+2026-06-08 02:43:34,794 - Step 01071: 344.2905 E_h, exp. variance=0.0047 E_h^2, pmove=0.50
+2026-06-08 02:43:35,125 - Step 01072: 344.2745 E_h, exp. variance=0.0053 E_h^2, pmove=0.50
+2026-06-08 02:43:35,456 - Step 01073: 344.3864 E_h, exp. variance=0.0048 E_h^2, pmove=0.50
+2026-06-08 02:43:35,790 - Step 01074: 344.3331 E_h, exp. variance=0.0044 E_h^2, pmove=0.50
+2026-06-08 02:43:36,121 - Step 01075: 344.3228 E_h, exp. variance=0.0042 E_h^2, pmove=0.50
+2026-06-08 02:43:36,453 - Step 01076: 344.2642 E_h, exp. variance=0.0047 E_h^2, pmove=0.50
+2026-06-08 02:43:36,786 - Step 01077: 344.3551 E_h, exp. variance=0.0042 E_h^2, pmove=0.50
+2026-06-08 02:43:37,116 - Step 01078: 344.2473 E_h, exp. variance=0.0048 E_h^2, pmove=0.50
+2026-06-08 02:43:37,447 - Step 01079: 344.2984 E_h, exp. variance=0.0045 E_h^2, pmove=0.50
+2026-06-08 02:43:37,776 - Step 01080: 344.3940 E_h, exp. variance=0.0043 E_h^2, pmove=0.50
+2026-06-08 02:43:38,112 - Step 01081: 344.4106 E_h, exp. variance=0.0043 E_h^2, pmove=0.51
+2026-06-08 02:43:38,445 - Step 01082: 344.3394 E_h, exp. variance=0.0039 E_h^2, pmove=0.50
+2026-06-08 02:43:38,776 - Step 01083: 344.2004 E_h, exp. variance=0.0055 E_h^2, pmove=0.49
+2026-06-08 02:43:39,109 - Step 01084: 344.2693 E_h, exp. variance=0.0054 E_h^2, pmove=0.50
+2026-06-08 02:43:39,442 - Step 01085: 344.3743 E_h, exp. variance=0.0050 E_h^2, pmove=0.49
+2026-06-08 02:43:39,775 - Step 01086: 344.4946 E_h, exp. variance=0.0069 E_h^2, pmove=0.50
+2026-06-08 02:43:40,111 - Step 01087: 344.5033 E_h, exp. variance=0.0083 E_h^2, pmove=0.50
+2026-06-08 02:43:40,443 - Step 01088: 344.5191 E_h, exp. variance=0.0096 E_h^2, pmove=0.50
+2026-06-08 02:43:40,775 - Step 01089: 344.5181 E_h, exp. variance=0.0104 E_h^2, pmove=0.50
+2026-06-08 02:43:41,108 - Step 01090: 344.3956 E_h, exp. variance=0.0093 E_h^2, pmove=0.50
+2026-06-08 02:43:41,441 - Step 01091: 344.3054 E_h, exp. variance=0.0091 E_h^2, pmove=0.50
+2026-06-08 02:43:41,773 - Step 01092: 344.3728 E_h, exp. variance=0.0082 E_h^2, pmove=0.50
+2026-06-08 02:43:42,106 - Step 01093: 344.4171 E_h, exp. variance=0.0075 E_h^2, pmove=0.50
+2026-06-08 02:43:42,437 - Step 01094: 344.3258 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:43:42,770 - Step 01095: 344.3885 E_h, exp. variance=0.0064 E_h^2, pmove=0.50
+2026-06-08 02:43:43,102 - Step 01096: 344.4796 E_h, exp. variance=0.0066 E_h^2, pmove=0.51
+2026-06-08 02:43:43,436 - Step 01097: 344.3491 E_h, exp. variance=0.0061 E_h^2, pmove=0.50
+2026-06-08 02:43:43,768 - Step 01098: 344.3619 E_h, exp. variance=0.0055 E_h^2, pmove=0.50
+2026-06-08 02:43:44,100 - Step 01099: 344.4035 E_h, exp. variance=0.0050 E_h^2, pmove=0.50
+2026-06-08 02:43:44,432 - Step 01100: 344.4860 E_h, exp. variance=0.0054 E_h^2, pmove=0.49
+2026-06-08 02:43:44,764 - Step 01101: 344.5976 E_h, exp. variance=0.0085 E_h^2, pmove=0.51
+2026-06-08 02:43:45,098 - Step 01102: 344.3349 E_h, exp. variance=0.0083 E_h^2, pmove=0.50
+2026-06-08 02:43:45,430 - Step 01103: 344.3197 E_h, exp. variance=0.0081 E_h^2, pmove=0.50
+2026-06-08 02:43:45,771 - Step 01104: 344.3474 E_h, exp. variance=0.0076 E_h^2, pmove=0.50
+2026-06-08 02:43:46,105 - Step 01105: 344.4097 E_h, exp. variance=0.0068 E_h^2, pmove=0.50
+2026-06-08 02:43:46,437 - Step 01106: 344.3497 E_h, exp. variance=0.0063 E_h^2, pmove=0.50
+2026-06-08 02:43:46,783 - Step 01107: 344.3558 E_h, exp. variance=0.0058 E_h^2, pmove=0.50
+2026-06-08 02:43:47,114 - Step 01108: 344.2170 E_h, exp. variance=0.0079 E_h^2, pmove=0.50
+2026-06-08 02:43:47,447 - Step 01109: 344.3689 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:43:47,782 - Step 01110: 344.3094 E_h, exp. variance=0.0067 E_h^2, pmove=0.50
+2026-06-08 02:43:48,114 - Step 01111: 344.4752 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:43:48,446 - Step 01112: 344.3550 E_h, exp. variance=0.0065 E_h^2, pmove=0.50
+2026-06-08 02:43:48,777 - Step 01113: 344.4468 E_h, exp. variance=0.0063 E_h^2, pmove=0.50
+2026-06-08 02:43:49,110 - Step 01114: 344.4390 E_h, exp. variance=0.0060 E_h^2, pmove=0.50
+2026-06-08 02:43:49,443 - Step 01115: 344.3357 E_h, exp. variance=0.0056 E_h^2, pmove=0.50
+2026-06-08 02:43:49,774 - Step 01116: 344.4572 E_h, exp. variance=0.0056 E_h^2, pmove=0.50
+2026-06-08 02:43:50,112 - Step 01117: 344.4150 E_h, exp. variance=0.0051 E_h^2, pmove=0.50
+2026-06-08 02:43:50,445 - Step 01118: 344.3690 E_h, exp. variance=0.0046 E_h^2, pmove=0.50
+2026-06-08 02:43:50,777 - Step 01119: 344.3463 E_h, exp. variance=0.0043 E_h^2, pmove=0.50
+2026-06-08 02:43:51,110 - Step 01120: 344.3651 E_h, exp. variance=0.0039 E_h^2, pmove=0.50
+2026-06-08 02:43:51,443 - Step 01121: 344.3733 E_h, exp. variance=0.0035 E_h^2, pmove=0.49
+2026-06-08 02:43:51,776 - Step 01122: 344.2165 E_h, exp. variance=0.0057 E_h^2, pmove=0.51
+2026-06-08 02:43:52,109 - Step 01123: 344.3553 E_h, exp. variance=0.0051 E_h^2, pmove=0.50
+2026-06-08 02:43:52,442 - Step 01124: 344.3737 E_h, exp. variance=0.0046 E_h^2, pmove=0.51
+2026-06-08 02:43:52,775 - Step 01125: 344.4155 E_h, exp. variance=0.0044 E_h^2, pmove=0.51
+2026-06-08 02:43:53,106 - Step 01126: 344.4602 E_h, exp. variance=0.0047 E_h^2, pmove=0.50
+2026-06-08 02:43:53,439 - Step 01127: 344.4904 E_h, exp. variance=0.0053 E_h^2, pmove=0.50
+2026-06-08 02:43:53,772 - Step 01128: 344.3175 E_h, exp. variance=0.0052 E_h^2, pmove=0.50
+2026-06-08 02:43:54,104 - Step 01129: 344.4063 E_h, exp. variance=0.0048 E_h^2, pmove=0.50
+2026-06-08 02:43:54,435 - Step 01130: 344.2837 E_h, exp. variance=0.0052 E_h^2, pmove=0.50
+2026-06-08 02:43:54,783 - Step 01131: 344.3024 E_h, exp. variance=0.0052 E_h^2, pmove=0.50
+2026-06-08 02:43:55,140 - Step 01132: 344.3438 E_h, exp. variance=0.0047 E_h^2, pmove=0.50
+2026-06-08 02:43:55,522 - Step 01133: 344.3803 E_h, exp. variance=0.0043 E_h^2, pmove=0.50
+2026-06-08 02:43:55,899 - Step 01134: 344.2692 E_h, exp. variance=0.0047 E_h^2, pmove=0.50
+2026-06-08 02:43:56,241 - Step 01135: 344.3940 E_h, exp. variance=0.0044 E_h^2, pmove=0.50
+2026-06-08 02:43:56,575 - Step 01136: 344.1921 E_h, exp. variance=0.0065 E_h^2, pmove=0.50
+2026-06-08 02:43:56,909 - Step 01137: 344.3247 E_h, exp. variance=0.0059 E_h^2, pmove=0.50
+2026-06-08 02:43:57,249 - Step 01138: 344.1225 E_h, exp. variance=0.0096 E_h^2, pmove=0.50
+2026-06-08 02:43:57,583 - Step 01139: 344.2890 E_h, exp. variance=0.0087 E_h^2, pmove=0.51
+2026-06-08 02:43:57,932 - Step 01140: 344.3476 E_h, exp. variance=0.0080 E_h^2, pmove=0.50
+2026-06-08 02:43:58,302 - Step 01141: 344.3192 E_h, exp. variance=0.0072 E_h^2, pmove=0.51
+2026-06-08 02:43:58,664 - Step 01142: 344.3876 E_h, exp. variance=0.0069 E_h^2, pmove=0.50
+2026-06-08 02:43:59,024 - Step 01143: 344.3536 E_h, exp. variance=0.0062 E_h^2, pmove=0.49
+2026-06-08 02:43:59,382 - Step 01144: 344.4155 E_h, exp. variance=0.0063 E_h^2, pmove=0.50
+2026-06-08 02:43:59,741 - Step 01145: 344.3157 E_h, exp. variance=0.0057 E_h^2, pmove=0.50
+2026-06-08 02:44:00,104 - Step 01146: 344.5137 E_h, exp. variance=0.0080 E_h^2, pmove=0.50
+2026-06-08 02:44:00,464 - Step 01147: 344.3234 E_h, exp. variance=0.0073 E_h^2, pmove=0.50
+2026-06-08 02:44:00,804 - Step 01148: 344.3832 E_h, exp. variance=0.0066 E_h^2, pmove=0.50
+2026-06-08 02:44:01,136 - Step 01149: 344.2794 E_h, exp. variance=0.0065 E_h^2, pmove=0.50
+2026-06-08 02:44:01,471 - Step 01150: 344.2496 E_h, exp. variance=0.0067 E_h^2, pmove=0.50
+2026-06-08 02:44:01,804 - Step 01151: 344.3293 E_h, exp. variance=0.0060 E_h^2, pmove=0.50
+2026-06-08 02:44:02,141 - Step 01152: 344.2209 E_h, exp. variance=0.0066 E_h^2, pmove=0.50
+2026-06-08 02:44:02,477 - Step 01153: 344.4605 E_h, exp. variance=0.0076 E_h^2, pmove=0.50
+2026-06-08 02:44:02,809 - Step 01154: 344.4626 E_h, exp. variance=0.0082 E_h^2, pmove=0.50
+2026-06-08 02:44:03,142 - Step 01155: 344.4474 E_h, exp. variance=0.0083 E_h^2, pmove=0.50
+2026-06-08 02:44:03,475 - Step 01156: 344.4532 E_h, exp. variance=0.0082 E_h^2, pmove=0.50
+2026-06-08 02:44:03,805 - Step 01157: 344.4212 E_h, exp. variance=0.0076 E_h^2, pmove=0.50
+2026-06-08 02:44:04,137 - Step 01158: 344.3855 E_h, exp. variance=0.0069 E_h^2, pmove=0.50
+2026-06-08 02:44:04,471 - Step 01159: 344.4582 E_h, exp. variance=0.0068 E_h^2, pmove=0.50
+2026-06-08 02:44:04,803 - Step 01160: 344.4721 E_h, exp. variance=0.0068 E_h^2, pmove=0.50
+2026-06-08 02:44:05,136 - Step 01161: 344.3184 E_h, exp. variance=0.0066 E_h^2, pmove=0.50
+2026-06-08 02:44:05,468 - Step 01162: 344.3759 E_h, exp. variance=0.0060 E_h^2, pmove=0.51
+2026-06-08 02:44:05,801 - Step 01163: 344.4962 E_h, exp. variance=0.0065 E_h^2, pmove=0.49
+2026-06-08 02:44:06,133 - Step 01164: 344.6440 E_h, exp. variance=0.0114 E_h^2, pmove=0.50
+2026-06-08 02:44:06,481 - Step 01165: 344.4391 E_h, exp. variance=0.0103 E_h^2, pmove=0.49
+2026-06-08 02:44:06,836 - Step 01166: 344.3874 E_h, exp. variance=0.0094 E_h^2, pmove=0.50
+2026-06-08 02:44:07,189 - Step 01167: 344.4846 E_h, exp. variance=0.0088 E_h^2, pmove=0.50
+2026-06-08 02:44:07,545 - Step 01168: 344.3394 E_h, exp. variance=0.0086 E_h^2, pmove=0.50
+2026-06-08 02:44:07,887 - Step 01169: 344.4761 E_h, exp. variance=0.0081 E_h^2, pmove=0.49
+2026-06-08 02:44:08,220 - Step 01170: 344.4051 E_h, exp. variance=0.0073 E_h^2, pmove=0.50
+2026-06-08 02:44:08,553 - Step 01171: 344.5190 E_h, exp. variance=0.0074 E_h^2, pmove=0.51
+2026-06-08 02:44:08,886 - Step 01172: 344.3162 E_h, exp. variance=0.0079 E_h^2, pmove=0.50
+2026-06-08 02:44:09,218 - Step 01173: 344.3447 E_h, exp. variance=0.0076 E_h^2, pmove=0.50
+2026-06-08 02:44:09,557 - Step 01174: 344.2602 E_h, exp. variance=0.0089 E_h^2, pmove=0.50
+2026-06-08 02:44:09,890 - Step 01175: 344.3311 E_h, exp. variance=0.0084 E_h^2, pmove=0.50
+2026-06-08 02:44:10,224 - Step 01176: 344.3921 E_h, exp. variance=0.0076 E_h^2, pmove=0.50
+2026-06-08 02:44:10,557 - Step 01177: 344.4505 E_h, exp. variance=0.0071 E_h^2, pmove=0.50
+2026-06-08 02:44:10,891 - Step 01178: 344.3742 E_h, exp. variance=0.0065 E_h^2, pmove=0.50
+2026-06-08 02:44:11,232 - Step 01179: 344.4009 E_h, exp. variance=0.0058 E_h^2, pmove=0.50
+2026-06-08 02:44:11,566 - Step 01180: 344.3242 E_h, exp. variance=0.0057 E_h^2, pmove=0.51
+2026-06-08 02:44:11,914 - Step 01181: 344.4375 E_h, exp. variance=0.0053 E_h^2, pmove=0.49
+2026-06-08 02:44:12,276 - Step 01182: 344.3758 E_h, exp. variance=0.0048 E_h^2, pmove=0.50
+2026-06-08 02:44:12,612 - Step 01183: 344.3692 E_h, exp. variance=0.0044 E_h^2, pmove=0.50
+2026-06-08 02:44:12,945 - Step 01184: 344.3506 E_h, exp. variance=0.0041 E_h^2, pmove=0.50
+2026-06-08 02:44:13,277 - Step 01185: 344.4875 E_h, exp. variance=0.0046 E_h^2, pmove=0.51
+2026-06-08 02:44:13,609 - Step 01186: 344.3278 E_h, exp. variance=0.0046 E_h^2, pmove=0.50
+2026-06-08 02:44:13,941 - Step 01187: 344.4950 E_h, exp. variance=0.0051 E_h^2, pmove=0.50
+2026-06-08 02:44:14,275 - Step 01188: 344.4685 E_h, exp. variance=0.0050 E_h^2, pmove=0.50
+2026-06-08 02:44:14,607 - Step 01189: 344.5572 E_h, exp. variance=0.0066 E_h^2, pmove=0.50
+2026-06-08 02:44:14,943 - Step 01190: 344.4510 E_h, exp. variance=0.0060 E_h^2, pmove=0.50
+2026-06-08 02:44:15,275 - Step 01191: 344.4874 E_h, exp. variance=0.0058 E_h^2, pmove=0.50
+2026-06-08 02:44:15,617 - Step 01192: 344.3719 E_h, exp. variance=0.0055 E_h^2, pmove=0.50
+2026-06-08 02:44:15,974 - Step 01193: 344.4059 E_h, exp. variance=0.0050 E_h^2, pmove=0.49
+2026-06-08 02:44:16,333 - Step 01194: 344.4565 E_h, exp. variance=0.0046 E_h^2, pmove=0.50
+2026-06-08 02:44:16,702 - Step 01195: 344.4862 E_h, exp. variance=0.0045 E_h^2, pmove=0.50
+2026-06-08 02:44:17,060 - Step 01196: 344.5163 E_h, exp. variance=0.0046 E_h^2, pmove=0.50
+2026-06-08 02:44:17,395 - Step 01197: 344.2403 E_h, exp. variance=0.0078 E_h^2, pmove=0.50
+2026-06-08 02:44:17,728 - Step 01198: 344.1878 E_h, exp. variance=0.0119 E_h^2, pmove=0.49
+2026-06-08 02:44:18,065 - Step 01199: 344.4142 E_h, exp. variance=0.0107 E_h^2, pmove=0.50
+2026-06-08 02:44:18,399 - Step 01200: 344.6021 E_h, exp. variance=0.0134 E_h^2, pmove=0.50
+2026-06-08 02:44:18,733 - Step 01201: 344.3425 E_h, exp. variance=0.0126 E_h^2, pmove=0.51
+2026-06-08 02:44:19,071 - Step 01202: 344.2609 E_h, exp. variance=0.0134 E_h^2, pmove=0.50
+2026-06-08 02:44:19,404 - Step 01203: 344.4192 E_h, exp. variance=0.0121 E_h^2, pmove=0.49
+2026-06-08 02:44:19,740 - Step 01204: 344.3963 E_h, exp. variance=0.0109 E_h^2, pmove=0.50
+2026-06-08 02:44:20,076 - Step 01205: 344.5288 E_h, exp. variance=0.0113 E_h^2, pmove=0.50
+2026-06-08 02:44:20,426 - Step 01206: 344.4816 E_h, exp. variance=0.0106 E_h^2, pmove=0.50
+2026-06-08 02:44:20,779 - Step 01207: 344.4595 E_h, exp. variance=0.0097 E_h^2, pmove=0.49
+2026-06-08 02:44:21,136 - Step 01208: 344.4053 E_h, exp. variance=0.0088 E_h^2, pmove=0.50
+2026-06-08 02:44:21,495 - Step 01209: 344.3773 E_h, exp. variance=0.0081 E_h^2, pmove=0.50
+2026-06-08 02:44:21,852 - Step 01210: 344.3438 E_h, exp. variance=0.0077 E_h^2, pmove=0.50
+2026-06-08 02:44:22,209 - Step 01211: 344.3778 E_h, exp. variance=0.0070 E_h^2, pmove=0.50
+2026-06-08 02:44:22,577 - Step 01212: 344.4238 E_h, exp. variance=0.0064 E_h^2, pmove=0.50
+2026-06-08 02:44:22,911 - Step 01213: 344.3373 E_h, exp. variance=0.0062 E_h^2, pmove=0.50

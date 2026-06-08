@@ -369,6 +369,21 @@ def make_kfac_training_step(
 
   return step
 
+
+def _best_checkpoint_score(metric: str,
+                           loss: jnp.ndarray,
+                           local_std: jnp.ndarray,
+                           weighted_stats) -> float:
+  """Returns the scalar score used to rank best checkpoint candidates."""
+  if metric == 'ewmean':
+    return float(np.asarray(weighted_stats.mean))
+  if metric == 'energy':
+    return float(np.asarray(loss))
+  if metric == 'variance':
+    return float(np.asarray(local_std ** 2))
+  raise ValueError(f'Unknown best checkpoint metric: {metric}')
+
+
 def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=None):
   """Runs training loop for QMC.
 
@@ -467,6 +482,12 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
      opt_state_ckpt,
      mcmc_width_ckpt) = checkpoint.restore(
          ckpt_restore_filename, host_batch_size)
+    if cfg.log.get('reset_iteration_on_restore', False):
+      logging.info('Resetting iteration counter after checkpoint restore.')
+      t_init = 0
+    if cfg.optim.get('reset_optimizer_on_restore', False):
+      logging.info('Resetting optimizer state after checkpoint restore.')
+      opt_state_ckpt = None
   else:
     logging.info('No checkpoint found. Training new model.')
     prng_key, subkey = jax.random.split(prng_key)
@@ -499,7 +520,9 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
     mcmc_width_ckpt = None
 
   # Set up logging and observables
-  train_schema = ['step', 'energy', 'ewmean', 'ewvar', 'pmove', 'locstd']
+  train_schema = [
+      'step', 'energy', 'ewmean', 'ewvar', 'pmove', 'locstd', 'mcmc_width'
+  ]
 
   # Initialisation done. We now want to have different PRNG streams on each
   # device. Shard the key over devices
@@ -793,6 +816,7 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
             'ewvar': np.asarray(weighted_stats.variance),
             'pmove': np.asarray(pmove),
             'locstd': np.asarray(local_std),
+            'mcmc_width': np.asarray(mcmc_width[0]),
         }
         writer.write(t, **writer_kwargs)
 
@@ -809,5 +833,21 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
         
       # Checkpointing every cfg.log.save_frequency minutes and at final iteration
       if time.time() - time_of_last_ckpt > cfg.log.save_frequency * 60 or t == (cfg.optim.iterations - 1):
-        checkpoint.save(ckpt_save_path, t, data, params, opt_state, mcmc_width)
+        ckpt_filename = checkpoint.save(
+            ckpt_save_path, t, data, params, opt_state, mcmc_width)
+        checkpoint.prune_checkpoints(
+            ckpt_save_path,
+            keep_latest=cfg.log.get('keep_latest_checkpoints', 5))
+        if t >= cfg.log.get('best_checkpoint_min_step', 500):
+          score = _best_checkpoint_score(
+              cfg.log.get('best_checkpoint_metric', 'ewmean'),
+              loss,
+              local_std,
+              weighted_stats)
+          checkpoint.update_best_checkpoints(
+              ckpt_filename,
+              ckpt_save_path,
+              step=t,
+              score=score,
+              keep_best=cfg.log.get('keep_best_checkpoints', 3))
         time_of_last_ckpt = time.time()

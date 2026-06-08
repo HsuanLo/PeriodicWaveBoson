@@ -19,9 +19,12 @@
 
 """ Checkpoints using numpy."""
 
+import csv
 import dataclasses
 import datetime
 import os
+import re
+import shutil
 from typing import Optional
 import zipfile
 
@@ -30,6 +33,18 @@ from periodicwave import network_interfaces as networks
 import jax
 import jax.numpy as jnp
 import numpy as np
+
+
+_CKPT_RE = re.compile(r"qmcjax_ckpt_(\d+)\.npz$")
+_BEST_RE = re.compile(r"qmcjax_best_(\d+)\.npz$")
+_BEST_MANIFEST = "qmcjax_best_checkpoints.csv"
+
+
+def _checkpoint_step(filename: str, pattern: re.Pattern[str]) -> Optional[int]:
+  match = pattern.match(os.path.basename(filename))
+  if not match:
+    return None
+  return int(match.group(1))
 
 
 def find_last_checkpoint(ckpt_path: Optional[str] = None) -> Optional[str]:
@@ -57,6 +72,84 @@ def find_last_checkpoint(ckpt_path: Optional[str] = None) -> Optional[str]:
           logging.info('Error loading checkpoint %s. Trying next checkpoint...',
                        fname)
   return None
+
+
+def prune_checkpoints(ckpt_path: str, keep_latest: int) -> None:
+  """Deletes old regular checkpoints, keeping the most recent ones."""
+  if keep_latest <= 0 or not os.path.isdir(ckpt_path):
+    return
+
+  checkpoints = []
+  for filename in os.listdir(ckpt_path):
+    step = _checkpoint_step(filename, _CKPT_RE)
+    if step is not None:
+      checkpoints.append((step, os.path.join(ckpt_path, filename)))
+
+  checkpoints.sort()
+  for _, filename in checkpoints[:-keep_latest]:
+    logging.info("Deleting old checkpoint %s", filename)
+    os.remove(filename)
+
+
+def _read_best_manifest(ckpt_path: str) -> list[dict[str, str]]:
+  manifest_path = os.path.join(ckpt_path, _BEST_MANIFEST)
+  if not os.path.exists(manifest_path):
+    return []
+  with open(manifest_path, newline="", encoding="utf-8") as f:
+    return list(csv.DictReader(f))
+
+
+def _write_best_manifest(
+    ckpt_path: str,
+    rows: list[dict[str, str]],
+) -> None:
+  manifest_path = os.path.join(ckpt_path, _BEST_MANIFEST)
+  with open(manifest_path, "w", newline="", encoding="utf-8") as f:
+    writer = csv.DictWriter(f, fieldnames=("step", "score", "checkpoint"))
+    writer.writeheader()
+    writer.writerows(rows)
+
+
+def update_best_checkpoints(
+    ckpt_filename: str,
+    ckpt_path: str,
+    step: int,
+    score: float,
+    keep_best: int,
+) -> None:
+  """Keeps the best-scoring checkpoint copies and a small manifest."""
+  if keep_best <= 0:
+    return
+
+  best_name = f"qmcjax_best_{step:06d}.npz"
+  best_path = os.path.join(ckpt_path, best_name)
+  shutil.copy2(ckpt_filename, best_path)
+  logging.info(
+      "Saved best-candidate checkpoint %s with score %.8g", best_path, score)
+
+  rows = [
+      row for row in _read_best_manifest(ckpt_path)
+      if row.get("checkpoint") != best_name
+  ]
+  rows.append({
+      "step": str(step),
+      "score": f"{score:.17g}",
+      "checkpoint": best_name,
+  })
+  rows.sort(key=lambda row: (float(row["score"]), int(row["step"])))
+  kept = rows[:keep_best]
+  dropped = rows[keep_best:]
+
+  for row in dropped:
+    filename = row.get("checkpoint", "")
+    if _checkpoint_step(filename, _BEST_RE) is None:
+      continue
+    path = os.path.join(ckpt_path, filename)
+    if os.path.exists(path):
+      logging.info("Deleting non-best checkpoint copy %s", path)
+      os.remove(path)
+
+  _write_best_manifest(ckpt_path, kept)
 
 
 def create_save_path(save_path: Optional[str]) -> str:

@@ -135,6 +135,41 @@ def _latest_checkpoint_files(folder_path: Path, nfiles: int) -> list[Path]:
   return [path for _, path in sorted(numbered, reverse=True)[:nfiles]]
 
 
+def _best_checkpoint_files(folder_path: Path, nfiles: int) -> list[Path]:
+  manifest_path = folder_path / "qmcjax_best_checkpoints.csv"
+  if not manifest_path.exists() or manifest_path.stat().st_size == 0:
+    return []
+  rows = np.genfromtxt(
+      manifest_path,
+      delimiter=",",
+      names=True,
+      dtype=None,
+      encoding="utf-8")
+  rows = np.atleast_1d(rows)
+  if rows.size == 0:
+    return []
+
+  candidates = []
+  for row in rows:
+    try:
+      score = float(row["score"])
+      checkpoint_name = str(row["checkpoint"])
+    except (ValueError, KeyError):
+      continue
+    checkpoint_path = folder_path / checkpoint_name
+    if checkpoint_path.exists():
+      candidates.append((score, checkpoint_path))
+  candidates.sort(key=lambda item: item[0])
+  return [path for _, path in candidates[:nfiles]]
+
+
+def _checkpoint_files(folder_path: Path, nfiles: int) -> list[Path]:
+  best_files = _best_checkpoint_files(folder_path, nfiles)
+  if best_files:
+    return best_files
+  return _latest_checkpoint_files(folder_path, nfiles)
+
+
 def _load_positions(
     params: RunParams,
     nfiles: int,
@@ -142,7 +177,7 @@ def _load_positions(
 ) -> np.ndarray:
   _install_jax_array_unpickle_fallback()
   positions = []
-  ckpt_files = _latest_checkpoint_files(params.path, nfiles)
+  ckpt_files = _checkpoint_files(params.path, nfiles)
   if not ckpt_files:
     raise ValueError(f"No checkpoints found in {params.path}")
   print(

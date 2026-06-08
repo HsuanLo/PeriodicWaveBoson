@@ -36,6 +36,20 @@ def _env_int(name, default):
   return int(value)
 
 
+def _env_bool(name, default):
+  value = os.environ.get(name)
+  if value is None:
+    return default
+  return value.lower() in ("1", "true", "yes", "y", "on")
+
+
+def _env_str(name, default):
+  value = os.environ.get(name)
+  if value is None:
+    return default
+  return value
+
+
 # --------------------------- Physical parameters ---------------------------
 num_bosons = 24
 layer_occupations = (12, 12)
@@ -44,6 +58,11 @@ dipole_strength = 20.0
 supercell_shape = "sq"
 density_rs = _env_float("SCAN_RS", 0.5)
 seed = _env_int("SCAN_SEED", 42)
+iterations = _env_int("SCAN_ITERATIONS", 3000)
+results_dir = _env_str("RESULTS_DIR", "results")
+restore_path = _env_str("RESTORE_PATH", "")
+reset_iteration_on_restore = _env_bool("RESET_ITERATION_ON_RESTORE", False)
+reset_optimizer_on_restore = _env_bool("RESET_OPTIMIZER_ON_RESTORE", False)
 
 if sum(layer_occupations) != num_bosons:
   raise ValueError("layer_occupations must sum to num_bosons.")
@@ -101,33 +120,36 @@ cfg.network.BosonNet.use_layer_norm = True
 cfg.network.BosonNet.mlp_activation_fct = "GELU"
 
 cfg.mcmc.burn_in = 2000
-cfg.mcmc.steps = 40
-cfg.mcmc.init_width = 2.0
+cfg.mcmc.steps = 10
+cfg.mcmc.init_width = 1e-2
 cfg.mcmc.move_width = 0.05
 cfg.mcmc.move_width_updater = "adaptive"
-cfg.mcmc.adapt_frequency = 10
+cfg.mcmc.adapt_frequency = 5
 cfg.mcmc.target_acceptance = 0.5
 cfg.mcmc.adapt_rate = 0.05
 cfg.mcmc.min_move_width = 1e-3
 cfg.mcmc.max_move_width = 2.0
-cfg.mcmc.adaptive_steps = 1500
+cfg.mcmc.adaptive_steps = 5000
 
-cfg.optim.optimizer = "adam_kfac"
-cfg.optim.iterations = 5000
-cfg.optim.lr.rate = 1e-4
+cfg.optim.optimizer = "kfac"
+cfg.optim.iterations = iterations
+cfg.optim.lr.rate = 0.01
 cfg.optim.lr.delay = 1000
 cfg.optim.lr.decay = 1.0
-cfg.optim.adam_kfac.switch_iteration = 500
+cfg.optim.adam_kfac.switch_iteration = 1000
 cfg.optim.adam_kfac.kfac_lr_rate = 0.01
 cfg.optim.adam_kfac.kfac_lr_delay = 1000.0
 cfg.optim.adam_kfac.kfac_lr_decay = 1.0
+cfg.optim.reset_optimizer_on_restore = reset_optimizer_on_restore
 
 cfg.log.save_frequency = 30.0
+cfg.log.restore_path = restore_path
+cfg.log.reset_iteration_on_restore = reset_iteration_on_restore
 cfg.debug.deterministic = True
 cfg.debug.seed = seed
 
 folder_name = (
-    "results/"
+    f"{results_dir}/"
     f"N{num_bosons}_layers{layer_occupations[0]}_{layer_occupations[1]}"
     f"_rs{density_rs}_d{layer_separation}_D{dipole_strength}"
     f"_seed{seed}_{supercell_shape}"
