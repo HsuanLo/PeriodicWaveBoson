@@ -1,0 +1,115 @@
+{
+    "batch_size": 2048,
+    "optim": {
+        "objective": "vmc",
+        "iterations": 5000,
+        "optimizer": "kfac",
+        "laplacian": "default",
+        "lr": {
+            "rate": 0.01,
+            "decay": 1.0,
+            "delay": 1000.0
+        },
+        "clip_local_energy": 5.0,
+        "clip_median": false,
+        "center_at_clip": true,
+        "reset_if_nan": false,
+        "kfac": {
+            "invert_every": 1,
+            "cov_update_every": 1,
+            "damping": 0.001,
+            "cov_ema_decay": 0.95,
+            "momentum": 0.0,
+            "momentum_type": "regular",
+            "min_damping": 1e-06,
+            "norm_constraint": 0.001,
+            "mean_center": true,
+            "l2_reg": 0.0,
+            "register_only_generic": false
+        },
+        "adam": {
+            "b1": 0.9,
+            "b2": 0.999,
+            "eps": 1e-08,
+            "eps_root": 0.0
+        },
+        "adam_kfac": {
+            "switch_iteration": 1000,
+            "kfac_lr_rate": 0.01,
+            "kfac_lr_delay": 1000.0,
+            "kfac_lr_decay": 1.0
+        },
+        "reset_optimizer_on_restore": true
+    },
+    "log": {
+        "stats_frequency": 1,
+        "save_frequency": 30.0,
+        "save_path": "/home/gridsan/hlo1/project/PeriodicWaveBoson/results/anneal_rs_N24_layers12_12_d2.5_D20.0_seed2_sq/N24_layers12_12_rs0.1_d2.5_D20.0_seed2_sq",
+        "restore_path": "/home/gridsan/hlo1/project/PeriodicWaveBoson/results/anneal_rs_N24_layers12_12_d2.5_D20.0_seed2_sq/N24_layers12_12_rs0.2_d2.5_D20.0_seed2_sq",
+        "keep_latest_checkpoints": 5,
+        "keep_best_checkpoints": 3,
+        "best_checkpoint_min_step": 500,
+        "best_checkpoint_metric": "ewmean",
+        "reset_iteration_on_restore": true
+    },
+    "system": {
+        "bosons": [
+            24,
+            0
+        ],
+        "ndim": 2,
+        "make_local_energy_fn": "periodicwave.pbc.bilayer_hamiltonian.local_energy",
+        "make_local_energy_kwargs": {
+            "lattice": "unserializable object: [[0.86832151 0.        ]\n [0.         0.86832151]]",
+            "layer_separation": 2.5,
+            "potential_type": "Dipolar",
+            "potential_kwargs": {
+                "dipole_strength": 20.0,
+                "softening": 0.01,
+                "use_ewald": true,
+                "ewald_alpha": 11.516471649044517,
+                "ewald_real_cut": 2,
+                "ewald_kmax": 12,
+                "ewald_geometry": "xy_periodic_open_z"
+            },
+            "kinetic_kwargs": {
+                "laplacian_method": "folx"
+            }
+        },
+        "pbc_lattice": "unserializable object: [[0.86832151 0.        ]\n [0.         0.86832151]]"
+    },
+    "mcmc": {
+        "burn_in": 2000,
+        "steps": 10,
+        "init_width": 0.01,
+        "move_width": 0.05,
+        "move_width_updater": "adaptive",
+        "adapt_frequency": 5,
+        "target_acceptance": 0.5,
+        "adapt_rate": 0.05,
+        "min_move_width": 0.001,
+        "max_move_width": 2.0,
+        "adaptive_steps": 5000,
+        "blocks": 1
+    },
+    "network": {
+        "network_type": "BosonNet",
+        "complex": false,
+        "BosonNet": {
+            "architecture": "Transformer",
+            "num_layers": 3,
+            "mlp_dim": 64,
+            "num_heads": 4,
+            "attn_dim": 16,
+            "value_dim": 16,
+            "num_perceptrons_per_layer": 2,
+            "use_layer_norm": true,
+            "mlp_activation_fct": "GELU"
+        }
+    },
+    "debug": {
+        "check_nan": false,
+        "deterministic": true,
+        "seed": 2
+    }
+}

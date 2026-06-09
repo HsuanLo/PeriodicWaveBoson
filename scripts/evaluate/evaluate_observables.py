@@ -321,6 +321,54 @@ def _compute_pair_correlation(
   return centers, gr
 
 
+def _pair_correlation_edges(
+    params: RunParams,
+    nbins: int,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+  lengths = np.linalg.norm(params.lat_vec, axis=0)
+  rmax = 0.5 * np.min(lengths)
+  edges = np.linspace(0.0, rmax, nbins + 1)
+  centers = 0.5 * (edges[:-1] + edges[1:])
+  shell_areas = np.pi * (edges[1:] ** 2 - edges[:-1] ** 2)
+  return edges, centers, shell_areas
+
+
+def _compute_layer_pair_correlation(
+    params: RunParams,
+    positions: np.ndarray,
+    mask_a: np.ndarray,
+    mask_b: np.ndarray,
+    nbins: int,
+) -> tuple[np.ndarray, np.ndarray]:
+  area = abs(np.linalg.det(params.lat_vec))
+  edges, centers, shell_areas = _pair_correlation_edges(params, nbins)
+  counts = np.zeros(nbins)
+  same_layer = np.array_equal(mask_a, mask_b)
+
+  for config in positions:
+    pos_a = config[mask_a]
+    pos_b = config[mask_b]
+    disp = pos_a[:, None, :] - pos_b[None, :, :]
+    disp = _minimum_image(params, disp)
+    distances = np.linalg.norm(disp, axis=-1)
+    if same_layer:
+      pair_distances = distances[np.triu_indices(pos_a.shape[0], k=1)]
+    else:
+      pair_distances = distances.ravel()
+    counts += np.histogram(pair_distances, bins=edges)[0]
+
+  density_b = np.count_nonzero(mask_b) / area
+  ideal_counts = positions.shape[0] * np.count_nonzero(mask_a) * density_b * shell_areas
+  if same_layer:
+    ideal_counts /= 2.0
+  gr = np.divide(
+      counts,
+      ideal_counts,
+      out=np.zeros_like(counts, dtype=float),
+      where=ideal_counts > 0)
+  return centers, gr
+
+
 def _save_pair_correlation(
     params: RunParams,
     positions: np.ndarray,
@@ -339,6 +387,51 @@ def _save_pair_correlation(
   fig.savefig(path, dpi=200)
   print(f"Saved {path}")
   plt.close(fig)
+
+
+def _save_layer_pair_correlations(
+    params: RunParams,
+    positions: np.ndarray,
+    nbins: int,
+) -> None:
+  top = params.layer_assignment == 1.0
+  bottom = params.layer_assignment == -1.0
+  curves = [
+      ("top-top", "#c7364f", top, top),
+      ("bottom-bottom", "#2f7d57", bottom, bottom),
+      ("top-bottom", "#2a6fbb", top, bottom),
+  ]
+
+  fig, axs = plt.subplots(1, 2, figsize=(11, 4.8), sharex=True)
+  csv_columns = []
+  for label, color, mask_a, mask_b in curves:
+    r, gr = _compute_layer_pair_correlation(
+        params, positions, mask_a, mask_b, nbins)
+    ax = axs[1] if label == "top-bottom" else axs[0]
+    ax.plot(r, gr, linewidth=1.5, label=label, color=color)
+    csv_columns.append((label, gr))
+
+  titles = ["same-layer", "top-bottom"]
+  for ax, title in zip(axs, titles):
+    ax.axhline(1.0, color="black", linewidth=0.8, linestyle="--", alpha=0.6)
+    ax.set_xlabel("in-plane r")
+    ax.set_ylabel("g(r)")
+    ax.set_title(title)
+    ax.grid(alpha=0.25, linewidth=0.5)
+    ax.legend()
+  fig.suptitle(
+      f"Layer-resolved pair correlation: rs={params.rs:g}, d={params.d:g}")
+  fig.tight_layout()
+  path = params.path / "fig_pair_correlation_gr_by_layer.png"
+  fig.savefig(path, dpi=200)
+  print(f"Saved {path}")
+  plt.close(fig)
+
+  data = np.column_stack([r] + [gr for _, gr in csv_columns])
+  header = "r," + ",".join(label.replace("-", "_") for label, _ in csv_columns)
+  csv_path = params.path / "pair_correlation_gr_by_layer.csv"
+  np.savetxt(csv_path, data, delimiter=",", header=header, comments="")
+  print(f"Saved {csv_path}")
 
 
 def _save_density_plots(params: RunParams, positions: np.ndarray) -> None:
@@ -473,6 +566,7 @@ def _outputs_exist(run_dir: Path) -> bool:
       "fig_density_z_layers.png",
       "fig_positions_xy_snapshots.png",
       "fig_pair_correlation_gr.png",
+      "fig_pair_correlation_gr_by_layer.png",
       "fig_structure_factor_sk.png",
       "fig_structure_factor_sk_by_layer.png",
   ]
@@ -497,6 +591,7 @@ def _evaluate_run(
   _save_density_plots(params, positions)
   _save_snapshot_plots(params, positions, snapshot_count)
   _save_pair_correlation(params, positions, pair_correlation_bins)
+  _save_layer_pair_correlations(params, positions, pair_correlation_bins)
   _save_structure_factor(params, positions, kmax)
   _save_layer_structure_factors(params, positions, kmax)
 

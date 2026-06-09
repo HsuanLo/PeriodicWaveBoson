@@ -2,7 +2,7 @@
     "batch_size": 2048,
     "optim": {
         "objective": "vmc",
-        "iterations": 3000,
+        "iterations": 5000,
         "optimizer": "kfac",
         "laplacian": "default",
         "lr": {
@@ -39,14 +39,18 @@
             "kfac_lr_delay": 1000.0,
             "kfac_lr_decay": 1.0
         },
-        "reset_optimizer_on_restore": false
+        "reset_optimizer_on_restore": true
     },
     "log": {
         "stats_frequency": 1,
         "save_frequency": 30.0,
-        "save_path": "results/anneal_rs/N24_layers12_12_rs0.5_d4.0_D20.0_seed42_sq",
-        "restore_path": "",
-        "reset_iteration_on_restore": false
+        "save_path": "/home/gridsan/hlo1/project/PeriodicWaveBoson/results/anneal_rs/N24_layers12_12_rs0.5_d4.0_D20.0_seed42_sq",
+        "restore_path": "/home/gridsan/hlo1/project/PeriodicWaveBoson/results/anneal_rs/N24_layers12_12_rs0.6_d4.0_D20.0_seed42_sq",
+        "keep_latest_checkpoints": 5,
+        "keep_best_checkpoints": 3,
+        "best_checkpoint_min_step": 500,
+        "best_checkpoint_metric": "ewmean",
+        "reset_iteration_on_restore": true
     },
     "system": {
         "bosons": [
