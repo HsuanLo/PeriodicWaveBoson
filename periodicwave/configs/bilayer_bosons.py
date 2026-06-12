@@ -2,165 +2,382 @@
 #
 # Licensed under the Apache License, Version 2.0.
 
-"""Run a bilayer boson NN-VMC calculation with xy PBC."""
+"""Configuration builder for bilayer boson NN-VMC calculations with xy PBC."""
 
-import os
-from time import time
+from __future__ import annotations
 
-from absl import logging
-import jax
+import dataclasses
+from pathlib import Path
+import runpy
+import sys
+from typing import Sequence
+
+import ml_collections
 import numpy as np
 
 from periodicwave import default_config
-from periodicwave import train
 from periodicwave.pbc import lattices
-from periodicwave.utils import custom_logging
-from periodicwave.utils import writers
 
 
-print("Jax Devices:", jax.devices())
-jax.config.update("jax_default_matmul_precision", "float32")
+LOCAL_ENERGY_FN = "periodicwave.pbc.bilayer_hamiltonian.local_energy"
 
 
-def _env_float(name, default):
-  value = os.environ.get(name)
-  if value is None:
-    return default
-  return float(value)
+@dataclasses.dataclass(frozen=True)
+class BilayerDefaults:
+  """Shared defaults for bilayer runners and config construction."""
+
+  # Physical system.
+  num_bosons: int = 16
+  layer_occupations: tuple[int, int] = (8, 8)
+  layer_separation: float = 1.5
+  dipole_strength: float = 20.0
+  supercell_shape: str = "sq"
+  density_rs: float = 0.5
+  seed: int = 42
+
+  # Run control.
+  burn_in_iterations: int = 0
+  bold_iterations: int = 1000
+  retune_iterations: int = 1000
+  fine_iterations: int = 3000
+  results_dir: str = "results"
+  restore_path: str = ""
+  reset_iteration_on_restore: bool = False
+  reset_optimizer_on_restore: bool = False
+
+  # Logging/checkpointing.
+  batch_size: int = 2048
+  stats_frequency: int = 10
+  save_frequency_minutes: float = 30.0
+  best_checkpoint_min_step: int = 2000
+  best_checkpoint_metric: str = "ewmean_std"
+  best_checkpoint_std_weight: float = 1.0
+
+  # Transformer BosonNet.
+  # network_layers: int = 4
+  # mlp_dim: int = 96
+  # num_heads: int = 4
+  # attn_dim: int = 24
+  # value_dim: int = 24
+  # num_perceptrons_per_layer: int = 2
+  network_layers: int = 4
+  mlp_dim: int = 64
+  num_heads: int = 4
+  attn_dim: int = 16
+  value_dim: int = 16
+  num_perceptrons_per_layer: int = 2
+  use_distance_attention_bias: bool = True
+  distance_bias_num_rbf: int = 16
+  distance_bias_eps: float = 1.0e-6
+
+  # MCMC defaults shared by stages unless overridden.
+  init_width_fraction: float = 1.0e-3
+  move_width: float = 0.05
+  global_move_fraction: float = 0.05
+  global_width_scale: float = 0.25
+  adapt_frequency: int = 1
+  adapt_rate: float = 0.05
+  min_move_width: float = 1.0e-3
 
 
-def _env_int(name, default):
-  value = os.environ.get(name)
-  if value is None:
-    return default
-  return int(value)
+DEFAULTS = BilayerDefaults()
 
 
-def _env_bool(name, default):
-  value = os.environ.get(name)
-  if value is None:
-    return default
-  return value.lower() in ("1", "true", "yes", "y", "on")
+def format_layer_occupations(layer_occupations: Sequence[int]) -> str:
+  """Returns the canonical folder/CLI spelling for layer occupations."""
+  layers = _as_layer_occupations(layer_occupations)
+  return f"{layers[0]}_{layers[1]}"
 
 
-def _env_str(name, default):
-  value = os.environ.get(name)
-  if value is None:
-    return default
-  return value
+def _as_layer_occupations(value: Sequence[int]) -> tuple[int, int]:
+  if len(value) != 2:
+    raise ValueError("layer_occupations must contain two entries.")
+  return int(value[0]), int(value[1])
 
 
-# --------------------------- Physical parameters ---------------------------
-num_bosons = 24
-layer_occupations = (12, 12)
-layer_separation = _env_float("SCAN_D", 1.0)
-dipole_strength = 20.0
-supercell_shape = "sq"
-density_rs = _env_float("SCAN_RS", 0.5)
-seed = _env_int("SCAN_SEED", 42)
-iterations = _env_int("SCAN_ITERATIONS", 3000)
-results_dir = _env_str("RESULTS_DIR", "results")
-restore_path = _env_str("RESTORE_PATH", "")
-reset_iteration_on_restore = _env_bool("RESET_ITERATION_ON_RESTORE", False)
-reset_optimizer_on_restore = _env_bool("RESET_OPTIMIZER_ON_RESTORE", False)
+def _make_layer_assignment(layer_occupations: tuple[int, int]) -> np.ndarray:
+  top, bottom = layer_occupations
+  return np.array([1.0] * top + [-1.0] * bottom)
 
-if sum(layer_occupations) != num_bosons:
-  raise ValueError("layer_occupations must sum to num_bosons.")
 
-layer_assignment = np.array(
-    [1.0] * layer_occupations[0] + [-1.0] * layer_occupations[1])
+def _make_lattice(
+    *,
+    num_bosons: int,
+    density_rs: float,
+    supercell_shape: str,
+) -> np.ndarray:
+  if supercell_shape == "sq":
+    supercell_a = density_rs * np.sqrt(np.pi * num_bosons)
+    return lattices._square_lattice_vecs(supercell_a)
 
-if supercell_shape == "tri":
-  supercell_a = density_rs * np.sqrt(2 * np.pi / np.sqrt(3) * num_bosons)
-  supercell_lattice, _ = lattices._triangular_lattice_vecs_periodic_potential(
-      supercell_a, 1)
-elif supercell_shape == "sq":
-  supercell_a = density_rs * np.sqrt(np.pi * num_bosons)
-  supercell_lattice = lattices._square_lattice_vecs(supercell_a)
-else:
+  if supercell_shape == "tri":
+    supercell_a = density_rs * np.sqrt(
+        2 * np.pi / np.sqrt(3) * num_bosons)
+    supercell_lattice, _ = lattices._triangular_lattice_vecs_periodic_potential(
+        supercell_a, 1)
+    return supercell_lattice
+
   raise NotImplementedError(f"Unknown supercell_shape: {supercell_shape}")
 
-cell_area = abs(np.linalg.det(supercell_lattice))
+
+def _make_training_stages(
+    *,
+    burn_in_iterations: int,
+    bold_iterations: int,
+    retune_iterations: int,
+    fine_iterations: int,
+) -> list[dict]:
+  """Returns the staged sampler/optimizer protocol."""
+  return [
+      {
+          "name": "burn_in",
+          "iterations": burn_in_iterations,
+          "optimizer": "none",
+          "mcmc_steps": 10,
+          "proposal": "block",
+          "block_size": 1,
+          "target_acceptance": 0.30,
+          "adapt_width": False,
+      },
+      {
+          "name": "bold",
+          "iterations": bold_iterations,
+          "optimizer": "kfac",
+          "lr_rate": 1.0e-2,
+          "mcmc_steps": 10,
+          "proposal": "hybrid",
+          "block_size": 8,
+          "global_move_fraction": 0.1,
+          "global_width_scale": 0.20,
+          "target_acceptance": 0.20,
+          "adapt_width": True,
+          "adaptive_steps": bold_iterations,
+      },
+      {
+          "name": "retune",
+          "iterations": retune_iterations,
+          "optimizer": "kfac",
+          "lr_rate": 3.0e-3,
+          "mcmc_steps": 30,
+          "proposal": "hybrid",
+          "block_size": 2,
+          "global_move_fraction": 0.1,
+          "global_width_scale": 0.05,
+          "target_acceptance": 0.25,
+          "adapt_width": True,
+          "adaptive_steps": retune_iterations,
+      },
+      {
+          "name": "fine",
+          "iterations": fine_iterations,
+          "optimizer": "kfac",
+          "lr_rate": 1.0e-3,
+          "mcmc_steps": 30,
+          "proposal": "hybrid",
+          "block_size": 2,
+          "global_move_fraction": 0.05,
+          "global_width_scale": 0.05,
+          "target_acceptance": 0.25,
+          "adapt_width": False,
+      },
+  ]
 
 
-# --------------------------- Set up config file ---------------------------
-cfg = default_config.default()
-cfg.batch_size = 2048
+def _result_folder(
+    *,
+    results_dir: str | Path,
+    num_bosons: int,
+    layer_occupations: tuple[int, int],
+    density_rs: float,
+    layer_separation: float,
+    dipole_strength: float,
+    seed: int,
+    supercell_shape: str,
+) -> str:
+  return str(
+      Path(results_dir)
+      / (
+          f"N{num_bosons}_layers{layer_occupations[0]}_{layer_occupations[1]}"
+          f"_rs{density_rs}_d{layer_separation}_D{dipole_strength}"
+          f"_seed{seed}_{supercell_shape}"
+      ))
 
-cfg.system.bosons = (num_bosons, 0)
-cfg.system.ndim = 2
-cfg.system.pbc_lattice = supercell_lattice
-cfg.system.make_local_energy_fn = "periodicwave.pbc.bilayer_hamiltonian.local_energy"
-cfg.system.make_local_energy_kwargs = {
-    "lattice": supercell_lattice,
-    "layer_separation": layer_separation,
-    "potential_type": "Dipolar",
-    "potential_kwargs": {
-        "dipole_strength": dipole_strength,
-        "softening": 1e-2,
-        "use_ewald": True,
-        "ewald_alpha": 10.0 / np.sqrt(cell_area),
-        "ewald_real_cut": 2,
-        "ewald_kmax": 12,
-        "ewald_geometry": "xy_periodic_open_z",
-    },
-    "kinetic_kwargs": {"laplacian_method": "folx"},
-}
 
-cfg.network.network_type = "BosonNet"
-cfg.network.complex = False
-cfg.network.BosonNet.architecture = "Transformer"
-cfg.network.BosonNet.num_layers = 3
-cfg.network.BosonNet.mlp_dim = 64
-cfg.network.BosonNet.num_heads = 4
-cfg.network.BosonNet.attn_dim = 16
-cfg.network.BosonNet.value_dim = 16
-cfg.network.BosonNet.num_perceptrons_per_layer = 2
-cfg.network.BosonNet.use_layer_norm = True
-cfg.network.BosonNet.mlp_activation_fct = "GELU"
+def _configure_system(
+    cfg: ml_collections.ConfigDict,
+    *,
+    num_bosons: int,
+    layer_separation: float,
+    dipole_strength: float,
+    lattice: np.ndarray,
+) -> None:
+  cell_area = abs(np.linalg.det(lattice))
 
-cfg.mcmc.burn_in = 2000
-cfg.mcmc.steps = 10
-cfg.mcmc.init_width = 1e-2
-cfg.mcmc.move_width = 0.05
-cfg.mcmc.move_width_updater = "adaptive"
-cfg.mcmc.adapt_frequency = 5
-cfg.mcmc.target_acceptance = 0.5
-cfg.mcmc.adapt_rate = 0.05
-cfg.mcmc.min_move_width = 1e-3
-cfg.mcmc.max_move_width = 2.0
-cfg.mcmc.adaptive_steps = 5000
+  cfg.system.bosons = (num_bosons, 0)
+  cfg.system.ndim = 2
+  cfg.system.pbc_lattice = lattice
+  cfg.system.make_local_energy_fn = LOCAL_ENERGY_FN
+  cfg.system.make_local_energy_kwargs = {
+      "lattice": lattice,
+      "layer_separation": layer_separation,
+      "potential_type": "Dipolar",
+      "potential_kwargs": {
+          "dipole_strength": dipole_strength,
+          "softening": 1.0e-2,
+          "use_ewald": True,
+          "ewald_alpha": 10.0 / np.sqrt(cell_area),
+          "ewald_real_cut": 2,
+          "ewald_kmax": 12,
+          "ewald_geometry": "xy_periodic_open_z",
+      },
+      "kinetic_kwargs": {"laplacian_method": "folx"},
+  }
 
-cfg.optim.optimizer = "kfac"
-cfg.optim.iterations = iterations
-cfg.optim.lr.rate = 0.01
-cfg.optim.lr.delay = 1000
-cfg.optim.lr.decay = 1.0
-cfg.optim.adam_kfac.switch_iteration = 1000
-cfg.optim.adam_kfac.kfac_lr_rate = 0.01
-cfg.optim.adam_kfac.kfac_lr_delay = 1000.0
-cfg.optim.adam_kfac.kfac_lr_decay = 1.0
-cfg.optim.reset_optimizer_on_restore = reset_optimizer_on_restore
 
-cfg.log.save_frequency = 30.0
-cfg.log.restore_path = restore_path
-cfg.log.reset_iteration_on_restore = reset_iteration_on_restore
-cfg.debug.deterministic = True
-cfg.debug.seed = seed
+def _configure_network(cfg: ml_collections.ConfigDict) -> None:
+  cfg.network.network_type = "BosonNet"
+  cfg.network.complex = False
+  cfg.network.BosonNet.architecture = "Transformer"
+  cfg.network.BosonNet.num_layers = DEFAULTS.network_layers
+  cfg.network.BosonNet.mlp_dim = DEFAULTS.mlp_dim
+  cfg.network.BosonNet.num_heads = DEFAULTS.num_heads
+  cfg.network.BosonNet.attn_dim = DEFAULTS.attn_dim
+  cfg.network.BosonNet.value_dim = DEFAULTS.value_dim
+  cfg.network.BosonNet.num_perceptrons_per_layer = (
+      DEFAULTS.num_perceptrons_per_layer)
+  cfg.network.BosonNet.use_layer_norm = True
+  cfg.network.BosonNet.mlp_activation_fct = "GELU"
+  cfg.network.BosonNet.use_distance_attention_bias = (
+      DEFAULTS.use_distance_attention_bias)
+  cfg.network.BosonNet.distance_bias_num_rbf = DEFAULTS.distance_bias_num_rbf
+  cfg.network.BosonNet.distance_bias_eps = DEFAULTS.distance_bias_eps
 
-folder_name = (
-    f"{results_dir}/"
-    f"N{num_bosons}_layers{layer_occupations[0]}_{layer_occupations[1]}"
-    f"_rs{density_rs}_d{layer_separation}_D{dipole_strength}"
-    f"_seed{seed}_{supercell_shape}"
-)
-cfg.log.save_path = folder_name
 
-writers.rename_file("device_info", folder_name, file_extension="log")
-custom_logging.log_device_info(folder_name + "/device_info.log")
-writers.rename_file("config", folder_name, file_extension="json")
-custom_logging.save_config_dict_as_json(cfg, cfg.log.save_path + "/config.json")
+def _configure_mcmc(
+    cfg: ml_collections.ConfigDict,
+    *,
+    lattice: np.ndarray,
+) -> None:
+  box_width = float(np.min(np.linalg.norm(lattice, axis=0)))
 
-t_init = time()
-train.train(cfg, layer_assignment=layer_assignment)
-logging.info("Training completed after t [s] = " + str(int(time() - t_init)))
+  cfg.mcmc.init_width = DEFAULTS.init_width_fraction * box_width
+  cfg.mcmc.move_width = DEFAULTS.move_width
+  cfg.mcmc.global_move_fraction = DEFAULTS.global_move_fraction
+  cfg.mcmc.global_width_scale = DEFAULTS.global_width_scale
+  cfg.mcmc.adapt_frequency = DEFAULTS.adapt_frequency
+  cfg.mcmc.adapt_rate = DEFAULTS.adapt_rate
+  cfg.mcmc.min_move_width = DEFAULTS.min_move_width
+  cfg.mcmc.max_move_width = box_width
+
+
+def _configure_runtime(
+    cfg: ml_collections.ConfigDict,
+    *,
+    training_stages: list[dict],
+    restore_path: str,
+    reset_iteration_on_restore: bool,
+    reset_optimizer_on_restore: bool,
+    best_checkpoint_std_weight: float,
+    seed: int,
+) -> None:
+  cfg.batch_size = DEFAULTS.batch_size
+  cfg.training.stages = training_stages
+
+  cfg.optim.iterations = sum(stage["iterations"] for stage in training_stages[1:])
+  cfg.optim.reset_optimizer_on_restore = reset_optimizer_on_restore
+
+  cfg.log.stats_frequency = DEFAULTS.stats_frequency
+  cfg.log.save_frequency = DEFAULTS.save_frequency_minutes
+  cfg.log.restore_path = restore_path
+  cfg.log.reset_iteration_on_restore = reset_iteration_on_restore
+  cfg.log.best_checkpoint_min_step = DEFAULTS.best_checkpoint_min_step
+  cfg.log.best_checkpoint_metric = DEFAULTS.best_checkpoint_metric
+  cfg.log.best_checkpoint_std_weight = best_checkpoint_std_weight
+
+  cfg.debug.deterministic = True
+  cfg.debug.seed = seed
+
+
+def build_config(
+    *,
+    num_bosons: int = DEFAULTS.num_bosons,
+    layer_occupations: Sequence[int] = DEFAULTS.layer_occupations,
+    layer_separation: float = DEFAULTS.layer_separation,
+    dipole_strength: float = DEFAULTS.dipole_strength,
+    supercell_shape: str = DEFAULTS.supercell_shape,
+    density_rs: float = DEFAULTS.density_rs,
+    seed: int = DEFAULTS.seed,
+    burn_in_iterations: int = DEFAULTS.burn_in_iterations,
+    bold_iterations: int = DEFAULTS.bold_iterations,
+    retune_iterations: int = DEFAULTS.retune_iterations,
+    fine_iterations: int = DEFAULTS.fine_iterations,
+    results_dir: str | Path = DEFAULTS.results_dir,
+    restore_path: str = DEFAULTS.restore_path,
+    reset_iteration_on_restore: bool = DEFAULTS.reset_iteration_on_restore,
+    reset_optimizer_on_restore: bool = DEFAULTS.reset_optimizer_on_restore,
+    best_checkpoint_std_weight: float = DEFAULTS.best_checkpoint_std_weight,
+) -> tuple[ml_collections.ConfigDict, np.ndarray]:
+  """Builds the bilayer VMC config and fixed layer labels.
+
+  This function is intentionally side-effect free: it does not write files,
+  print device information, or start training. Use `scripts/train/run_bilayer.py`
+  as the executable entry point for one run.
+  """
+  layer_occupations = _as_layer_occupations(layer_occupations)
+  if sum(layer_occupations) != num_bosons:
+    raise ValueError("layer_occupations must sum to num_bosons.")
+
+  training_stages = _make_training_stages(
+      burn_in_iterations=burn_in_iterations,
+      bold_iterations=bold_iterations,
+      retune_iterations=retune_iterations,
+      fine_iterations=fine_iterations)
+
+  lattice = _make_lattice(
+      num_bosons=num_bosons,
+      density_rs=density_rs,
+      supercell_shape=supercell_shape)
+
+  cfg = default_config.default()
+  _configure_system(
+      cfg,
+      num_bosons=num_bosons,
+      layer_separation=layer_separation,
+      dipole_strength=dipole_strength,
+      lattice=lattice)
+  _configure_network(cfg)
+  _configure_mcmc(cfg, lattice=lattice)
+  _configure_runtime(
+      cfg,
+      training_stages=training_stages,
+      restore_path=restore_path,
+      reset_iteration_on_restore=reset_iteration_on_restore,
+      reset_optimizer_on_restore=reset_optimizer_on_restore,
+      best_checkpoint_std_weight=best_checkpoint_std_weight,
+      seed=seed)
+
+  cfg.log.save_path = _result_folder(
+      results_dir=results_dir,
+      num_bosons=num_bosons,
+      layer_occupations=layer_occupations,
+      density_rs=density_rs,
+      layer_separation=layer_separation,
+      dipole_strength=dipole_strength,
+      seed=seed,
+      supercell_shape=supercell_shape)
+
+  return cfg, _make_layer_assignment(layer_occupations)
+
+
+def main() -> None:
+  """Compatibility shim for the old direct config entry point."""
+  repo_root = Path(__file__).resolve().parents[2]
+  if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
+  runpy.run_path(
+      str(repo_root / "scripts" / "train" / "run_bilayer.py"),
+      run_name="__main__")
+
+
+if __name__ == "__main__":
+  main()

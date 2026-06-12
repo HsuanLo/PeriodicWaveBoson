@@ -32,6 +32,9 @@ class BosonNetOptions(networks.BaseNetworkOptions):
   use_layer_norm: bool = True
   mlp_activation_fct: str = "GELU"
   layer_separation: float = 1.0
+  use_distance_attention_bias: bool = False
+  distance_bias_num_rbf: int = 16
+  distance_bias_eps: float = 1.0e-6
 
 
 def _activation(name: str):
@@ -90,22 +93,82 @@ def make_mlp(activation_fct_name: str):
   return init, apply
 
 
+def _minimum_image_xy(displacements: jnp.ndarray,
+                      lattice: jnp.ndarray) -> jnp.ndarray:
+  """Folds xy displacement vectors into the first periodic cell."""
+  rec_no_2pi = jnp.linalg.inv(lattice)
+  fractional = jnp.einsum("ij,...j->...i", rec_no_2pi, displacements)
+  fractional = (fractional + 0.5) % 1.0 - 0.5
+  return jnp.einsum("ij,...j->...i", lattice, fractional)
+
+
+def make_pair_distance_bias(num_heads: int,
+                            num_rbf: int,
+                            lattice: jnp.ndarray,
+                            eps: float):
+  """Creates an RBF pair-distance attention bias builder."""
+
+  if num_rbf <= 0:
+    raise ValueError("distance_bias_num_rbf must be positive.")
+
+  box_width = jnp.min(jnp.linalg.norm(lattice, axis=0))
+  max_distance = 0.5 * box_width
+  centers = jnp.linspace(0.0, max_distance, num_rbf)
+  if num_rbf == 1:
+    gamma = jnp.asarray(1.0)
+  else:
+    spacing = centers[1] - centers[0]
+    gamma = jax.lax.rsqrt(spacing ** 2 + eps) ** 2
+
+  def init(key: chex.PRNGKey) -> Mapping[str, jnp.ndarray]:
+    del key
+    return {
+        "intra_w": jnp.zeros((num_rbf, num_heads)),
+        "inter_w": jnp.zeros((num_rbf, num_heads)),
+    }
+
+  def apply(params: networks.ParamTree,
+            pos: jnp.ndarray,
+            layer_labels: jnp.ndarray) -> jnp.ndarray:
+    xy = jnp.reshape(pos, [-1, 2])
+    dxy = xy[:, None, :] - xy[None, :, :]
+    dxy = _minimum_image_xy(dxy, lattice)
+    r = jnp.sqrt(jnp.sum(dxy ** 2, axis=-1) + eps)
+    rbf = jnp.exp(-gamma * (r[..., None] - centers) ** 2)
+
+    intra = jnp.einsum("ijr,rh->hij", rbf, params["intra_w"])
+    inter = jnp.einsum("ijr,rh->hij", rbf, params["inter_w"])
+    same_layer = layer_labels[:, None] == layer_labels[None, :]
+    bias = jnp.where(same_layer[None, :, :], intra, inter)
+
+    eye = jnp.eye(xy.shape[0], dtype=bias.dtype)[None, :, :]
+    return bias * (1.0 - eye)
+
+  return init, apply
+
+
 def make_transformer_block(num_heads: int,
                            embed_dim: int,
                            attn_dim: int,
                            value_dim: int,
                            ff_dim: int,
-                           activation_fct_name: str):
+                           activation_fct_name: str,
+                           use_distance_attention_bias: bool,
+                           distance_bias_num_rbf: int,
+                           distance_bias_eps: float,
+                           lattice: jnp.ndarray):
   """Creates a pre-norm permutation-equivariant Transformer block."""
 
   activation_fct = _activation(activation_fct_name)
   ln_init, ln_apply = make_layer_norm()
+  bias_init, bias_apply = make_pair_distance_bias(
+      num_heads, distance_bias_num_rbf, lattice, distance_bias_eps)
 
   def init(key: chex.PRNGKey) -> Mapping[str, jnp.ndarray]:
-    key, q_key, k_key, v_key, out_key, ff1_key, ff2_key = jax.random.split(
-        key, 7)
+    key, q_key, k_key, v_key, out_key, ff1_key, ff2_key, bias_key = (
+        jax.random.split(key, 8))
     del key
-    return {
+    params = {
         "attn_ln": ln_init(embed_dim),
         "ff_ln": ln_init(embed_dim),
         "q_w": network_layers.init_linear_layer(
@@ -121,8 +184,14 @@ def make_transformer_block(num_heads: int,
         "ff2": network_layers.init_linear_layer(
             ff2_key, ff_dim, embed_dim, include_bias=True),
     }
+    if use_distance_attention_bias:
+      params["distance_bias"] = bias_init(bias_key)
+    return params
 
-  def apply(params: networks.ParamTree, tokens: jnp.ndarray) -> jnp.ndarray:
+  def apply(params: networks.ParamTree,
+            tokens: jnp.ndarray,
+            pos: jnp.ndarray,
+            layer_labels: jnp.ndarray) -> jnp.ndarray:
     num_tokens = tokens.shape[0]
     attn_input = ln_apply(params["attn_ln"], tokens)
     q = jnp.dot(attn_input, params["q_w"]).reshape(
@@ -131,7 +200,14 @@ def make_transformer_block(num_heads: int,
         num_tokens, num_heads, attn_dim)
     v = jnp.dot(attn_input, params["v_w"]).reshape(
         num_tokens, num_heads, value_dim)
-    attended = jax.nn.dot_product_attention(q, k, v)
+    if use_distance_attention_bias:
+      logits = jnp.einsum("ihd,jhd->hij", q, k) / jnp.sqrt(float(attn_dim))
+      logits = logits + bias_apply(params["distance_bias"], pos, layer_labels)
+      weights = jax.nn.softmax(logits, axis=-1)
+      attended = jnp.einsum("hij,jhv->ihv", weights, v)
+    else:
+      del pos, layer_labels
+      attended = jax.nn.dot_product_attention(q, k, v)
     attended = attended.reshape(num_tokens, num_heads * value_dim)
     x = tokens + network_layers.linear_layer(attended, params["out_w"])
 
@@ -173,6 +249,9 @@ def make_boson_net(
     num_perceptrons_per_layer: int,
     use_layer_norm: bool,
     mlp_activation_fct: str,
+    use_distance_attention_bias: bool = False,
+    distance_bias_num_rbf: int = 16,
+    distance_bias_eps: float = 1.0e-6,
 ) -> networks.Network:
   """Builds a permutation-symmetric bosonic wavefunction.
 
@@ -204,6 +283,9 @@ def make_boson_net(
       num_perceptrons_per_layer=num_perceptrons_per_layer,
       use_layer_norm=use_layer_norm,
       mlp_activation_fct=mlp_activation_fct,
+      use_distance_attention_bias=use_distance_attention_bias,
+      distance_bias_num_rbf=distance_bias_num_rbf,
+      distance_bias_eps=distance_bias_eps,
   )
 
   num_bosons = int(sum(nspins))
@@ -216,7 +298,11 @@ def make_boson_net(
       attn_dim,
       value_dim,
       ff_dim=4 * mlp_dim,
-      activation_fct_name=mlp_activation_fct)
+      activation_fct_name=mlp_activation_fct,
+      use_distance_attention_bias=use_distance_attention_bias,
+      distance_bias_num_rbf=distance_bias_num_rbf,
+      distance_bias_eps=distance_bias_eps,
+      lattice=pbc_lattice)
 
   def init(key: chex.PRNGKey) -> networks.ParamTree:
     params = {}
@@ -254,7 +340,7 @@ def make_boson_net(
 
     for layer in range(num_layers):
       if use_transformer:
-        x = transformer_apply(params["transformer"][layer], x)
+        x = transformer_apply(params["transformer"][layer], x, pos, spins)
       else:
         x = x + mlp_apply(params["phi"][layer], x)
       if not use_transformer and use_layer_norm:

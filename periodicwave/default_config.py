@@ -92,6 +92,10 @@ def default() -> ml_collections.ConfigDict:
       },
       'log': {
           'stats_frequency': 1,  # iterations between logging of stats
+          # Iterations between burn-in progress-bar metric updates. This is
+          # separate from stats_frequency to avoid syncing device values every
+          # burn-in step unless explicitly requested.
+          'burn_in_stats_frequency': 10,
           'save_frequency': 10.0,  # minutes between saving network params
           # Path to save/restore network to/from. If falsy,
           # creates a timestamped directory in the working directory.
@@ -105,7 +109,21 @@ def default() -> ml_collections.ConfigDict:
           'keep_latest_checkpoints': 5,
           'keep_best_checkpoints': 3,
           'best_checkpoint_min_step': 500,
-          'best_checkpoint_metric': 'ewmean',  # one of ewmean, energy, variance
+          # one of ewmean, energy, variance, energy_std, ewmean_std
+          'best_checkpoint_metric': 'ewmean',
+          # Weight for best_checkpoint_metric="energy_std" or "ewmean_std":
+          # energy_std score = energy / N + weight * locstd / N.
+          # ewmean_std score = ewmean / N + weight * locstd / N.
+          'best_checkpoint_std_weight': 1.0,
+      },
+      'training': {
+          # Optional staged training protocol. If populated, a stage named
+          # "burn_in" is run before training. Later optimizer="none" stages are
+          # sampler-only retune stages. Stage fields override cfg.mcmc/cfg.optim:
+          # name, iterations, optimizer, lr_rate, mcmc_steps, proposal,
+          # block_size, global_move_fraction, target_acceptance, adapt_width,
+          # evaluate_loss.
+          'stages': [],
       },
       'system': {
           # Specify the system by setting variables below.
@@ -134,6 +152,19 @@ def default() -> ml_collections.ConfigDict:
           'init_width': 1.0,
           # Width of Gaussian used for random moves for RMW or step size for HMC.
           'move_width': 0.1,
+          # Proposal family for Metropolis moves:
+          # global: move every particle in a walker at once.
+          # block: move a random block of block_size particles.
+          # hybrid: mix global and block proposals.
+          'proposal': 'global',
+          # Number of particles moved by each block proposal. block_size=1 is
+          # equivalent to particle-wise proposals.
+          'block_size': 1,
+          # Probability of a global proposal when proposal == 'hybrid'.
+          'global_move_fraction': 0.2,
+          # Global proposal width as a fraction of move_width for hybrid
+          # proposals. Block proposals continue to use move_width directly.
+          'global_width_scale': 0.25,
           # How to update move_width during runtime.
           # const: move_width remains constant
           # adaptive: increases or reduces move_width depending on pmove (default)
@@ -167,6 +198,9 @@ def default() -> ml_collections.ConfigDict:
               'num_perceptrons_per_layer': 2,
               'use_layer_norm': True,
               'mlp_activation_fct': "GELU",
+              'use_distance_attention_bias': False,
+              'distance_bias_num_rbf': 16,
+              'distance_bias_eps': 1.0e-6,
           },
       },
       'debug': {

@@ -1,0 +1,176 @@
+{
+    "batch_size": 2048,
+    "optim": {
+        "objective": "vmc",
+        "iterations": 30000,
+        "optimizer": "kfac",
+        "laplacian": "default",
+        "lr": {
+            "rate": 0.05,
+            "decay": 1.0,
+            "delay": 10000.0
+        },
+        "clip_local_energy": 5.0,
+        "clip_median": false,
+        "center_at_clip": true,
+        "reset_if_nan": false,
+        "kfac": {
+            "invert_every": 1,
+            "cov_update_every": 1,
+            "damping": 0.001,
+            "cov_ema_decay": 0.95,
+            "momentum": 0.0,
+            "momentum_type": "regular",
+            "min_damping": 1e-06,
+            "norm_constraint": 0.001,
+            "mean_center": true,
+            "l2_reg": 0.0,
+            "register_only_generic": false
+        },
+        "adam": {
+            "b1": 0.9,
+            "b2": 0.999,
+            "eps": 1e-08,
+            "eps_root": 0.0
+        },
+        "adam_kfac": {
+            "switch_iteration": 1000,
+            "kfac_lr_rate": 0.01,
+            "kfac_lr_delay": 10000.0,
+            "kfac_lr_decay": 1.0
+        },
+        "reset_optimizer_on_restore": false
+    },
+    "log": {
+        "stats_frequency": 10,
+        "burn_in_stats_frequency": 10,
+        "save_frequency": 30.0,
+        "save_path": "/home/gridsan/hlo1/project/PeriodicWaveBoson/results/N32_layers16_16_rs0.8_d1.5_D20.0_seed42_sq",
+        "restore_path": "",
+        "keep_latest_checkpoints": 5,
+        "keep_best_checkpoints": 3,
+        "best_checkpoint_min_step": 2000,
+        "best_checkpoint_metric": "ewmean_std",
+        "best_checkpoint_std_weight": 1.0,
+        "reset_iteration_on_restore": false
+    },
+    "training": {
+        "stages": [
+            {
+                "name": "burn_in",
+                "iterations": 0,
+                "optimizer": "none",
+                "mcmc_steps": 10,
+                "proposal": "block",
+                "block_size": 1,
+                "target_acceptance": 0.3,
+                "adapt_width": false
+            },
+            {
+                "name": "bold",
+                "iterations": 5000,
+                "optimizer": "kfac",
+                "lr_rate": 0.01,
+                "mcmc_steps": 10,
+                "proposal": "hybrid",
+                "block_size": 8,
+                "global_move_fraction": 0.1,
+                "global_width_scale": 0.2,
+                "target_acceptance": 0.2,
+                "adapt_width": true,
+                "adaptive_steps": 5000
+            },
+            {
+                "name": "retune",
+                "iterations": 5000,
+                "optimizer": "kfac",
+                "lr_rate": 0.003,
+                "mcmc_steps": 30,
+                "proposal": "hybrid",
+                "block_size": 2,
+                "global_move_fraction": 0.1,
+                "global_width_scale": 0.05,
+                "target_acceptance": 0.25,
+                "adapt_width": true,
+                "adaptive_steps": 5000
+            },
+            {
+                "name": "fine",
+                "iterations": 20000,
+                "optimizer": "kfac",
+                "lr_rate": 0.001,
+                "mcmc_steps": 30,
+                "proposal": "hybrid",
+                "block_size": 2,
+                "global_move_fraction": 0.05,
+                "global_width_scale": 0.05,
+                "target_acceptance": 0.25,
+                "adapt_width": false
+            }
+        ]
+    },
+    "system": {
+        "bosons": [
+            32,
+            0
+        ],
+        "ndim": 2,
+        "make_local_energy_fn": "periodicwave.pbc.bilayer_hamiltonian.local_energy",
+        "make_local_energy_kwargs": {
+            "lattice": "unserializable object: [[8.02121048 0.        ]\n [0.         8.02121048]]",
+            "layer_separation": 1.5,
+            "potential_type": "Dipolar",
+            "potential_kwargs": {
+                "dipole_strength": 20.0,
+                "softening": 0.01,
+                "use_ewald": true,
+                "ewald_alpha": 1.246694626254477,
+                "ewald_real_cut": 2,
+                "ewald_kmax": 12,
+                "ewald_geometry": "xy_periodic_open_z"
+            },
+            "kinetic_kwargs": {
+                "laplacian_method": "folx"
+            }
+        },
+        "pbc_lattice": "unserializable object: [[8.02121048 0.        ]\n [0.         8.02121048]]"
+    },
+    "mcmc": {
+        "burn_in": 300,
+        "steps": 30,
+        "init_width": 0.008021210478819202,
+        "move_width": 0.05,
+        "proposal": "global",
+        "block_size": 1,
+        "global_move_fraction": 0.05,
+        "global_width_scale": 0.25,
+        "move_width_updater": "adaptive",
+        "adapt_frequency": 1,
+        "target_acceptance": 0.5,
+        "adapt_rate": 0.05,
+        "min_move_width": 0.001,
+        "max_move_width": 8.021210478819201,
+        "adaptive_steps": 1000,
+        "blocks": 1
+    },
+    "network": {
+        "network_type": "BosonNet",
+        "complex": false,
+        "BosonNet": {
+            "architecture": "Transformer",
+            "num_layers": 4,
+            "mlp_dim": 96,
+            "num_heads": 4,
+            "attn_dim": 24,
+            "value_dim": 24,
+            "num_perceptrons_per_layer": 2,
+            "use_layer_norm": true,
+            "mlp_activation_fct": "GELU"
+        }
+    },
+    "debug": {
+        "check_nan": false,
+        "deterministic": true,
+        "seed": 42
+    }
+}

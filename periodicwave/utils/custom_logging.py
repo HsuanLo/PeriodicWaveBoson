@@ -12,19 +12,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-""" Logging functionalities. """
+"""Logging functionalities."""
+
+import logging
+import os
+import platform
+import subprocess
+from sys import argv
 
 import jax
 import jax.numpy as jnp
-import platform
-import os
-import numpy as np
-import logging
 import jaxlib
 import kfac_jax
-import subprocess
+import numpy as np
 import json
-from sys import argv
+
+
+def _read_env(name):
+    return os.environ.get(name, "<unset>")
+
+
+def _log_section(title):
+    logging.info("")
+    logging.info("=== %s ===", title)
+
+
+def _run_command(command):
+    try:
+        return subprocess.check_output(
+            command,
+            text=True,
+            stderr=subprocess.STDOUT,
+        ).strip()
+    except FileNotFoundError:
+        return f"Command not found: {command[0]}"
+    except subprocess.CalledProcessError as exc:
+        return (
+            f"Command failed ({exc.returncode}): {' '.join(command)}\n"
+            f"{exc.output.strip()}")
 
 def log_device_info(log_file="device_info.log"):
     """
@@ -38,63 +63,80 @@ def log_device_info(log_file="device_info.log"):
     logging.basicConfig(filename=log_file, level=logging.INFO, 
                         format="%(asctime)s - %(message)s")
     
-    # JAX-related information
+    _log_section("Runtime Environment")
+    logging.info("Command line: %s", " ".join(argv))
+    logging.info("Working directory: %s", os.getcwd())
+    logging.info("Host: %s", platform.node())
+    logging.info("Python version: %s", platform.python_version())
+    logging.info("System: %s %s", platform.system(), platform.version())
+    logging.info("Processor: %s", platform.processor())
+    logging.info("Numpy version: %s", np.__version__)
+
+    _log_section("Scheduler Environment")
+    for name in (
+        "LLSUB_RANK",
+        "LLSUB_SIZE",
+        "SLURM_JOB_ID",
+        "SLURM_JOB_NAME",
+        "SLURM_NODELIST",
+        "SLURM_PROCID",
+        "SLURM_LOCALID",
+        "SLURM_GPUS",
+        "SLURM_GPUS_ON_NODE",
+        "SLURM_CPUS_PER_TASK",
+    ):
+        logging.info("%s: %s", name, _read_env(name))
+
+    _log_section("JAX Device Visibility")
     jax_version = jax.__version__
     jaxlib_version = jaxlib.__version__
     kfac_jax_version = kfac_jax.__version__
     available_devices = jax.devices()
+    local_devices = jax.local_devices()
     platform_name = jax.default_backend()
     precision = jnp.finfo(jnp.float32).dtype.name  # Default precision
     matmul_precision = jax.config.jax_default_matmul_precision
     jax_enable_x64 = jax.config.read("jax_enable_x64")  # Check if 64-bit precision is enabled
-    
-    # GPU details if available
-    if "gpu" in platform_name:
-        gpu_info = [device.device_kind for device in available_devices]
-    else:
-        gpu_info = "No GPU detected."
-    
-    # Python and system information
-    python_version = platform.python_version()
-    system_name = platform.system()
-    system_version = platform.version()
-    processor_info = platform.processor()
-    numpy_version = np.__version__
-    
-    # Environment variables (e.g., CUDA paths)
-    cuda_visible_devices = os.environ.get("CUDA_VISIBLE_DEVICES", "Not set")
-    
-    # NVIDIA driver version and GPU model
-    try:
-        nvidia_driver_version = subprocess.check_output(
-            ["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader"], 
-            text=True
-        ).strip()
-        gpu_models = subprocess.check_output(
-            ["nvidia-smi", "--query-gpu=name", "--format=csv,noheader"], 
-            text=True
-        ).strip().split("\n")
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        nvidia_driver_version = "NVIDIA driver not found or not installed."
-        gpu_models = ["No GPU detected."]
-    
-    # Log the collected information
-    logging.info(f"JAX version: {jax_version}")
-    logging.info(f"jax_enable_x64: {jax_enable_x64}")
-    logging.info(f"JAXlib version: {jaxlib_version}")
-    logging.info(f"KFAC-JAX version: {kfac_jax_version}")
-    logging.info(f"Available devices: {[str(device) for device in available_devices]}")
-    logging.info(f"Platform: {platform_name}")
-    logging.info(f"Default precision: {precision}")
-    logging.info(f"Default matmul precision: {matmul_precision}")
-    logging.info(f"GPU information: {gpu_info}")
-    logging.info(f"Python version: {python_version}")
-    logging.info(f"System: {system_name} {system_version}")
-    logging.info(f"Processor: {processor_info}")
-    logging.info(f"Numpy version: {numpy_version}")
-    logging.info(f"CUDA_VISIBLE_DEVICES: {cuda_visible_devices}")
-    logging.info(f"NVIDIA driver version: {nvidia_driver_version}")
-    logging.info(f"GPU models: {', '.join(gpu_models)}")
+    logging.info("JAX version: %s", jax_version)
+    logging.info("JAXlib version: %s", jaxlib_version)
+    logging.info("KFAC-JAX version: %s", kfac_jax_version)
+    logging.info("Platform: %s", platform_name)
+    logging.info("jax_enable_x64: %s", jax_enable_x64)
+    logging.info("Default precision: %s", precision)
+    logging.info("Default matmul precision: %s", matmul_precision)
+    logging.info("CUDA_VISIBLE_DEVICES: %s", _read_env("CUDA_VISIBLE_DEVICES"))
+    logging.info(
+        "XLA_PYTHON_CLIENT_PREALLOCATE: %s",
+        _read_env("XLA_PYTHON_CLIENT_PREALLOCATE"))
+    logging.info(
+        "XLA_PYTHON_CLIENT_MEM_FRACTION: %s",
+        _read_env("XLA_PYTHON_CLIENT_MEM_FRACTION"))
+    logging.info(
+        "JAX process index/count: %d/%d",
+        jax.process_index(),
+        jax.process_count())
+    logging.info("JAX local device count: %d", jax.local_device_count())
+    logging.info("JAX global device count: %d", len(available_devices))
+    logging.info("JAX local devices: %s", [str(device) for device in local_devices])
+    logging.info("JAX global devices: %s", [str(device) for device in available_devices])
+    logging.info(
+        "JAX visible GPU kinds: %s",
+        [device.device_kind for device in available_devices]
+        if "gpu" in platform_name else "No GPU backend detected.")
+
+    _log_section("Node NVIDIA State")
+    logging.info(
+        "nvidia-smi -L output (node-level, not necessarily JAX-visible):\n%s",
+        _run_command(["nvidia-smi", "-L"]))
+    logging.info(
+        "nvidia-smi query (node-level, not necessarily JAX-visible):\n%s",
+        _run_command([
+            "nvidia-smi",
+            "--query-gpu=index,uuid,name,driver_version,memory.total,memory.used,utilization.gpu",
+            "--format=csv",
+        ]))
+
+    _log_section("Training Log")
     
     print(f"Device and environment info logged to {log_file}")
 

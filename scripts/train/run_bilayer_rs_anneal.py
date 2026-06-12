@@ -13,9 +13,12 @@ from pathlib import Path
 import subprocess
 import sys
 
+from periodicwave.configs import bilayer_bosons
+
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_RUN_SCRIPT = REPO_ROOT / "periodicwave" / "configs" / "bilayer_bosons.py"
+DEFAULT_RUN_SCRIPT = REPO_ROOT / "scripts" / "train" / "run_bilayer.py"
+DEFAULTS = bilayer_bosons.DEFAULTS
 
 
 def _float_string(value: float) -> str:
@@ -24,13 +27,17 @@ def _float_string(value: float) -> str:
 
 def _run_dir(
     results_dir: Path,
+    num_bosons: int,
+    layers: str,
     rs: str,
     d: str,
+    dipole_strength: str,
     seed: int,
+    cell: str,
 ) -> Path:
   return (
       results_dir
-      / f"N24_layers12_12_rs{rs}_d{d}_D20.0_seed{seed}_sq"
+      / f"N{num_bosons}_layers{layers}_rs{rs}_d{d}_D{dipole_strength}_seed{seed}_{cell}"
   )
 
 
@@ -44,9 +51,24 @@ def _parse_schedule(value: str) -> list[float]:
 def main() -> None:
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument("--run-script", type=Path, default=DEFAULT_RUN_SCRIPT)
-  parser.add_argument("--d", type=float, default=4.0)
-  parser.add_argument("--seed", type=int, default=42)
-  parser.add_argument("--iterations-per-stage", type=int, default=1000)
+  parser.add_argument("--num-bosons", type=int, default=DEFAULTS.num_bosons)
+  parser.add_argument(
+      "--layers",
+      default=bilayer_bosons.format_layer_occupations(
+          DEFAULTS.layer_occupations))
+  parser.add_argument("--d", type=float, default=DEFAULTS.layer_separation)
+  parser.add_argument("--dipole-strength", type=float,
+                      default=DEFAULTS.dipole_strength)
+  parser.add_argument("--cell", default=DEFAULTS.supercell_shape)
+  parser.add_argument("--seed", type=int, default=DEFAULTS.seed)
+  parser.add_argument("--burn-in-iterations", type=int,
+                      default=DEFAULTS.burn_in_iterations)
+  parser.add_argument("--bold-iterations", type=int,
+                      default=DEFAULTS.bold_iterations)
+  parser.add_argument("--retune-iterations", type=int,
+                      default=DEFAULTS.retune_iterations)
+  parser.add_argument("--fine-iterations", type=int,
+                      default=DEFAULTS.fine_iterations)
   parser.add_argument(
       "--rs-schedule",
       type=_parse_schedule,
@@ -57,6 +79,10 @@ def main() -> None:
       type=Path,
       default=REPO_ROOT / "results" / "anneal_rs",
       help="Parent directory for stage result folders.")
+  parser.add_argument(
+      "--restore-path",
+      default=os.environ.get("RESTORE_PATH", ""),
+      help="Checkpoint directory used to initialize the first rs stage.")
   parser.add_argument(
       "--keep-optimizer-state",
       action="store_true",
@@ -70,32 +96,65 @@ def main() -> None:
     results_dir = REPO_ROOT / results_dir
 
   d = _float_string(args.d)
-  restore_path = ""
+  dipole_strength = _float_string(args.dipole_strength)
+  restore_path = args.restore_path
 
   for stage, rs_value in enumerate(args.rs_schedule):
     rs = _float_string(rs_value)
-    stage_dir = _run_dir(results_dir, rs, d, args.seed)
+    stage_dir = _run_dir(
+        results_dir,
+        args.num_bosons,
+        args.layers,
+        rs,
+        d,
+        dipole_strength,
+        args.seed,
+        args.cell)
 
     env = os.environ.copy()
-    env["SCAN_RS"] = rs
-    env["SCAN_D"] = d
-    env["SCAN_SEED"] = str(args.seed)
-    env["SCAN_ITERATIONS"] = str(args.iterations_per_stage)
-    env["RESULTS_DIR"] = str(results_dir)
-    env["RESET_ITERATION_ON_RESTORE"] = "1"
-    env["RESET_OPTIMIZER_ON_RESTORE"] = (
-        "0" if args.keep_optimizer_state else "1")
     env.setdefault("MPLCONFIGDIR", "/tmp/matplotlib")
     env.setdefault("XDG_CACHE_HOME", "/tmp")
     old_pythonpath = env.get("PYTHONPATH")
     env["PYTHONPATH"] = (
         str(REPO_ROOT) if not old_pythonpath
         else f"{REPO_ROOT}{os.pathsep}{old_pythonpath}")
+    if args.keep_optimizer_state:
+      env["RESET_OPTIMIZER_ON_RESTORE"] = "0"
 
+    cmd = [
+        sys.executable,
+        str(args.run_script),
+        "--num-bosons",
+        str(args.num_bosons),
+        "--layers",
+        args.layers,
+        "--rs",
+        rs,
+        "--d",
+        d,
+        "--dipole-strength",
+        dipole_strength,
+        "--cell",
+        args.cell,
+        "--seed",
+        str(args.seed),
+        "--burn-in-iterations",
+        str(args.burn_in_iterations),
+        "--bold-iterations",
+        str(args.bold_iterations),
+        "--retune-iterations",
+        str(args.retune_iterations),
+        "--fine-iterations",
+        str(args.fine_iterations),
+        "--results-dir",
+        str(results_dir),
+        "--reset-iteration-on-restore",
+    ]
+    if not args.keep_optimizer_state:
+      cmd.append("--reset-optimizer-on-restore")
     if restore_path:
-      env["RESTORE_PATH"] = restore_path
+      cmd.extend(["--restore-path", restore_path])
 
-    cmd = [sys.executable, str(args.run_script)]
     print(
         f"Stage {stage:02d}: rs={rs}, d={d}, seed={args.seed}, "
         f"save={stage_dir}",
@@ -104,6 +163,7 @@ def main() -> None:
       print(f"  restoring from {restore_path}", flush=True)
 
     if args.dry_run:
+      restore_path = str(stage_dir)
       continue
 
     subprocess.run(cmd, cwd=REPO_ROOT, env=env, check=True)

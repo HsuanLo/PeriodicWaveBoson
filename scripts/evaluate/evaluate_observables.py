@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import json
 import os
 import re
 import sys
@@ -41,7 +42,7 @@ DEFAULT_SCAN_DIR = (
     / "BosonNet"
     / "scan_260603"
 )
-DEFAULT_PATTERN = "N24_layers12_12_rs*_d*_D20.0*_sq"
+DEFAULT_PATTERN = "N*_layers*_*_rs*_d*_D*_sq"
 RUN_RE = re.compile(
     r"N(?P<num_bosons>\d+)_layers(?P<layer_a>\d+)_(?P<layer_b>\d+)"
     r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)"
@@ -58,6 +59,7 @@ class RunParams:
   rs: float
   d: float
   dipole_strength: float
+  seed: int | None
   supercell_shape: str
   lat_vec: np.ndarray
   rec: np.ndarray
@@ -118,11 +120,19 @@ def _parse_run_dir(run_dir: Path) -> RunParams:
       rs=rs,
       d=float(parsed["d"]),
       dipole_strength=float(parsed["dipole"]),
+      seed=int(parsed["seed"]) if parsed["seed"] is not None else None,
       supercell_shape=supercell_shape,
       lat_vec=lat_vec,
       rec=rec,
       layer_assignment=layer_assignment,
   )
+
+
+def _format_run_title(params: RunParams) -> str:
+  parts = [f"rs={params.rs:g}", f"d={params.d:g}"]
+  if params.seed is not None:
+    parts.append(f"seed={params.seed}")
+  return ", ".join(parts)
 
 
 def _latest_checkpoint_files(folder_path: Path, nfiles: int) -> list[Path]:
@@ -214,6 +224,134 @@ def _minimum_image(params: RunParams, displacements: np.ndarray) -> np.ndarray:
   return np.einsum("ij,...j->...i", params.lat_vec, frac)
 
 
+def _default_potential_config(params: RunParams) -> tuple[float, dict]:
+  area = abs(np.linalg.det(params.lat_vec))
+  return params.d, {
+      "dipole_strength": params.dipole_strength,
+      "softening": 1e-2,
+      "use_ewald": True,
+      "ewald_alpha": 10.0 / np.sqrt(area),
+      "ewald_real_cut": 2,
+      "ewald_kmax": 12,
+      "ewald_geometry": "xy_periodic_open_z",
+  }
+
+
+def _load_potential_config(params: RunParams) -> tuple[float, dict]:
+  config_path = params.path / "config.json"
+  layer_separation, potential_kwargs = _default_potential_config(params)
+  if not config_path.exists():
+    return layer_separation, potential_kwargs
+
+  with config_path.open(encoding="utf-8") as f:
+    config = json.load(f)
+  local_energy_kwargs = (
+      config.get("system", {}).get("make_local_energy_kwargs", {}))
+  if local_energy_kwargs.get("potential_type", "Dipolar") != "Dipolar":
+    raise NotImplementedError(
+        "Dipole component evaluation only supports potential_type='Dipolar'.")
+  layer_separation = float(
+      local_energy_kwargs.get("layer_separation", layer_separation))
+  potential_kwargs = dict(
+      local_energy_kwargs.get("potential_kwargs", potential_kwargs))
+  return layer_separation, potential_kwargs
+
+
+def _make_dipole_component_potential(params: RunParams):
+  import jax.numpy as jnp
+
+  from periodicwave.pbc import bilayer_hamiltonian
+
+  layer_separation, potential_kwargs = _load_potential_config(params)
+  potential_kwargs = dict(potential_kwargs)
+  use_ewald = potential_kwargs.pop("use_ewald", False)
+  ewald_kwargs = {
+      "ewald_alpha": potential_kwargs.pop("ewald_alpha", None),
+      "ewald_real_cut": potential_kwargs.pop("ewald_real_cut", 4),
+      "ewald_kmax": potential_kwargs.pop("ewald_kmax", 8),
+      "ewald_geometry": potential_kwargs.pop(
+          "ewald_geometry", "xy_periodic_open_z"),
+  }
+  potential_kwargs.pop("ewald_truncation", None)
+
+  if use_ewald:
+    return bilayer_hamiltonian.make_ewald_bilayer_potential(
+        lattice=jnp.asarray(params.lat_vec),
+        layer_separation=layer_separation,
+        return_components=True,
+        **potential_kwargs,
+        **ewald_kwargs)
+  return bilayer_hamiltonian.make_direct_bilayer_potential(
+      lattice=jnp.asarray(params.lat_vec),
+      layer_separation=layer_separation,
+      return_components=True,
+      **potential_kwargs)
+
+
+def _compute_dipole_components(
+    params: RunParams,
+    positions: np.ndarray,
+    chunk_size: int = 256,
+) -> dict[str, np.ndarray]:
+  import jax
+  import jax.numpy as jnp
+
+  component_potential = _make_dipole_component_potential(params)
+  layer_labels = jnp.asarray(params.layer_assignment)
+
+  @jax.jit
+  @jax.vmap
+  def batch_components(config):
+    return component_potential(config, layer_labels)
+
+  chunks = []
+  for start in range(0, positions.shape[0], chunk_size):
+    chunk = jnp.asarray(positions[start:start + chunk_size])
+    chunks.append(jax.tree_util.tree_map(np.asarray, batch_components(chunk)))
+  return {
+      key: np.concatenate([chunk[key] for chunk in chunks])
+      for key in chunks[0]
+  }
+
+
+def _save_dipole_energy_components(
+    params: RunParams,
+    positions: np.ndarray,
+) -> None:
+  components = _compute_dipole_components(params, positions)
+  intra = components["intra"]
+  inter = components["inter"]
+  total = components["total"]
+  mean_intra = float(np.mean(intra))
+  mean_inter = float(np.mean(inter))
+  mean_total = float(np.mean(total))
+  ratio = mean_intra / mean_inter if mean_inter != 0.0 else np.nan
+  ratio_abs = mean_intra / abs(mean_inter) if mean_inter != 0.0 else np.nan
+  inter_fraction = mean_inter / mean_total if mean_total != 0.0 else np.nan
+
+  summary = np.array([[
+      mean_intra,
+      mean_inter,
+      mean_total,
+      float(np.std(intra)),
+      float(np.std(inter)),
+      float(np.std(total)),
+      ratio,
+      ratio_abs,
+      inter_fraction,
+      positions.shape[0],
+  ]])
+  header = (
+      "dipole_intra,dipole_inter,dipole_total,"
+      "dipole_intra_std,dipole_inter_std,dipole_total_std,"
+      "intra_over_inter,intra_over_abs_inter,inter_over_total,nconfigs")
+  csv_path = params.path / "dipole_energy_components.csv"
+  np.savetxt(csv_path, summary, delimiter=",", header=header, comments="")
+  print(
+      f"Saved {csv_path} "
+      f"(intra/inter={ratio:.6g}, intra/abs(inter)={ratio_abs:.6g})")
+
+
 def _scatter_density(
     ax,
     params: RunParams,
@@ -285,7 +423,7 @@ def _save_snapshot_plots(
     ax.set_title(f"sample {idx}")
   for ax in axs[len(indices):]:
     ax.axis("off")
-  fig.suptitle(f"rs={params.rs:g}, d={params.d:g}", y=0.995)
+  fig.suptitle(_format_run_title(params), y=0.995)
   fig.tight_layout()
   path = params.path / "fig_positions_xy_snapshots.png"
   fig.savefig(path, dpi=200)
@@ -380,7 +518,7 @@ def _save_pair_correlation(
   ax.axhline(1.0, color="black", linewidth=0.8, linestyle="--", alpha=0.6)
   ax.set_xlabel("r")
   ax.set_ylabel("g(r)")
-  ax.set_title(f"Pair correlation: rs={params.rs:g}, d={params.d:g}")
+  ax.set_title(f"Pair correlation: {_format_run_title(params)}")
   ax.grid(alpha=0.25, linewidth=0.5)
   fig.tight_layout()
   path = params.path / "fig_pair_correlation_gr.png"
@@ -420,7 +558,7 @@ def _save_layer_pair_correlations(
     ax.grid(alpha=0.25, linewidth=0.5)
     ax.legend()
   fig.suptitle(
-      f"Layer-resolved pair correlation: rs={params.rs:g}, d={params.d:g}")
+      f"Layer-resolved pair correlation: {_format_run_title(params)}")
   fig.tight_layout()
   path = params.path / "fig_pair_correlation_gr_by_layer.png"
   fig.savefig(path, dpi=200)
@@ -434,9 +572,14 @@ def _save_layer_pair_correlations(
   print(f"Saved {csv_path}")
 
 
-def _save_density_plots(params: RunParams, positions: np.ndarray) -> None:
+def _save_density_plots(
+    params: RunParams,
+    positions: np.ndarray,
+    write_extra_figures: bool = True,
+) -> None:
   fig, ax = plt.subplots(1, 1, figsize=(6, 5))
   _scatter_density(ax, params, positions, "Overall xy density", color="#2a6fbb")
+  fig.suptitle(_format_run_title(params), y=0.995)
   fig.tight_layout()
   path = params.path / "fig_density_xy_overall.png"
   fig.savefig(path, dpi=200)
@@ -449,12 +592,15 @@ def _save_density_plots(params: RunParams, positions: np.ndarray) -> None:
   colors = ["#c7364f", "#2f7d57"]
   for ax, mask, title, color in zip(axs, masks, titles, colors):
     _scatter_density(ax, params, positions[:, mask, :], title, color)
-  fig.suptitle(f"Layer densities: rs={params.rs:g}, d={params.d:g}", y=0.995)
+  fig.suptitle(f"Layer densities: {_format_run_title(params)}", y=0.995)
   fig.tight_layout()
   path = params.path / "fig_density_xy_by_layer.png"
   fig.savefig(path, dpi=200)
   print(f"Saved {path}")
   plt.close(fig)
+
+  if not write_extra_figures:
+    return
 
   fig, ax = plt.subplots(1, 1, figsize=(5, 4))
   zs = [-0.5 * params.d, 0.5 * params.d]
@@ -465,7 +611,7 @@ def _save_density_plots(params: RunParams, positions: np.ndarray) -> None:
   ax.bar(zs, counts, width=0.2 * params.d)
   ax.set_xlabel("z")
   ax.set_ylabel("particle count")
-  ax.set_title("Density along z")
+  ax.set_title(f"Density along z: {_format_run_title(params)}")
   fig.tight_layout()
   path = params.path / "fig_density_z_layers.png"
   fig.savefig(path, dpi=200)
@@ -507,7 +653,7 @@ def _save_structure_factor(
   fig.colorbar(scatter, ax=ax, label="S(k)")
   ax.set_xlabel("m1")
   ax.set_ylabel("m2")
-  ax.set_title(f"Static structure factor: rs={params.rs:g}, d={params.d:g}")
+  ax.set_title(f"Static structure factor: {_format_run_title(params)}")
   ax.set_aspect("equal", adjustable="box")
   fig.tight_layout()
   path = params.path / "fig_structure_factor_sk.png"
@@ -552,24 +698,110 @@ def _save_layer_structure_factors(
     ax.set_aspect("equal", adjustable="box")
   fig.colorbar(scatter, ax=axs, shrink=0.88, label="S_layer(k)")
   fig.suptitle(
-      f"Layer static structure factors: rs={params.rs:g}, d={params.d:g}")
+      f"Layer static structure factors: {_format_run_title(params)}")
   path = params.path / "fig_structure_factor_sk_by_layer.png"
   fig.savefig(path, dpi=200)
   print(f"Saved {path}")
   plt.close(fig)
 
 
-def _outputs_exist(run_dir: Path) -> bool:
-  names = [
-      "fig_density_xy_overall.png",
-      "fig_density_xy_by_layer.png",
-      "fig_density_z_layers.png",
-      "fig_positions_xy_snapshots.png",
-      "fig_pair_correlation_gr.png",
-      "fig_pair_correlation_gr_by_layer.png",
-      "fig_structure_factor_sk.png",
-      "fig_structure_factor_sk_by_layer.png",
+def _plot_structure_factor_panel(
+    fig,
+    ax,
+    ms: np.ndarray,
+    vals: np.ndarray,
+    title: str,
+    label: str,
+    vmin: float | None = None,
+    vmax: float | None = None,
+) -> None:
+  scatter = ax.scatter(
+      ms[:, 0],
+      ms[:, 1],
+      c=vals,
+      s=48,
+      cmap="viridis",
+      vmin=vmin,
+      vmax=vmax)
+  fig.colorbar(scatter, ax=ax, fraction=0.046, pad=0.04, label=label)
+  ax.set_xlabel("m1")
+  ax.set_ylabel("m2")
+  ax.set_title(title)
+  ax.set_aspect("equal", adjustable="box")
+
+
+def _save_density_structure_overview(
+    params: RunParams,
+    positions: np.ndarray,
+    kmax: int,
+) -> None:
+  masks = [
+      ("overall", positions, "#2a6fbb"),
+      ("top layer", positions[:, params.layer_assignment == 1.0, :], "#c7364f"),
+      ("bottom layer", positions[:, params.layer_assignment == -1.0, :], "#2f7d57"),
   ]
+  overall_ms, overall_sk = _compute_structure_factor(params, positions, kmax)
+
+  layer_sk = []
+  for label, layer_positions, _ in masks[1:]:
+    ms, vals = _compute_structure_factor(
+        params,
+        layer_positions,
+        kmax,
+        normalization=layer_positions.shape[1])
+    layer_sk.append((label, ms, vals))
+  layer_vmax = max(float(np.max(vals)) for _, _, vals in layer_sk)
+
+  fig, axs = plt.subplots(
+      2,
+      3,
+      figsize=(14, 8.2),
+      constrained_layout=True)
+  for ax, (label, panel_positions, color) in zip(axs[0], masks):
+    _scatter_density(ax, params, panel_positions, f"{label} density", color)
+
+  _plot_structure_factor_panel(
+      fig,
+      axs[1, 0],
+      overall_ms,
+      overall_sk,
+      "overall S(k)",
+      "S(k)")
+  for ax, (label, ms, vals) in zip(axs[1, 1:], layer_sk):
+    _plot_structure_factor_panel(
+        fig,
+        ax,
+        ms,
+        vals,
+        f"{label} S(k)",
+        "S_layer(k)",
+        vmin=0.0,
+        vmax=layer_vmax)
+
+  fig.suptitle(
+      f"Density and structure overview: {_format_run_title(params)}")
+  path = params.path / "fig_density_structure_overview.png"
+  fig.savefig(path, dpi=200)
+  print(f"Saved {path}")
+  plt.close(fig)
+
+
+def _outputs_exist(run_dir: Path, write_extra_figures: bool = True) -> bool:
+  names = [
+      "fig_density_structure_overview.png",
+      "fig_pair_correlation_gr_by_layer.png",
+      "dipole_energy_components.csv",
+  ]
+  if write_extra_figures:
+    names.extend([
+        "fig_density_xy_overall.png",
+        "fig_density_xy_by_layer.png",
+        "fig_density_z_layers.png",
+        "fig_positions_xy_snapshots.png",
+        "fig_pair_correlation_gr.png",
+        "fig_structure_factor_sk.png",
+        "fig_structure_factor_sk_by_layer.png",
+    ])
   return all((run_dir / name).exists() for name in names)
 
 
@@ -581,19 +813,25 @@ def _evaluate_run(
     pair_correlation_bins: int,
     kmax: int,
     skip_existing: bool,
+    write_extra_figures: bool = True,
 ) -> None:
-  if skip_existing and _outputs_exist(run_dir):
+  if skip_existing and _outputs_exist(run_dir, write_extra_figures):
     print(f"Skipping existing bilayer plots: {run_dir}")
     return
 
   params = _parse_run_dir(run_dir)
   positions = _load_positions(params, load_n_ckpts, max_configs)
-  _save_density_plots(params, positions)
-  _save_snapshot_plots(params, positions, snapshot_count)
-  _save_pair_correlation(params, positions, pair_correlation_bins)
+  _save_density_structure_overview(params, positions, kmax)
+  if write_extra_figures:
+    _save_density_plots(params, positions, write_extra_figures)
+    _save_snapshot_plots(params, positions, snapshot_count)
+  if write_extra_figures:
+    _save_pair_correlation(params, positions, pair_correlation_bins)
   _save_layer_pair_correlations(params, positions, pair_correlation_bins)
-  _save_structure_factor(params, positions, kmax)
-  _save_layer_structure_factors(params, positions, kmax)
+  if write_extra_figures:
+    _save_structure_factor(params, positions, kmax)
+    _save_layer_structure_factors(params, positions, kmax)
+  _save_dipole_energy_components(params, positions)
 
 
 def _select_run_dirs(run_dir: Path | None, scan_dir: Path, pattern: str) -> list[Path]:
@@ -633,7 +871,15 @@ def main() -> None:
   parser.add_argument(
       "--skip-existing",
       action="store_true",
-      help="Skip runs where all bilayer output plots already exist.",
+      help="Skip runs where the requested bilayer output files already exist.",
+  )
+  parser.add_argument(
+      "--write-extra-figures",
+      action="store_true",
+      help=(
+          "Also write separate density, snapshot, total g(r), and separate "
+          "S(k) figures."
+      ),
   )
   args = parser.parse_args()
 
@@ -652,6 +898,7 @@ def main() -> None:
           args.pair_correlation_bins,
           args.kmax,
           args.skip_existing,
+          args.write_extra_figures,
       )
     except Exception as exc:  # pylint: disable=broad-exception-caught
       failures.append((run_dir, exc))

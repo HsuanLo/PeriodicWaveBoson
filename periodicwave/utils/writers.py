@@ -52,6 +52,7 @@ class Writer(contextlib.AbstractContextManager):
     if self._iteration_key:
       self._file.write(f'{self._iteration_key},')
     self._file.write(','.join(self._schema) + '\n')
+    self._file.flush()
     return self
 
   def write(self, t: int, **data):
@@ -70,6 +71,7 @@ class Writer(contextlib.AbstractContextManager):
 
     # write the data to csv
     self._file.write(','.join(row) + '\n')
+    self._file.flush()
 
     # write the data to abseil logs
     if self._log:

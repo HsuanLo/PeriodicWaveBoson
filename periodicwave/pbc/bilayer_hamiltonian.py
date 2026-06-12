@@ -28,6 +28,7 @@ def make_direct_bilayer_potential(
     layer_separation: float,
     dipole_strength: float = 1.0,
     softening: float = 1e-6,
+    return_components: bool = False,
 ):
   """Creates a direct minimum-image dipolar potential.
 
@@ -35,9 +36,10 @@ def make_direct_bilayer_potential(
   xy only; z is reconstructed as z_i = 0.5 * layer_separation * layer_label_i.
   """
 
-  def potential(positions: jnp.ndarray, layer_labels: jnp.ndarray) -> jnp.ndarray:
+  def _pair_energies(positions: jnp.ndarray, layer_labels: jnp.ndarray):
     xy = jnp.reshape(positions, [-1, 2])
     num_particles = xy.shape[0]
+    pair_i, pair_j = jnp.triu_indices(num_particles, k=1)
     dxy = xy[:, None, :] - xy[None, :, :]
     dxy = _minimum_image_xy(dxy, lattice)
     rho2 = jnp.sum(dxy ** 2, axis=-1)
@@ -49,11 +51,20 @@ def make_direct_bilayer_potential(
 
     cos2 = dz ** 2 / r2
     dipolar = dipole_strength * (1.0 - 3.0 * cos2) / (r ** 3)
+    return pair_i, pair_j, dipolar[pair_i, pair_j]
 
-    mask = jnp.triu(jnp.ones((num_particles, num_particles), dtype=bool), k=1)
-    return jnp.sum(jnp.where(mask, dipolar, 0.0))
+  def potential(positions: jnp.ndarray, layer_labels: jnp.ndarray) -> jnp.ndarray:
+    _, _, pair_energy = _pair_energies(positions, layer_labels)
+    return jnp.sum(pair_energy)
 
-  return potential
+  def components(positions: jnp.ndarray, layer_labels: jnp.ndarray):
+    pair_i, pair_j, pair_energy = _pair_energies(positions, layer_labels)
+    same_layer = layer_labels[pair_i] == layer_labels[pair_j]
+    intra = jnp.sum(jnp.where(same_layer, pair_energy, 0.0))
+    inter = jnp.sum(jnp.where(same_layer, 0.0, pair_energy))
+    return {"intra": intra, "inter": inter, "total": intra + inter}
+
+  return components if return_components else potential
 
 
 def _integer_grid(cutoff: int, include_zero: bool = True) -> jnp.ndarray:
@@ -74,6 +85,7 @@ def make_ewald_bilayer_potential(
     ewald_real_cut: int = 4,
     ewald_kmax: int = 8,
     ewald_geometry: str = "xy_periodic_open_z",
+    return_components: bool = False,
 ):
   """Creates a 2D-periodic/open-z Ewald dipolar potential.
 
@@ -197,7 +209,7 @@ def make_ewald_bilayer_potential(
     soft_direct = (1.0 - 3.0 * dz2 / r2_soft) / (r2_soft ** 1.5)
     return dipole_strength * (zero_regular + soft_direct)
 
-  def potential(positions: jnp.ndarray, layer_labels: jnp.ndarray) -> jnp.ndarray:
+  def _pair_energies(positions: jnp.ndarray, layer_labels: jnp.ndarray):
     xy = jnp.reshape(positions, [-1, 2])
     num_particles = xy.shape[0]
     pair_i, pair_j = jnp.triu_indices(num_particles, k=1)
@@ -206,13 +218,24 @@ def make_ewald_bilayer_potential(
     z = 0.5 * layer_separation * layer_labels
     dz = z[pair_i] - z[pair_j]
     if softening > 0:
-      energy = jnp.sum(pair_smooth_dipole(dxy, dz))
-      energy += jnp.sum(_stable_zero_image_replacement(dxy, dz))
+      pair_energy = pair_smooth_dipole(dxy, dz)
+      pair_energy += _stable_zero_image_replacement(dxy, dz)
     else:
-      energy = jnp.sum(pair_dipole(dxy, dz))
-    return energy
+      pair_energy = pair_dipole(dxy, dz)
+    return pair_i, pair_j, pair_energy
 
-  return potential
+  def potential(positions: jnp.ndarray, layer_labels: jnp.ndarray) -> jnp.ndarray:
+    _, _, pair_energy = _pair_energies(positions, layer_labels)
+    return jnp.sum(pair_energy)
+
+  def components(positions: jnp.ndarray, layer_labels: jnp.ndarray):
+    pair_i, pair_j, pair_energy = _pair_energies(positions, layer_labels)
+    same_layer = layer_labels[pair_i] == layer_labels[pair_j]
+    intra = jnp.sum(jnp.where(same_layer, pair_energy, 0.0))
+    inter = jnp.sum(jnp.where(same_layer, 0.0, pair_energy))
+    return {"intra": intra, "inter": inter, "total": intra + inter}
+
+  return components if return_components else potential
 
 
 def local_energy(

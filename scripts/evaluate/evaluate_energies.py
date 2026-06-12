@@ -33,7 +33,7 @@ DEFAULT_SCAN_DIR = (
     / "BosonNet"
     / "scan_260603"
 )
-DEFAULT_PATTERN = "N24_layers12_12_rs*_d*_D20.0*_sq"
+DEFAULT_PATTERN = "N*_layers*_*_rs*_d*_D*_sq"
 RUN_RE = re.compile(
     r"N(?P<num_bosons>\d+)_layers(?P<layer_a>\d+)_(?P<layer_b>\d+)"
     r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)"
@@ -50,6 +50,7 @@ class RunParams:
   rs: float
   d: float
   dipole_strength: float
+  seed: int | None
   supercell_shape: str
 
 
@@ -74,6 +75,7 @@ def _parse_run_dir(run_dir: Path) -> RunParams:
       rs=float(parsed["rs"]),
       d=float(parsed["d"]),
       dipole_strength=float(parsed["dipole"]),
+      seed=int(parsed["seed"]) if parsed["seed"] is not None else None,
       supercell_shape=parsed["cell"],
   )
 
@@ -102,6 +104,15 @@ def _best_checkpoint_metric(run_dir: Path) -> str:
   with config_path.open(encoding="utf-8") as f:
     config = json.load(f)
   return config.get("log", {}).get("best_checkpoint_metric", "ewmean")
+
+
+def _best_checkpoint_std_weight(run_dir: Path) -> float:
+  config_path = run_dir / "config.json"
+  if not config_path.exists():
+    return 1.0
+  with config_path.open(encoding="utf-8") as f:
+    config = json.load(f)
+  return float(config.get("log", {}).get("best_checkpoint_std_weight", 1.0))
 
 
 def _row_at_step(data: pd.DataFrame, step: int) -> pd.Series:
@@ -133,6 +144,20 @@ def _best_selection(params: RunParams, plot_data: pd.DataFrame) -> BestSelection
   elif metric == "variance" and "locstd" in plot_data:
     idx = (plot_data["locstd"] ** 2).idxmin()
     score = float(plot_data.loc[idx, "locstd"] ** 2)
+  elif metric == "energy_std" and "locstd" in plot_data:
+    std_weight = _best_checkpoint_std_weight(params.path)
+    scores = (
+        plot_data["energy"] + std_weight * plot_data["locstd"]
+    ) / params.num_bosons
+    idx = scores.idxmin()
+    score = float(scores.loc[idx])
+  elif metric == "ewmean_std" and {"ewmean", "locstd"}.issubset(plot_data.columns):
+    std_weight = _best_checkpoint_std_weight(params.path)
+    scores = (
+        plot_data["ewmean"] + std_weight * plot_data["locstd"]
+    ) / params.num_bosons
+    idx = scores.idxmin()
+    score = float(scores.loc[idx])
   else:
     metric = "energy"
     idx = plot_data["energy"].idxmin()
@@ -188,6 +213,15 @@ def _add_text_box(ax, text: str) -> None:
       })
 
 
+def _format_run_title(params: RunParams) -> str:
+  title = (
+      f"rs={params.rs:g}, d={params.d:g}, "
+      f"D={params.dipole_strength:g}")
+  if params.seed is not None:
+    title += f", seed={params.seed}"
+  return title
+
+
 def _score_per_particle(selection: BestSelection, params: RunParams) -> float:
   if selection.metric in ("ewmean", "energy"):
     return selection.score / params.num_bosons
@@ -199,7 +233,7 @@ def _score_per_particle(selection: BestSelection, params: RunParams) -> float:
 def _selection_summary(
     params: RunParams,
     selection: BestSelection,
-    include_variance: bool = True,
+    include_uncertainty: bool = True,
 ) -> str:
   lines = [
       f"best step = {selection.step} ({selection.metric})",
@@ -207,14 +241,14 @@ def _selection_summary(
       f"E/N at best = "
       f"{_format_float(selection.row['energy'] / params.num_bosons)}",
   ]
-  if not include_variance:
+  if not include_uncertainty:
     return "\n".join(lines)
   if "locstd" in selection.row:
-    variance = (selection.row["locstd"] / params.num_bosons) ** 2
-    lines.append(f"var(E/N) at best = {_format_float(variance)}")
+    std = selection.row["locstd"] / params.num_bosons
+    lines.append(f"std(E_L)/N at best = {_format_float(std)}")
   elif "ewvar" in selection.row:
-    ewvar = selection.row["ewvar"] / (params.num_bosons ** 2)
-    lines.append(f"EW var(E/N) at best = {_format_float(ewvar)}")
+    ewstd = (selection.row["ewvar"] ** 0.5) / params.num_bosons
+    lines.append(f"EW std(E_L)/N at best = {_format_float(ewstd)}")
   return "\n".join(lines)
 
 
@@ -232,7 +266,9 @@ def _plot_energy(params: RunParams, plot_data: pd.DataFrame) -> None:
       label="energy per boson")
   ax.set_xlabel("step")
   ax.set_ylabel("energy per boson")
-  ax.set_title(f"rs={params.rs:g}, d={params.d:g}, D={params.dipole_strength:g}")
+  if (plot_data["energy"] / params.num_bosons > 0).all():
+    ax.set_yscale("log")
+  ax.set_title(_format_run_title(params))
   _add_text_box(ax, _selection_summary(params, selection))
   ax.legend()
   fig.tight_layout()
@@ -264,45 +300,45 @@ def _plot_training_diagnostics(
   if (energy_per_particle > 0).all():
     axs[0].set_yscale("log")
   _add_text_box(axs[0], _selection_summary(
-      params, selection, include_variance=False))
+      params, selection, include_uncertainty=False))
   axs[0].legend(fontsize=8)
 
   if "locstd" in plot_data:
-    variance_per_particle = (plot_data["locstd"] / params.num_bosons) ** 2
+    std_per_particle = plot_data["locstd"] / params.num_bosons
     _add_rolling_average(
         axs[1],
         steps,
-        variance_per_particle,
-        "var(E_L / N)",
+        std_per_particle,
+        "std(E_L) / N",
         rolling_window,
         color="#2f7d57")
-    axs[1].set_ylabel("var(E_L / N)")
-    if (variance_per_particle > 0).all():
+    axs[1].set_ylabel("std(E_L) / N")
+    if (std_per_particle > 0).all():
       axs[1].set_yscale("log")
-    variance_at_best = (selection.row["locstd"] / params.num_bosons) ** 2
+    std_at_best = selection.row["locstd"] / params.num_bosons
     _add_text_box(
         axs[1],
-        f"var(E/N) at best = {_format_float(variance_at_best)}")
+        f"std(E_L)/N at best = {_format_float(std_at_best)}")
     axs[1].legend(fontsize=8)
   elif "ewvar" in plot_data:
-    ewvar_per_particle = plot_data["ewvar"] / (params.num_bosons ** 2)
+    ewstd_per_particle = (plot_data["ewvar"] ** 0.5) / params.num_bosons
     _add_rolling_average(
         axs[1],
         steps,
-        ewvar_per_particle,
-        "EW var(E_L / N)",
+        ewstd_per_particle,
+        "EW std(E_L) / N",
         rolling_window,
         color="#2f7d57")
-    axs[1].set_ylabel("EW var(E_L / N)")
-    if (ewvar_per_particle > 0).all():
+    axs[1].set_ylabel("EW std(E_L) / N")
+    if (ewstd_per_particle > 0).all():
       axs[1].set_yscale("log")
-    ewvar_at_best = selection.row["ewvar"] / (params.num_bosons ** 2)
+    ewstd_at_best = (selection.row["ewvar"] ** 0.5) / params.num_bosons
     _add_text_box(
         axs[1],
-        f"EW var(E/N) at best = {_format_float(ewvar_at_best)}")
+        f"EW std(E_L)/N at best = {_format_float(ewstd_at_best)}")
     axs[1].legend(fontsize=8)
   else:
-    axs[1].text(0.5, 0.5, "variance unavailable", ha="center", va="center")
+    axs[1].text(0.5, 0.5, "std unavailable", ha="center", va="center")
 
   if "mcmc_width" in plot_data:
     _add_rolling_average(
@@ -341,8 +377,7 @@ def _plot_training_diagnostics(
   axs[-1].set_xlabel("step")
 
   fig.suptitle(
-      f"Training diagnostics: rs={params.rs:g}, d={params.d:g}, "
-      f"D={params.dipole_strength:g}",
+      f"Training diagnostics: {_format_run_title(params)}",
       y=0.995)
   fig.tight_layout(rect=(0.0, 0.0, 1.0, 0.985))
   output_path = params.path / "fig_training_diagnostics_overview.png"
@@ -356,9 +391,12 @@ def _evaluate_run(
     burn_in_cut: int,
     rolling_window: int,
     skip_existing: bool,
+    write_extra_figures: bool = True,
 ) -> None:
-  if skip_existing and (run_dir / "fig_training_energy_trace.png").exists() and (
-      run_dir / "fig_training_diagnostics_overview.png").exists():
+  required_outputs = [run_dir / "fig_training_diagnostics_overview.png"]
+  if write_extra_figures:
+    required_outputs.append(run_dir / "fig_training_energy_trace.png")
+  if skip_existing and all(path.exists() for path in required_outputs):
     print(f"Skipping existing energy plots: {run_dir}")
     return
 
@@ -372,7 +410,8 @@ def _evaluate_run(
         f"instead of applying cut {burn_in_cut}.")
     burn_in_cut = 0
   plot_data = train_data.iloc[burn_in_cut:].reset_index(drop=True)
-  _plot_energy(params, plot_data)
+  if write_extra_figures:
+    _plot_energy(params, plot_data)
   _plot_training_diagnostics(params, plot_data, rolling_window)
 
 
@@ -405,7 +444,12 @@ def main() -> None:
   parser.add_argument(
       "--skip-existing",
       action="store_true",
-      help="Skip runs where both output plots already exist.",
+      help="Skip runs where the requested training output plots already exist.",
+  )
+  parser.add_argument(
+      "--write-extra-figures",
+      action="store_true",
+      help="Also write the standalone energy trace figure.",
   )
   args = parser.parse_args()
 
@@ -420,6 +464,7 @@ def main() -> None:
           args.burn_in_cut,
           args.rolling_window,
           args.skip_existing,
+          args.write_extra_figures,
       )
     except Exception as exc:  # pylint: disable=broad-exception-caught
       failures.append((run_dir, exc))

@@ -1,0 +1,325 @@
+2026-06-10 01:51:03,086 - JAX version: 0.10.1
+2026-06-10 01:51:03,087 - jax_enable_x64: False
+2026-06-10 01:51:03,087 - JAXlib version: 0.10.1
+2026-06-10 01:51:03,087 - KFAC-JAX version: 0.0.8
+2026-06-10 01:51:03,087 - Available devices: ['cuda:0', 'cuda:1']
+2026-06-10 01:51:03,088 - Platform: gpu
+2026-06-10 01:51:03,088 - Default precision: float32
+2026-06-10 01:51:03,088 - Default matmul precision: float32
+2026-06-10 01:51:03,088 - GPU information: ['Tesla V100-PCIE-32GB', 'Tesla V100-PCIE-32GB']
+2026-06-10 01:51:03,088 - Python version: 3.13.13
+2026-06-10 01:51:03,088 - System: Linux #20260508 SMP PREEMPT_DYNAMIC Fri May  8 11:20:56 EDT 2026
+2026-06-10 01:51:03,088 - Processor: x86_64
+2026-06-10 01:51:03,088 - Numpy version: 2.4.6
+2026-06-10 01:51:03,088 - CUDA_VISIBLE_DEVICES: GPU-ed2e6bd1-a0fb-a4b9-c85f-7f1eaec7bcb8,GPU-a66f6095-5e45-0fe6-405e-97b1861b4190
+2026-06-10 01:51:03,088 - NVIDIA driver version: 580.126.09
+580.126.09
+2026-06-10 01:51:03,088 - GPU models: Tesla V100-PCIE-32GB, Tesla V100-PCIE-32GB
+2026-06-10 01:51:03,155 - Starting QMC with 2 XLA devices per host across 1 hosts.
+2026-06-10 01:51:13,395 - No checkpoint found. Training new model.
+2026-06-10 01:51:21,223 - Unregularized parameters masking info (for curvature calculations and L2 regularization)
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='embed'), DictKey(key='b'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='embed'), DictKey(key='w'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=0), SequenceKey(idx=0), DictKey(key='b'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=0), SequenceKey(idx=0), DictKey(key='w'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=0), SequenceKey(idx=1), DictKey(key='b'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=0), SequenceKey(idx=1), DictKey(key='w'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=1), SequenceKey(idx=0), DictKey(key='b'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=1), SequenceKey(idx=0), DictKey(key='w'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=1), SequenceKey(idx=1), DictKey(key='b'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=1), SequenceKey(idx=1), DictKey(key='w'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=2), SequenceKey(idx=0), DictKey(key='b'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=2), SequenceKey(idx=0), DictKey(key='w'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=2), SequenceKey(idx=1), DictKey(key='b'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=2), SequenceKey(idx=1), DictKey(key='w'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=3), SequenceKey(idx=0), DictKey(key='b'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=3), SequenceKey(idx=0), DictKey(key='w'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=3), SequenceKey(idx=1), DictKey(key='b'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=3), SequenceKey(idx=1), DictKey(key='w'))
+2026-06-10 01:51:21,223 -   Not masking out (DictKey(key='rho'), SequenceKey(idx=0), DictKey(key='b'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='rho'), SequenceKey(idx=0), DictKey(key='w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='rho'), SequenceKey(idx=1), DictKey(key='b'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='rho'), SequenceKey(idx=1), DictKey(key='w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='attn_ln'), DictKey(key='offset'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='attn_ln'), DictKey(key='scale'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff1'), DictKey(key='b'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff1'), DictKey(key='w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff2'), DictKey(key='b'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff2'), DictKey(key='w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff_ln'), DictKey(key='offset'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff_ln'), DictKey(key='scale'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='k_w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='out_w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='q_w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='v_w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='attn_ln'), DictKey(key='offset'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='attn_ln'), DictKey(key='scale'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff1'), DictKey(key='b'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff1'), DictKey(key='w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff2'), DictKey(key='b'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff2'), DictKey(key='w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff_ln'), DictKey(key='offset'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff_ln'), DictKey(key='scale'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='k_w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='out_w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='q_w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='v_w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='attn_ln'), DictKey(key='offset'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='attn_ln'), DictKey(key='scale'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff1'), DictKey(key='b'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff1'), DictKey(key='w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff2'), DictKey(key='b'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff2'), DictKey(key='w'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff_ln'), DictKey(key='offset'))
+2026-06-10 01:51:21,224 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff_ln'), DictKey(key='scale'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='k_w'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='out_w'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='q_w'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='v_w'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='attn_ln'), DictKey(key='offset'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='attn_ln'), DictKey(key='scale'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='ff1'), DictKey(key='b'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='ff1'), DictKey(key='w'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='ff2'), DictKey(key='b'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='ff2'), DictKey(key='w'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='ff_ln'), DictKey(key='offset'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='ff_ln'), DictKey(key='scale'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='k_w'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='out_w'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='q_w'))
+2026-06-10 01:51:21,225 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='v_w'))
+2026-06-10 01:51:23,674 - ==================================================
+2026-06-10 01:51:23,674 - Graph parameter registrations:
+2026-06-10 01:51:23,675 - {'embed': {'b': 'Auto[tag_variant=repeated_dense(0)|match_type=repeated_dense1_with_bias]',
+2026-06-10 01:51:23,675 -            'w': 'Auto[tag_variant=repeated_dense(0)|match_type=repeated_dense1_with_bias]'},
+2026-06-10 01:51:23,675 -  'ln': [],
+2026-06-10 01:51:23,675 -  'phi': [[{'b': 'Auto[generic(0)]', 'w': 'Auto[generic(1)]'},
+2026-06-10 01:51:23,675 -           {'b': 'Auto[generic(2)]', 'w': 'Auto[generic(3)]'}],
+2026-06-10 01:51:23,675 -          [{'b': 'Auto[generic(4)]', 'w': 'Auto[generic(5)]'},
+2026-06-10 01:51:23,675 -           {'b': 'Auto[generic(6)]', 'w': 'Auto[generic(7)]'}],
+2026-06-10 01:51:23,675 -          [{'b': 'Auto[generic(8)]', 'w': 'Auto[generic(9)]'},
+2026-06-10 01:51:23,675 -           {'b': 'Auto[generic(10)]', 'w': 'Auto[generic(11)]'}],
+2026-06-10 01:51:23,675 -          [{'b': 'Auto[generic(12)]', 'w': 'Auto[generic(13)]'},
+2026-06-10 01:51:23,675 -           {'b': 'Auto[generic(14)]', 'w': 'Auto[generic(15)]'}]],
+2026-06-10 01:51:23,675 -  'rho': [{'b': 'Auto[tag_variant=dense(0)|match_type=dense_with_bias_no_reshape]',
+2026-06-10 01:51:23,675 -           'w': 'Auto[tag_variant=dense(0)|match_type=dense_with_bias_no_reshape]'},
+2026-06-10 01:51:23,675 -          {'b': 'Auto[tag_variant=dense(1)|match_type=dense_with_bias_no_reshape]',
+2026-06-10 01:51:23,675 -           'w': 'Auto[tag_variant=dense(1)|match_type=dense_with_bias_no_reshape]'}],
+2026-06-10 01:51:23,675 -  'transformer': [{'attn_ln': {'offset': 'Auto[tag_variant=scale_and_shift(0)|match_type=normalization_haiku_broadcast_1]',
+2026-06-10 01:51:23,675 -                               'scale': 'Auto[tag_variant=scale_and_shift(0)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-10 01:51:23,675 -                   'ff1': {'b': 'Auto[tag_variant=repeated_dense(5)|match_type=repeated_dense1_with_bias]',
+2026-06-10 01:51:23,675 -                           'w': 'Auto[tag_variant=repeated_dense(5)|match_type=repeated_dense1_with_bias]'},
+2026-06-10 01:51:23,675 -                   'ff2': {'b': 'Auto[tag_variant=repeated_dense(6)|match_type=repeated_dense1_with_bias]',
+2026-06-10 01:51:23,675 -                           'w': 'Auto[tag_variant=repeated_dense(6)|match_type=repeated_dense1_with_bias]'},
+2026-06-10 01:51:23,675 -                   'ff_ln': {'offset': 'Auto[tag_variant=scale_and_shift(1)|match_type=normalization_haiku_broadcast_1]',
+2026-06-10 01:51:23,675 -                             'scale': 'Auto[tag_variant=scale_and_shift(1)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-10 01:51:23,675 -                   'k_w': 'Auto[tag_variant=repeated_dense(2)|match_type=repeated_dense1_no_bias]',
+2026-06-10 01:51:23,675 -                   'out_w': 'Auto[tag_variant=repeated_dense(4)|match_type=repeated_dense1_no_bias]',
+2026-06-10 01:51:23,675 -                   'q_w': 'Auto[tag_variant=repeated_dense(1)|match_type=repeated_dense1_no_bias]',
+2026-06-10 01:51:23,675 -                   'v_w': 'Auto[tag_variant=repeated_dense(3)|match_type=repeated_dense1_no_bias]'},
+2026-06-10 01:51:23,675 -                  {'attn_ln': {'offset': 'Auto[tag_variant=scale_and_shift(2)|match_type=normalization_haiku_broadcast_1]',
+2026-06-10 01:51:23,676 -                               'scale': 'Auto[tag_variant=scale_and_shift(2)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-10 01:51:23,676 -                   'ff1': {'b': 'Auto[tag_variant=repeated_dense(11)|match_type=repeated_dense1_with_bias]',
+2026-06-10 01:51:23,676 -                           'w': 'Auto[tag_variant=repeated_dense(11)|match_type=repeated_dense1_with_bias]'},
+2026-06-10 01:51:23,676 -                   'ff2': {'b': 'Auto[tag_variant=repeated_dense(12)|match_type=repeated_dense1_with_bias]',
+2026-06-10 01:51:23,676 -                           'w': 'Auto[tag_variant=repeated_dense(12)|match_type=repeated_dense1_with_bias]'},
+2026-06-10 01:51:23,676 -                   'ff_ln': {'offset': 'Auto[tag_variant=scale_and_shift(3)|match_type=normalization_haiku_broadcast_1]',
+2026-06-10 01:51:23,676 -                             'scale': 'Auto[tag_variant=scale_and_shift(3)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-10 01:51:23,676 -                   'k_w': 'Auto[tag_variant=repeated_dense(8)|match_type=repeated_dense1_no_bias]',
+2026-06-10 01:51:23,676 -                   'out_w': 'Auto[tag_variant=repeated_dense(10)|match_type=repeated_dense1_no_bias]',
+2026-06-10 01:51:23,676 -                   'q_w': 'Auto[tag_variant=repeated_dense(7)|match_type=repeated_dense1_no_bias]',
+2026-06-10 01:51:23,676 -                   'v_w': 'Auto[tag_variant=repeated_dense(9)|match_type=repeated_dense1_no_bias]'},
+2026-06-10 01:51:23,676 -                  {'attn_ln': {'offset': 'Auto[tag_variant=scale_and_shift(4)|match_type=normalization_haiku_broadcast_1]',
+2026-06-10 01:51:23,676 -                               'scale': 'Auto[tag_variant=scale_and_shift(4)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-10 01:51:23,676 -                   'ff1': {'b': 'Auto[tag_variant=repeated_dense(17)|match_type=repeated_dense1_with_bias]',
+2026-06-10 01:51:23,676 -                           'w': 'Auto[tag_variant=repeated_dense(17)|match_type=repeated_dense1_with_bias]'},
+2026-06-10 01:51:23,676 -                   'ff2': {'b': 'Auto[tag_variant=repeated_dense(18)|match_type=repeated_dense1_with_bias]',
+2026-06-10 01:51:23,676 -                           'w': 'Auto[tag_variant=repeated_dense(18)|match_type=repeated_dense1_with_bias]'},
+2026-06-10 01:51:23,676 -                   'ff_ln': {'offset': 'Auto[tag_variant=scale_and_shift(5)|match_type=normalization_haiku_broadcast_1]',
+2026-06-10 01:51:23,676 -                             'scale': 'Auto[tag_variant=scale_and_shift(5)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-10 01:51:23,676 -                   'k_w': 'Auto[tag_variant=repeated_dense(14)|match_type=repeated_dense1_no_bias]',
+2026-06-10 01:51:23,676 -                   'out_w': 'Auto[tag_variant=repeated_dense(16)|match_type=repeated_dense1_no_bias]',
+2026-06-10 01:51:23,676 -                   'q_w': 'Auto[tag_variant=repeated_dense(13)|match_type=repeated_dense1_no_bias]',
+2026-06-10 01:51:23,676 -                   'v_w': 'Auto[tag_variant=repeated_dense(15)|match_type=repeated_dense1_no_bias]'},
+2026-06-10 01:51:23,676 -                  {'attn_ln': {'offset': 'Auto[tag_variant=scale_and_shift(6)|match_type=normalization_haiku_broadcast_1]',
+2026-06-10 01:51:23,676 -                               'scale': 'Auto[tag_variant=scale_and_shift(6)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-10 01:51:23,676 -                   'ff1': {'b': 'Auto[tag_variant=repeated_dense(23)|match_type=repeated_dense1_with_bias]',
+2026-06-10 01:51:23,676 -                           'w': 'Auto[tag_variant=repeated_dense(23)|match_type=repeated_dense1_with_bias]'},
+2026-06-10 01:51:23,676 -                   'ff2': {'b': 'Auto[tag_variant=repeated_dense(24)|match_type=repeated_dense1_with_bias]',
+2026-06-10 01:51:23,676 -                           'w': 'Auto[tag_variant=repeated_dense(24)|match_type=repeated_dense1_with_bias]'},
+2026-06-10 01:51:23,676 -                   'ff_ln': {'offset': 'Auto[tag_variant=scale_and_shift(7)|match_type=normalization_haiku_broadcast_1]',
+2026-06-10 01:51:23,676 -                             'scale': 'Auto[tag_variant=scale_and_shift(7)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-10 01:51:23,676 -                   'k_w': 'Auto[tag_variant=repeated_dense(20)|match_type=repeated_dense1_no_bias]',
+2026-06-10 01:51:23,676 -                   'out_w': 'Auto[tag_variant=repeated_dense(22)|match_type=repeated_dense1_no_bias]',
+2026-06-10 01:51:23,676 -                   'q_w': 'Auto[tag_variant=repeated_dense(19)|match_type=repeated_dense1_no_bias]',
+2026-06-10 01:51:23,676 -                   'v_w': 'Auto[tag_variant=repeated_dense(21)|match_type=repeated_dense1_no_bias]'}]}
+2026-06-10 01:51:23,676 - ==================================================
+2026-06-10 01:51:23,693 - Graph registered losses:
+2026-06-10 01:51:23,695 - NormalMeanNegativeLogProbLoss(mean=Var(id=140041169834176):float32[1024,1], variance=Literal(0.5), weight=Literal(1.0), normalize_log_prob=Literal(True))
+2026-06-10 01:51:23,695 - ==================================================
+2026-06-10 01:51:23,697 - BlockDiagonalCurvature blocks:
+2026-06-10 01:51:23,698 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(0)|match_type=repeated_dense1_with_bias], params shapes: ((5, 96), (96,))
+2026-06-10 01:51:23,698 - NaiveDiagonal, tag name: Auto[generic(0)], params shapes: ((96,),)
+2026-06-10 01:51:23,698 - NaiveDiagonal, tag name: Auto[generic(1)], params shapes: ((96, 96),)
+2026-06-10 01:51:23,698 - NaiveDiagonal, tag name: Auto[generic(2)], params shapes: ((96,),)
+2026-06-10 01:51:23,698 - NaiveDiagonal, tag name: Auto[generic(3)], params shapes: ((96, 96),)
+2026-06-10 01:51:23,698 - NaiveDiagonal, tag name: Auto[generic(4)], params shapes: ((96,),)
+2026-06-10 01:51:23,698 - NaiveDiagonal, tag name: Auto[generic(5)], params shapes: ((96, 96),)
+2026-06-10 01:51:23,698 - NaiveDiagonal, tag name: Auto[generic(6)], params shapes: ((96,),)
+2026-06-10 01:51:23,698 - NaiveDiagonal, tag name: Auto[generic(7)], params shapes: ((96, 96),)
+2026-06-10 01:51:23,698 - NaiveDiagonal, tag name: Auto[generic(8)], params shapes: ((96,),)
+2026-06-10 01:51:23,698 - NaiveDiagonal, tag name: Auto[generic(9)], params shapes: ((96, 96),)
+2026-06-10 01:51:23,698 - NaiveDiagonal, tag name: Auto[generic(10)], params shapes: ((96,),)
+2026-06-10 01:51:23,698 - NaiveDiagonal, tag name: Auto[generic(11)], params shapes: ((96, 96),)
+2026-06-10 01:51:23,698 - NaiveDiagonal, tag name: Auto[generic(12)], params shapes: ((96,),)
+2026-06-10 01:51:23,699 - NaiveDiagonal, tag name: Auto[generic(13)], params shapes: ((96, 96),)
+2026-06-10 01:51:23,699 - NaiveDiagonal, tag name: Auto[generic(14)], params shapes: ((96,),)
+2026-06-10 01:51:23,699 - NaiveDiagonal, tag name: Auto[generic(15)], params shapes: ((96, 96),)
+2026-06-10 01:51:23,699 - DenseTwoKroneckerFactored(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=dense(0)|match_type=dense_with_bias_no_reshape], params shapes: ((96, 96), (96,))
+2026-06-10 01:51:23,699 - DenseTwoKroneckerFactored(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=dense(1)|match_type=dense_with_bias_no_reshape], params shapes: ((96, 1), (1,))
+2026-06-10 01:51:23,699 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(0)|match_type=normalization_haiku_broadcast_1], params shapes: ((96,), (96,))
+2026-06-10 01:51:23,699 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(5)|match_type=repeated_dense1_with_bias], params shapes: ((96, 384), (384,))
+2026-06-10 01:51:23,699 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(6)|match_type=repeated_dense1_with_bias], params shapes: ((384, 96), (96,))
+2026-06-10 01:51:23,699 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(1)|match_type=normalization_haiku_broadcast_1], params shapes: ((96,), (96,))
+2026-06-10 01:51:23,699 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(2)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,700 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(4)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,700 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(1)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,700 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(3)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,700 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(2)|match_type=normalization_haiku_broadcast_1], params shapes: ((96,), (96,))
+2026-06-10 01:51:23,700 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(11)|match_type=repeated_dense1_with_bias], params shapes: ((96, 384), (384,))
+2026-06-10 01:51:23,700 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(12)|match_type=repeated_dense1_with_bias], params shapes: ((384, 96), (96,))
+2026-06-10 01:51:23,700 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(3)|match_type=normalization_haiku_broadcast_1], params shapes: ((96,), (96,))
+2026-06-10 01:51:23,700 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(8)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,700 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(10)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,700 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(7)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,701 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(9)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,701 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(4)|match_type=normalization_haiku_broadcast_1], params shapes: ((96,), (96,))
+2026-06-10 01:51:23,701 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(17)|match_type=repeated_dense1_with_bias], params shapes: ((96, 384), (384,))
+2026-06-10 01:51:23,701 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(18)|match_type=repeated_dense1_with_bias], params shapes: ((384, 96), (96,))
+2026-06-10 01:51:23,701 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(5)|match_type=normalization_haiku_broadcast_1], params shapes: ((96,), (96,))
+2026-06-10 01:51:23,701 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(14)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,701 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(16)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,701 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(13)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,701 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(15)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,701 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(6)|match_type=normalization_haiku_broadcast_1], params shapes: ((96,), (96,))
+2026-06-10 01:51:23,702 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(23)|match_type=repeated_dense1_with_bias], params shapes: ((96, 384), (384,))
+2026-06-10 01:51:23,702 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(24)|match_type=repeated_dense1_with_bias], params shapes: ((384, 96), (96,))
+2026-06-10 01:51:23,702 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(7)|match_type=normalization_haiku_broadcast_1], params shapes: ((96,), (96,))
+2026-06-10 01:51:23,702 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(20)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,702 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(22)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,702 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(19)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,702 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(21)|match_type=repeated_dense1_no_bias], params shapes: ((96, 96),)
+2026-06-10 01:51:23,702 - ==================================================
+2026-06-10 01:51:24,227 - Burning in MCMC chain for 2000 steps
+2026-06-10 01:53:25,124 - Completed burn-in MCMC steps
+2026-06-10 01:53:25,241 - Final burn-in MCMC stats: pmove=0.922, width=4.34161, esjd_per_particle=5.78484, esjd_per_moved_particle=34.709
+2026-06-10 01:53:31,413 - Initial energy: 114039.7344 E_h
+2026-06-10 01:53:31,838 - Starting training stage bold at step 0
+2026-06-10 01:53:49,144 - Step 00000: 90491.8047 E_h, exp. variance=0.0000 E_h^2, pmove=0.87
+2026-06-10 01:53:55,055 - Step 00010: 91531.5000 E_h, exp. variance=99919160.0000 E_h^2, pmove=0.78
+2026-06-10 01:54:00,935 - Step 00020: 92939.0156 E_h, exp. variance=110755224.0000 E_h^2, pmove=0.85
+2026-06-10 01:54:06,779 - Step 00030: 77041.6875 E_h, exp. variance=172381312.0000 E_h^2, pmove=0.64
+2026-06-10 01:54:12,616 - Step 00040: 92908.9688 E_h, exp. variance=178352640.0000 E_h^2, pmove=0.71
+2026-06-10 01:54:18,460 - Step 00050: 77903.3750 E_h, exp. variance=183997440.0000 E_h^2, pmove=0.48
+2026-06-10 01:54:24,293 - Step 00060: 92906.8047 E_h, exp. variance=220857360.0000 E_h^2, pmove=0.55
+2026-06-10 01:54:30,455 - Step 00070: 74395.0312 E_h, exp. variance=229286496.0000 E_h^2, pmove=0.44
+2026-06-10 01:54:36,294 - Step 00080: 74408.2891 E_h, exp. variance=198233312.0000 E_h^2, pmove=0.29
+2026-06-10 01:54:42,132 - Step 00090: 60792.8203 E_h, exp. variance=148760208.0000 E_h^2, pmove=0.22
+2026-06-10 01:54:47,984 - Step 00100: 63760.5234 E_h, exp. variance=174033264.0000 E_h^2, pmove=0.14
+2026-06-10 01:54:53,846 - Step 00110: 69635.5312 E_h, exp. variance=147094736.0000 E_h^2, pmove=0.10
+2026-06-10 01:54:59,692 - Step 00120: 51182.4688 E_h, exp. variance=108680488.0000 E_h^2, pmove=0.04
+2026-06-10 01:55:05,543 - Step 00130: 54002.2734 E_h, exp. variance=93366088.0000 E_h^2, pmove=0.03
+2026-06-10 01:55:11,395 - Step 00140: 34848.2461 E_h, exp. variance=145807504.0000 E_h^2, pmove=0.01
+2026-06-10 01:55:17,248 - Step 00150: 39165.0820 E_h, exp. variance=122003480.0000 E_h^2, pmove=0.01
+2026-06-10 01:55:23,097 - Step 00160: 23024.8008 E_h, exp. variance=67630840.0000 E_h^2, pmove=0.01
+2026-06-10 01:55:28,963 - Step 00170: 26174.6094 E_h, exp. variance=39483572.0000 E_h^2, pmove=0.01
+2026-06-10 01:55:34,811 - Step 00180: 31285.2070 E_h, exp. variance=33392944.0000 E_h^2, pmove=0.00
+2026-06-10 01:55:40,661 - Step 00190: 24190.0391 E_h, exp. variance=31365452.0000 E_h^2, pmove=0.00
+2026-06-10 01:55:46,525 - Step 00200: 20219.2188 E_h, exp. variance=26629212.0000 E_h^2, pmove=0.00
+2026-06-10 01:55:52,386 - Step 00210: 28489.6504 E_h, exp. variance=15592984.0000 E_h^2, pmove=0.00
+2026-06-10 01:55:58,245 - Step 00220: 27330.1211 E_h, exp. variance=18420738.0000 E_h^2, pmove=0.00
+2026-06-10 01:56:04,100 - Step 00230: 30967.7461 E_h, exp. variance=18085594.0000 E_h^2, pmove=0.00
+2026-06-10 01:56:09,957 - Step 00240: 16124.4238 E_h, exp. variance=48460076.0000 E_h^2, pmove=0.00
+2026-06-10 01:56:15,809 - Step 00250: 17058.2383 E_h, exp. variance=28245168.0000 E_h^2, pmove=0.00
+2026-06-10 01:56:21,665 - Step 00260: 21318.3203 E_h, exp. variance=12976746.0000 E_h^2, pmove=0.00
+2026-06-10 01:56:27,520 - Step 00270: 18134.1816 E_h, exp. variance=6946478.0000 E_h^2, pmove=0.00
+2026-06-10 01:56:33,402 - Step 00280: 13353.8770 E_h, exp. variance=6862873.5000 E_h^2, pmove=0.00
+2026-06-10 01:56:39,266 - Step 00290: 23642.5625 E_h, exp. variance=19242742.0000 E_h^2, pmove=0.00
+2026-06-10 01:56:45,136 - Step 00300: 24288.8105 E_h, exp. variance=8419799.0000 E_h^2, pmove=0.01
+2026-06-10 01:56:51,015 - Step 00310: 22734.3984 E_h, exp. variance=8872535.0000 E_h^2, pmove=0.01
+2026-06-10 01:56:56,892 - Step 00320: 14635.2998 E_h, exp. variance=12345589.0000 E_h^2, pmove=0.01
+2026-06-10 01:57:02,787 - Step 00330: 34799.9766 E_h, exp. variance=53061032.0000 E_h^2, pmove=0.01
+2026-06-10 01:57:08,662 - Step 00340: 23903.6875 E_h, exp. variance=25226280.0000 E_h^2, pmove=0.01
+2026-06-10 01:57:14,539 - Step 00350: 19206.0469 E_h, exp. variance=22250758.0000 E_h^2, pmove=0.01
+2026-06-10 01:57:20,422 - Step 00360: 24474.7656 E_h, exp. variance=41609692.0000 E_h^2, pmove=0.01
+2026-06-10 01:57:26,301 - Step 00370: 26212.6113 E_h, exp. variance=26822432.0000 E_h^2, pmove=0.01
+2026-06-10 01:57:32,181 - Step 00380: 29283.3789 E_h, exp. variance=15958175.0000 E_h^2, pmove=0.01
+2026-06-10 01:57:38,062 - Step 00390: 20130.8984 E_h, exp. variance=32067990.0000 E_h^2, pmove=0.01
+2026-06-10 01:57:43,948 - Step 00400: 34943.3125 E_h, exp. variance=67590544.0000 E_h^2, pmove=0.02
+2026-06-10 01:57:49,834 - Step 00410: 28807.8086 E_h, exp. variance=38731344.0000 E_h^2, pmove=0.02
+2026-06-10 01:57:55,724 - Step 00420: 24001.0820 E_h, exp. variance=24270196.0000 E_h^2, pmove=0.02
+2026-06-10 01:58:01,614 - Step 00430: 31636.8242 E_h, exp. variance=19863852.0000 E_h^2, pmove=0.02
+2026-06-10 01:58:07,503 - Step 00440: 44112.0625 E_h, exp. variance=46651232.0000 E_h^2, pmove=0.02
+2026-06-10 01:58:13,394 - Step 00450: 28747.5664 E_h, exp. variance=27079550.0000 E_h^2, pmove=0.02
+2026-06-10 01:58:19,294 - Step 00460: 35600.9688 E_h, exp. variance=28261202.0000 E_h^2, pmove=0.03
+2026-06-10 01:58:25,181 - Step 00470: 22245.6309 E_h, exp. variance=41628112.0000 E_h^2, pmove=0.03
+2026-06-10 01:58:31,064 - Step 00480: 25443.0938 E_h, exp. variance=38308436.0000 E_h^2, pmove=0.03
+2026-06-10 01:58:36,961 - Step 00490: 23660.6113 E_h, exp. variance=47340624.0000 E_h^2, pmove=0.03
+2026-06-10 01:58:42,854 - Step 00500: 14301.7422 E_h, exp. variance=41891388.0000 E_h^2, pmove=0.03
+2026-06-10 01:58:48,752 - Step 00510: 22539.0039 E_h, exp. variance=35993420.0000 E_h^2, pmove=0.04
+2026-06-10 01:58:54,652 - Step 00520: 20147.4648 E_h, exp. variance=35224952.0000 E_h^2, pmove=0.04
+2026-06-10 01:59:00,554 - Step 00530: 20501.7305 E_h, exp. variance=18988260.0000 E_h^2, pmove=0.04
+2026-06-10 01:59:06,461 - Step 00540: 43480.9609 E_h, exp. variance=93128744.0000 E_h^2, pmove=0.05
+2026-06-10 01:59:12,372 - Step 00550: 21294.4961 E_h, exp. variance=84117184.0000 E_h^2, pmove=0.05
+2026-06-10 01:59:18,274 - Step 00560: 26697.9648 E_h, exp. variance=41036776.0000 E_h^2, pmove=0.06
+2026-06-10 01:59:24,181 - Step 00570: 32711.6172 E_h, exp. variance=37106068.0000 E_h^2, pmove=0.06
+2026-06-10 01:59:30,086 - Step 00580: 18585.4258 E_h, exp. variance=30637548.0000 E_h^2, pmove=0.06
+2026-06-10 01:59:35,989 - Step 00590: 28268.5938 E_h, exp. variance=19559404.0000 E_h^2, pmove=0.07
+2026-06-10 01:59:41,885 - Step 00600: 28520.7578 E_h, exp. variance=26478772.0000 E_h^2, pmove=0.07
+2026-06-10 01:59:47,793 - Step 00610: 19340.5762 E_h, exp. variance=39489560.0000 E_h^2, pmove=0.08
+2026-06-10 01:59:53,702 - Step 00620: 28969.6484 E_h, exp. variance=22284922.0000 E_h^2, pmove=0.08
+2026-06-10 01:59:59,614 - Step 00630: 18606.7227 E_h, exp. variance=23587462.0000 E_h^2, pmove=0.09
+2026-06-10 02:00:05,533 - Step 00640: 25459.6328 E_h, exp. variance=33826136.0000 E_h^2, pmove=0.09
+2026-06-10 02:00:11,434 - Step 00650: 17282.5391 E_h, exp. variance=39412372.0000 E_h^2, pmove=0.10
+2026-06-10 02:00:17,787 - Step 00660: 23811.7734 E_h, exp. variance=25069878.0000 E_h^2, pmove=0.09
+2026-06-10 02:00:23,689 - Step 00670: 19452.2559 E_h, exp. variance=20763706.0000 E_h^2, pmove=0.10
+2026-06-10 02:00:29,587 - Step 00680: 23551.0449 E_h, exp. variance=32634900.0000 E_h^2, pmove=0.10
+2026-06-10 02:00:35,490 - Step 00690: 17406.3047 E_h, exp. variance=33104486.0000 E_h^2, pmove=0.11
+2026-06-10 02:00:41,401 - Step 00700: 16776.9727 E_h, exp. variance=21717294.0000 E_h^2, pmove=0.11
+2026-06-10 02:00:47,301 - Step 00710: 19450.7031 E_h, exp. variance=29872218.0000 E_h^2, pmove=0.12
+2026-06-10 02:00:53,231 - Step 00720: 32261.0312 E_h, exp. variance=37724248.0000 E_h^2, pmove=0.13
+2026-06-10 02:00:59,152 - Step 00730: 22564.1836 E_h, exp. variance=35751916.0000 E_h^2, pmove=0.12
+2026-06-10 02:01:05,086 - Step 00740: 16896.8105 E_h, exp. variance=34817800.0000 E_h^2, pmove=0.13
+2026-06-10 02:01:11,010 - Step 00750: 27258.5371 E_h, exp. variance=18710236.0000 E_h^2, pmove=0.13
+2026-06-10 02:01:16,936 - Step 00760: 30602.8125 E_h, exp. variance=15484168.0000 E_h^2, pmove=0.14
+2026-06-10 02:01:22,874 - Step 00770: 23864.8633 E_h, exp. variance=16421601.0000 E_h^2, pmove=0.13
+2026-06-10 02:01:28,807 - Step 00780: 20401.1016 E_h, exp. variance=11636470.0000 E_h^2, pmove=0.14
+2026-06-10 02:01:34,736 - Step 00790: 25897.4531 E_h, exp. variance=20322210.0000 E_h^2, pmove=0.14
+2026-06-10 02:01:40,675 - Step 00800: 22164.6719 E_h, exp. variance=26264998.0000 E_h^2, pmove=0.15
+2026-06-10 02:01:46,610 - Step 00810: 26796.7070 E_h, exp. variance=38506848.0000 E_h^2, pmove=0.15
+2026-06-10 02:01:52,545 - Step 00820: 25557.5703 E_h, exp. variance=24672624.0000 E_h^2, pmove=0.14
+2026-06-10 02:01:58,481 - Step 00830: 32110.6055 E_h, exp. variance=21502376.0000 E_h^2, pmove=0.15
+2026-06-10 02:02:04,415 - Step 00840: 17885.1992 E_h, exp. variance=23037422.0000 E_h^2, pmove=0.15
+2026-06-10 02:02:10,351 - Step 00850: 16968.0293 E_h, exp. variance=26874238.0000 E_h^2, pmove=0.16
+2026-06-10 02:02:16,287 - Step 00860: 15817.0107 E_h, exp. variance=15868735.0000 E_h^2, pmove=0.16
+2026-06-10 02:02:22,225 - Step 00870: 26378.9746 E_h, exp. variance=26215432.0000 E_h^2, pmove=0.16
+2026-06-10 02:02:28,180 - Step 00880: 17720.5820 E_h, exp. variance=21625192.0000 E_h^2, pmove=0.16
+2026-06-10 02:02:34,133 - Step 00890: 27925.4648 E_h, exp. variance=84350688.0000 E_h^2, pmove=0.16
+2026-06-10 02:02:40,085 - Step 00900: 20181.4961 E_h, exp. variance=49755064.0000 E_h^2, pmove=0.16
+2026-06-10 02:02:46,026 - Step 00910: 19087.4004 E_h, exp. variance=49011636.0000 E_h^2, pmove=0.17
+2026-06-10 02:02:51,966 - Step 00920: 21245.3320 E_h, exp. variance=57233880.0000 E_h^2, pmove=0.16
+2026-06-10 02:02:57,909 - Step 00930: 20166.1367 E_h, exp. variance=46764708.0000 E_h^2, pmove=0.17
+2026-06-10 02:03:03,857 - Step 00940: 20449.9688 E_h, exp. variance=28224118.0000 E_h^2, pmove=0.18
+2026-06-10 02:03:09,799 - Step 00950: 26080.8359 E_h, exp. variance=31924208.0000 E_h^2, pmove=0.18
+2026-06-10 02:03:15,747 - Step 00960: 20837.2344 E_h, exp. variance=22077594.0000 E_h^2, pmove=0.18
+2026-06-10 02:03:21,711 - Step 00970: 20340.5742 E_h, exp. variance=28025722.0000 E_h^2, pmove=0.18
+2026-06-10 02:03:27,658 - Step 00980: 18943.5352 E_h, exp. variance=37924696.0000 E_h^2, pmove=0.17
+2026-06-10 02:03:33,602 - Step 00990: 20655.5352 E_h, exp. variance=56347252.0000 E_h^2, pmove=0.17
+2026-06-10 02:03:39,560 - Step 01000: 34011.9766 E_h, exp. variance=67602760.0000 E_h^2, pmove=0.18
+2026-06-10 02:03:45,518 - Step 01010: 25020.1367 E_h, exp. variance=47658144.0000 E_h^2, pmove=0.18
+2026-06-10 02:03:51,477 - Step 01020: 27908.8770 E_h, exp. variance=27557930.0000 E_h^2, pmove=0.18
+2026-06-10 02:03:57,427 - Step 01030: 18176.2109 E_h, exp. variance=36495260.0000 E_h^2, pmove=0.18
+2026-06-10 02:04:03,384 - Step 01040: 19407.4023 E_h, exp. variance=17777932.0000 E_h^2, pmove=0.17
+2026-06-10 02:04:09,345 - Step 01050: 27636.0781 E_h, exp. variance=18794254.0000 E_h^2, pmove=0.17
+2026-06-10 02:04:15,300 - Step 01060: 19359.1445 E_h, exp. variance=13826155.0000 E_h^2, pmove=0.18
+2026-06-10 02:04:21,256 - Step 01070: 23664.0879 E_h, exp. variance=10952243.0000 E_h^2, pmove=0.18
