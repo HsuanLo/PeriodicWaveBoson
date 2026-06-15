@@ -32,14 +32,16 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SCAN_DIR = (
     REPO_ROOT
     / "results"
+    / "bilayer-bosons"
+    / "BosonNet"
     / "scan_260603"
 )
-DEFAULT_PATTERN = "N24_layers12_12_rs*_d*_D20.0*_sq"
+DEFAULT_PATTERN = "N*_layers*_*_rs*_d*_D*_sq"
 RUN_RE = re.compile(
     r"N(?P<num_bosons>\d+)_layers(?P<layer_a>\d+)_(?P<layer_b>\d+)"
     r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)"
     r"(?:_seed(?P<seed>\d+))?_"
-    r"(?P<cell>[^/]+)$"
+    r"(?P<cell>sq|tri)(?:_[^/]+)?$"
 )
 
 
@@ -97,6 +99,18 @@ def _load_train_stats(run_dir: Path) -> pd.DataFrame | None:
   return stats.sort_values("step").reset_index(drop=True)
 
 
+def _rolling_rows_from_step_window(steps: pd.Series, rolling_window: int) -> int:
+  """Converts a requested optimizer-step window to saved CSV rows."""
+  if rolling_window <= 0 or len(steps) < 2:
+    return max(1, rolling_window)
+  step_diffs = steps.sort_values().diff().dropna()
+  step_diffs = step_diffs[step_diffs > 0]
+  if step_diffs.empty:
+    return max(1, rolling_window)
+  step_interval = float(step_diffs.median())
+  return max(1, int(round(float(rolling_window) / step_interval)))
+
+
 def _diagnose_run(
     run_dir: Path,
     burn_in_cut: int,
@@ -108,17 +122,19 @@ def _diagnose_run(
     return None
   if "energy" not in stats or "step" not in stats:
     return None
-  if len(stats) > burn_in_cut:
-    stats = stats.iloc[burn_in_cut:].reset_index(drop=True)
+  filtered = stats[stats["step"] >= burn_in_cut].reset_index(drop=True)
+  if not filtered.empty:
+    stats = filtered
 
   num_bosons = _num_bosons(run_dir, parsed)
-  energy_per_boson = stats["energy"] / num_bosons
+  energy_per_boson = stats["energy"]
+  rolling_rows = _rolling_rows_from_step_window(stats["step"], rolling_window)
   rolling = energy_per_boson.rolling(
-      rolling_window, min_periods=max(1, rolling_window // 5)).mean()
+      rolling_rows, min_periods=max(1, rolling_rows // 5)).mean()
   last = stats.iloc[-1]
   final_locstd = None
   if "locstd" in stats:
-    final_locstd = float(last["locstd"] / num_bosons)
+    final_locstd = float(last["locstd"])
   final_pmove = float(last["pmove"]) if "pmove" in stats else None
 
   return RunDiagnostics(
@@ -135,6 +151,22 @@ def _diagnose_run(
       final_pmove=final_pmove,
       final_step=int(last["step"]),
   )
+
+
+def _deduplicate_runs(runs: list[RunDiagnostics]) -> tuple[list[RunDiagnostics], int]:
+  """Keep the lowest best rolling energy for duplicate scan coordinates."""
+  best_by_param: dict[tuple[float, float], RunDiagnostics] = {}
+  duplicates = 0
+  for run in runs:
+    key = (run.rs, run.d)
+    existing = best_by_param.get(key)
+    if existing is None:
+      best_by_param[key] = run
+      continue
+    duplicates += 1
+    if run.best_rolling_energy_per_boson < existing.best_rolling_energy_per_boson:
+      best_by_param[key] = run
+  return sorted(best_by_param.values(), key=lambda run: (run.d, run.rs)), duplicates
 
 
 def _metric_grid(
@@ -203,6 +235,25 @@ def _format_metric_value(value: float, attr: str) -> str:
   return f"{value:.3g}"
 
 
+def _draw_missing_panel(ax) -> None:
+  ax.set_facecolor("#f7f7f5")
+  ax.grid(False)
+  ax.set_xticks([])
+  ax.set_yticks([])
+  for spine in ax.spines.values():
+    spine.set_color("#d7d7d2")
+    spine.set_linewidth(0.6)
+  ax.text(
+      0.5,
+      0.5,
+      "not run",
+      transform=ax.transAxes,
+      ha="center",
+      va="center",
+      fontsize=7.5,
+      color="#777770")
+
+
 def _plot_scan_energy_grid(
     runs: list[RunDiagnostics],
     rs_values: list[float],
@@ -244,8 +295,7 @@ def _plot_scan_energy_grid(
       ax.grid(alpha=0.20, linewidth=0.4)
       ax.tick_params(labelsize=7, length=2)
       if run is None:
-        ax.text(0.5, 0.5, "missing", ha="center", va="center", fontsize=8)
-        ax.set_facecolor("#f2f2f2")
+        _draw_missing_panel(ax)
       else:
         color = cmap(norm(run.final_energy_per_boson))
         steps = run.data["step"]
@@ -263,7 +313,7 @@ def _plot_scan_energy_grid(
         if "ewmean" in run.data:
           ax.plot(
               steps,
-              run.data["ewmean"] / run.num_bosons,
+              run.data["ewmean"],
               color="#111111",
               linewidth=0.7,
               alpha=0.55)
@@ -375,15 +425,30 @@ def _plot_scan_metric_summary(
 
 def main() -> None:
   parser = argparse.ArgumentParser(description=__doc__)
+  parser.add_argument(
+      "--run-dir",
+      type=Path,
+      default=None,
+      help="Plot one run directory directly; ignores --scan-dir and --pattern.",
+  )
   parser.add_argument("--scan-dir", type=Path, default=DEFAULT_SCAN_DIR)
   parser.add_argument("--pattern", default=DEFAULT_PATTERN)
   parser.add_argument("--burn-in-cut", type=int, default=0)
-  parser.add_argument("--rolling-window", type=int, default=100)
+  parser.add_argument(
+      "--rolling-window",
+      type=int,
+      default=100,
+      help="Rolling-mean window in optimizer steps, not saved CSV rows.",
+  )
   parser.add_argument("--output-prefix", default="scan_diagnostics")
   args = parser.parse_args()
 
   scan_dir = args.scan_dir.resolve()
-  run_dirs = sorted(path for path in scan_dir.glob(args.pattern) if path.is_dir())
+  if args.run_dir is not None:
+    run_dirs = [args.run_dir.resolve()]
+    scan_dir = run_dirs[0]
+  else:
+    run_dirs = sorted(path for path in scan_dir.glob(args.pattern) if path.is_dir())
   if not run_dirs:
     raise ValueError(f"No run directories matched {scan_dir / args.pattern}")
 
@@ -397,6 +462,7 @@ def main() -> None:
       runs.append(diagnostics)
   if not runs:
     raise ValueError(f"No usable train_stats.csv files found in {scan_dir}")
+  runs, duplicate_count = _deduplicate_runs(runs)
 
   rs_values = sorted({run.rs for run in runs})
   d_values = sorted({run.d for run in runs})
@@ -406,6 +472,9 @@ def main() -> None:
   _plot_scan_metric_summary(runs, rs_values, d_values, summary_output)
 
   print(f"Loaded {len(runs)} runs from {scan_dir}")
+  if duplicate_count:
+    print(
+        f"Collapsed {duplicate_count} duplicate (rs, d) runs by best rolling energy")
   if skipped:
     print(f"Skipped {len(skipped)} runs without usable training stats")
   print(f"Saved energy grid to {grid_output}")

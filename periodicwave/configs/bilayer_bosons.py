@@ -27,8 +27,8 @@ class BilayerDefaults:
   """Shared defaults for bilayer runners and config construction."""
 
   # Physical system.
-  num_bosons: int = 6
-  layer_occupations: tuple[int, int] = (3, 3)
+  num_bosons: int = 24
+  layer_occupations: tuple[int, int] = (12, 12)
   layer_separation: float = 1.0
   dipole_strength: float = 6.0
   supercell_shape: str = "sq"

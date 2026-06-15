@@ -38,14 +38,16 @@ from periodicwave.pbc import lattices
 DEFAULT_SCAN_DIR = (
     REPO_ROOT
     / "results"
+    / "bilayer-bosons"
+    / "BosonNet"
     / "scan_260603"
 )
-DEFAULT_PATTERN = "N24_layers12_12_rs*_d*_D20.0*_sq"
+DEFAULT_PATTERN = "N*_layers*_*_rs*_d*_D*_sq"
 RUN_RE = re.compile(
     r"N(?P<num_bosons>\d+)_layers(?P<layer_a>\d+)_(?P<layer_b>\d+)"
     r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)"
     r"(?:_seed(?P<seed>\d+))?_"
-    r"(?P<cell>[^/]+)$"
+    r"(?P<cell>sq|tri)(?:_[^/]+)?$"
 )
 
 
@@ -57,6 +59,7 @@ class RunParams:
   rs: float
   d: float
   dipole_strength: float
+  seed: int | None
   supercell_shape: str
   lat_vec: np.ndarray
   rec: np.ndarray
@@ -133,6 +136,7 @@ def _run_params(run_dir: Path) -> RunParams:
       rs=rs,
       d=float(parsed["d"]),
       dipole_strength=float(parsed["dipole"]),
+      seed=int(parsed["seed"]) if parsed["seed"] is not None else None,
       supercell_shape=supercell_shape,
       lat_vec=lat_vec,
       rec=rec,
@@ -150,6 +154,41 @@ def _latest_checkpoint_files(run_dir: Path, nfiles: int) -> list[Path]:
   return [path for _, path in sorted(numbered, reverse=True)[:nfiles]]
 
 
+def _best_checkpoint_files(run_dir: Path, nfiles: int) -> list[Path]:
+  manifest_path = run_dir / "qmcjax_best_checkpoints.csv"
+  if not manifest_path.exists() or manifest_path.stat().st_size == 0:
+    return []
+  rows = np.genfromtxt(
+      manifest_path,
+      delimiter=",",
+      names=True,
+      dtype=None,
+      encoding="utf-8")
+  rows = np.atleast_1d(rows)
+  if rows.size == 0:
+    return []
+
+  candidates = []
+  for row in rows:
+    try:
+      score = float(row["score"])
+      checkpoint_name = str(row["checkpoint"])
+    except (ValueError, KeyError):
+      continue
+    checkpoint_path = run_dir / checkpoint_name
+    if checkpoint_path.exists():
+      candidates.append((score, checkpoint_path))
+  candidates.sort(key=lambda item: item[0])
+  return [path for _, path in candidates[:nfiles]]
+
+
+def _checkpoint_files(run_dir: Path, nfiles: int) -> list[Path]:
+  best_files = _best_checkpoint_files(run_dir, nfiles)
+  if best_files:
+    return best_files
+  return _latest_checkpoint_files(run_dir, nfiles)
+
+
 def _load_positions(
     params: RunParams,
     load_n_ckpts: int,
@@ -157,9 +196,12 @@ def _load_positions(
 ) -> np.ndarray:
   _install_jax_array_unpickle_fallback()
   positions = []
-  ckpt_files = _latest_checkpoint_files(params.path, load_n_ckpts)
+  ckpt_files = _checkpoint_files(params.path, load_n_ckpts)
   if not ckpt_files:
     raise ValueError(f"No checkpoints found in {params.path}")
+  print(
+      f"Loading checkpoints for {params.path.name}: "
+      f"{[path.name for path in ckpt_files]}")
   for ckpt_file in ckpt_files:
     ckpt = np.load(ckpt_file, allow_pickle=True)
     data = ckpt["data"].item()
@@ -259,6 +301,55 @@ def _load_observables(
   )
 
 
+def _run_selection_score(run_dir: Path) -> tuple[float, int, str]:
+  manifest_path = run_dir / "qmcjax_best_checkpoints.csv"
+  if manifest_path.exists() and manifest_path.stat().st_size > 0:
+    rows = np.genfromtxt(
+        manifest_path,
+        delimiter=",",
+        names=True,
+        dtype=None,
+        encoding="utf-8")
+    rows = np.atleast_1d(rows)
+    candidates = []
+    for row in rows:
+      try:
+        score = float(row["score"])
+        step = int(row["step"])
+        checkpoint_path = run_dir / str(row["checkpoint"])
+      except (ValueError, KeyError):
+        continue
+      if checkpoint_path.exists():
+        candidates.append((score, step, run_dir.name))
+    if candidates:
+      return min(candidates)
+
+  latest = _latest_checkpoint_files(run_dir, 1)
+  if latest:
+    try:
+      return (float("inf"), -int(latest[0].stem.split("_")[-1]), run_dir.name)
+    except ValueError:
+      pass
+  return (float("inf"), 0, run_dir.name)
+
+
+def _deduplicate_run_dirs(run_dirs: list[Path]) -> tuple[list[Path], int]:
+  """Keep one run for duplicate scan coordinates using evaluator checkpoint score."""
+  selected: dict[tuple[float, float], Path] = {}
+  duplicates = 0
+  for run_dir in run_dirs:
+    parsed = _parse_run_dir(run_dir)
+    key = (float(parsed["rs"]), float(parsed["d"]))
+    existing = selected.get(key)
+    if existing is None:
+      selected[key] = run_dir
+      continue
+    duplicates += 1
+    if _run_selection_score(run_dir) < _run_selection_score(existing):
+      selected[key] = run_dir
+  return sorted(selected.values()), duplicates
+
+
 def _finite_norm(values: np.ndarray) -> Normalize:
   finite = values[np.isfinite(values)]
   if finite.size == 0:
@@ -301,6 +392,24 @@ def _text_color_for_value(
   return "black" if luminance > 0.58 else "white"
 
 
+def _draw_missing_panel(ax) -> None:
+  ax.set_facecolor("#f7f7f5")
+  ax.set_xticks([])
+  ax.set_yticks([])
+  for spine in ax.spines.values():
+    spine.set_color("#d7d7d2")
+    spine.set_linewidth(0.6)
+  ax.text(
+      0.5,
+      0.5,
+      "not run",
+      transform=ax.transAxes,
+      ha="center",
+      va="center",
+      fontsize=7.5,
+      color="#777770")
+
+
 def _plot_density_grid(
     observables: list[RunObservables],
     rs_values: list[float],
@@ -335,9 +444,7 @@ def _plot_density_grid(
       ax = axs[row, col]
       obs = obs_by_param.get((rs_value, d_value))
       if obs is None:
-        ax.text(0.5, 0.5, "missing", ha="center", va="center", fontsize=8)
-        ax.set_xticks([])
-        ax.set_yticks([])
+        _draw_missing_panel(ax)
       else:
         _draw_density_panel(ax, obs, mode)
       if row == 0:
@@ -391,7 +498,7 @@ def _plot_structure_grid(
       ax = axs[row, col]
       obs = obs_by_param.get((rs_value, d_value))
       if obs is None:
-        ax.text(0.5, 0.5, "missing", ha="center", va="center", fontsize=8)
+        _draw_missing_panel(ax)
       else:
         sizes = 10 + 18 * np.clip(norm(obs.structure_vals), 0.0, 1.0)
         image = ax.scatter(
@@ -509,6 +616,12 @@ def _plot_structure_summary(
 
 def main() -> None:
   parser = argparse.ArgumentParser(description=__doc__)
+  parser.add_argument(
+      "--run-dir",
+      type=Path,
+      default=None,
+      help="Plot one run directory directly; ignores --scan-dir and --pattern.",
+  )
   parser.add_argument("--scan-dir", type=Path, default=DEFAULT_SCAN_DIR)
   parser.add_argument("--pattern", default=DEFAULT_PATTERN)
   parser.add_argument("--load-n-ckpts", type=int, default=1)
@@ -524,9 +637,14 @@ def main() -> None:
 
   scan_dir = args.scan_dir.resolve()
   max_configs = None if args.max_configs == 0 else args.max_configs
-  run_dirs = sorted(path for path in scan_dir.glob(args.pattern) if path.is_dir())
+  if args.run_dir is not None:
+    run_dirs = [args.run_dir.resolve()]
+    scan_dir = run_dirs[0]
+  else:
+    run_dirs = sorted(path for path in scan_dir.glob(args.pattern) if path.is_dir())
   if not run_dirs:
     raise ValueError(f"No run directories matched {scan_dir / args.pattern}")
+  run_dirs, duplicate_count = _deduplicate_run_dirs(run_dirs)
 
   observables = []
   skipped = []
@@ -578,6 +696,9 @@ def main() -> None:
       structure_summary_output)
 
   print(f"Loaded observables for {len(observables)} runs from {scan_dir}")
+  if duplicate_count:
+    print(
+        f"Collapsed {duplicate_count} duplicate (rs, d) runs by checkpoint score")
   if skipped:
     print(f"Skipped {len(skipped)} runs")
     for path, exc in skipped[:5]:
