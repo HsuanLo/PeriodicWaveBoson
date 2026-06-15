@@ -1,0 +1,776 @@
+2026-06-12 16:42:30,664 - 
+2026-06-12 16:42:30,666 - === Runtime Environment ===
+2026-06-12 16:42:30,666 - Command line: /home/gridsan/hlo1/project/PeriodicWaveBoson/scripts/train/run_bilayer.py --results-dir results/rs_d_scan_N16_D20_sq --rs 0.4 --d 0.5 --seed 69
+2026-06-12 16:42:30,666 - Working directory: /home/gridsan/hlo1/project/PeriodicWaveBoson
+2026-06-12 16:42:30,666 - Host: d-14-2-2
+2026-06-12 16:42:30,666 - Python version: 3.13.13
+2026-06-12 16:42:30,666 - System: Linux #20260508 SMP PREEMPT_DYNAMIC Fri May  8 11:20:56 EDT 2026
+2026-06-12 16:42:30,669 - Processor: x86_64
+2026-06-12 16:42:30,669 - Numpy version: 2.4.6
+2026-06-12 16:42:30,669 - 
+2026-06-12 16:42:30,669 - === Scheduler Environment ===
+2026-06-12 16:42:30,669 - LLSUB_RANK: 3
+2026-06-12 16:42:30,669 - LLSUB_SIZE: 10
+2026-06-12 16:42:30,669 - SLURM_JOB_ID: 4937762
+2026-06-12 16:42:30,669 - SLURM_JOB_NAME: submit.sh
+2026-06-12 16:42:30,669 - SLURM_NODELIST: d-14-2-2
+2026-06-12 16:42:30,669 - SLURM_PROCID: 0
+2026-06-12 16:42:30,669 - SLURM_LOCALID: 0
+2026-06-12 16:42:30,669 - SLURM_GPUS: <unset>
+2026-06-12 16:42:30,669 - SLURM_GPUS_ON_NODE: 2
+2026-06-12 16:42:30,669 - SLURM_CPUS_PER_TASK: <unset>
+2026-06-12 16:42:30,669 - 
+2026-06-12 16:42:30,669 - === JAX Device Visibility ===
+2026-06-12 16:42:30,669 - JAX version: 0.10.1
+2026-06-12 16:42:30,669 - JAXlib version: 0.10.1
+2026-06-12 16:42:30,669 - KFAC-JAX version: 0.0.8
+2026-06-12 16:42:30,669 - Platform: gpu
+2026-06-12 16:42:30,669 - jax_enable_x64: False
+2026-06-12 16:42:30,669 - Default precision: float32
+2026-06-12 16:42:30,669 - Default matmul precision: float32
+2026-06-12 16:42:30,669 - CUDA_VISIBLE_DEVICES: GPU-d906d9a1-ef8d-1ff5-527a-4f1ca0a344c3,GPU-1e533ff7-358c-2131-52a0-3c3bec90b4f8
+2026-06-12 16:42:30,669 - XLA_PYTHON_CLIENT_PREALLOCATE: <unset>
+2026-06-12 16:42:30,669 - XLA_PYTHON_CLIENT_MEM_FRACTION: <unset>
+2026-06-12 16:42:30,669 - JAX process index/count: 0/1
+2026-06-12 16:42:30,670 - JAX local device count: 2
+2026-06-12 16:42:30,670 - JAX global device count: 2
+2026-06-12 16:42:30,670 - JAX local devices: ['cuda:0', 'cuda:1']
+2026-06-12 16:42:30,670 - JAX global devices: ['cuda:0', 'cuda:1']
+2026-06-12 16:42:30,670 - JAX visible GPU kinds: ['Tesla V100-PCIE-32GB', 'Tesla V100-PCIE-32GB']
+2026-06-12 16:42:30,670 - 
+2026-06-12 16:42:30,670 - === Node NVIDIA State ===
+2026-06-12 16:42:30,692 - nvidia-smi -L output (node-level, not necessarily JAX-visible):
+GPU 0: Tesla V100-PCIE-32GB (UUID: GPU-1e533ff7-358c-2131-52a0-3c3bec90b4f8)
+GPU 1: Tesla V100-PCIE-32GB (UUID: GPU-d906d9a1-ef8d-1ff5-527a-4f1ca0a344c3)
+2026-06-12 16:42:30,712 - nvidia-smi query (node-level, not necessarily JAX-visible):
+index, uuid, name, driver_version, memory.total [MiB], memory.used [MiB], utilization.gpu [%]
+0, GPU-1e533ff7-358c-2131-52a0-3c3bec90b4f8, Tesla V100-PCIE-32GB, 580.126.09, 32768 MiB, 314 MiB, 0 %
+1, GPU-d906d9a1-ef8d-1ff5-527a-4f1ca0a344c3, Tesla V100-PCIE-32GB, 580.126.09, 32768 MiB, 326 MiB, 0 %
+2026-06-12 16:42:30,712 - 
+2026-06-12 16:42:30,712 - === Training Log ===
+2026-06-12 16:42:30,751 - Starting QMC with 2 XLA devices per host across 1 hosts.
+2026-06-12 16:42:34,794 - No checkpoint found. Training new model.
+2026-06-12 16:42:37,833 - Unregularized parameters masking info (for curvature calculations and L2 regularization)
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='embed'), DictKey(key='b'))
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='embed'), DictKey(key='w'))
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=0), SequenceKey(idx=0), DictKey(key='b'))
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=0), SequenceKey(idx=0), DictKey(key='w'))
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=0), SequenceKey(idx=1), DictKey(key='b'))
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=0), SequenceKey(idx=1), DictKey(key='w'))
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=1), SequenceKey(idx=0), DictKey(key='b'))
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=1), SequenceKey(idx=0), DictKey(key='w'))
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=1), SequenceKey(idx=1), DictKey(key='b'))
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=1), SequenceKey(idx=1), DictKey(key='w'))
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=2), SequenceKey(idx=0), DictKey(key='b'))
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=2), SequenceKey(idx=0), DictKey(key='w'))
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=2), SequenceKey(idx=1), DictKey(key='b'))
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=2), SequenceKey(idx=1), DictKey(key='w'))
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=3), SequenceKey(idx=0), DictKey(key='b'))
+2026-06-12 16:42:37,833 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=3), SequenceKey(idx=0), DictKey(key='w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=3), SequenceKey(idx=1), DictKey(key='b'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='phi'), SequenceKey(idx=3), SequenceKey(idx=1), DictKey(key='w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='rho'), SequenceKey(idx=0), DictKey(key='b'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='rho'), SequenceKey(idx=0), DictKey(key='w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='rho'), SequenceKey(idx=1), DictKey(key='b'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='rho'), SequenceKey(idx=1), DictKey(key='w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='attn_ln'), DictKey(key='offset'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='attn_ln'), DictKey(key='scale'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='distance_bias'), DictKey(key='inter_w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='distance_bias'), DictKey(key='intra_w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff1'), DictKey(key='b'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff1'), DictKey(key='w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff2'), DictKey(key='b'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff2'), DictKey(key='w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff_ln'), DictKey(key='offset'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='ff_ln'), DictKey(key='scale'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='k_w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='out_w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='q_w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=0), DictKey(key='v_w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='attn_ln'), DictKey(key='offset'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='attn_ln'), DictKey(key='scale'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='distance_bias'), DictKey(key='inter_w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='distance_bias'), DictKey(key='intra_w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff1'), DictKey(key='b'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff1'), DictKey(key='w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff2'), DictKey(key='b'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff2'), DictKey(key='w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff_ln'), DictKey(key='offset'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='ff_ln'), DictKey(key='scale'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='k_w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='out_w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='q_w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=1), DictKey(key='v_w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='attn_ln'), DictKey(key='offset'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='attn_ln'), DictKey(key='scale'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='distance_bias'), DictKey(key='inter_w'))
+2026-06-12 16:42:37,834 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='distance_bias'), DictKey(key='intra_w'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff1'), DictKey(key='b'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff1'), DictKey(key='w'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff2'), DictKey(key='b'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff2'), DictKey(key='w'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff_ln'), DictKey(key='offset'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='ff_ln'), DictKey(key='scale'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='k_w'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='out_w'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='q_w'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=2), DictKey(key='v_w'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='attn_ln'), DictKey(key='offset'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='attn_ln'), DictKey(key='scale'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='distance_bias'), DictKey(key='inter_w'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='distance_bias'), DictKey(key='intra_w'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='ff1'), DictKey(key='b'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='ff1'), DictKey(key='w'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='ff2'), DictKey(key='b'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='ff2'), DictKey(key='w'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='ff_ln'), DictKey(key='offset'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='ff_ln'), DictKey(key='scale'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='k_w'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='out_w'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='q_w'))
+2026-06-12 16:42:37,835 -   Not masking out (DictKey(key='transformer'), SequenceKey(idx=3), DictKey(key='v_w'))
+2026-06-12 16:42:41,402 - ==================================================
+2026-06-12 16:42:41,403 - Graph parameter registrations:
+2026-06-12 16:42:41,404 - {'embed': {'b': 'Auto[tag_variant=repeated_dense(0)|match_type=repeated_dense1_with_bias]',
+2026-06-12 16:42:41,404 -            'w': 'Auto[tag_variant=repeated_dense(0)|match_type=repeated_dense1_with_bias]'},
+2026-06-12 16:42:41,404 -  'ln': [],
+2026-06-12 16:42:41,404 -  'phi': [[{'b': 'Auto[generic(0)]', 'w': 'Auto[generic(1)]'},
+2026-06-12 16:42:41,404 -           {'b': 'Auto[generic(2)]', 'w': 'Auto[generic(3)]'}],
+2026-06-12 16:42:41,404 -          [{'b': 'Auto[generic(4)]', 'w': 'Auto[generic(5)]'},
+2026-06-12 16:42:41,404 -           {'b': 'Auto[generic(6)]', 'w': 'Auto[generic(7)]'}],
+2026-06-12 16:42:41,404 -          [{'b': 'Auto[generic(8)]', 'w': 'Auto[generic(9)]'},
+2026-06-12 16:42:41,404 -           {'b': 'Auto[generic(10)]', 'w': 'Auto[generic(11)]'}],
+2026-06-12 16:42:41,404 -          [{'b': 'Auto[generic(12)]', 'w': 'Auto[generic(13)]'},
+2026-06-12 16:42:41,404 -           {'b': 'Auto[generic(14)]', 'w': 'Auto[generic(15)]'}]],
+2026-06-12 16:42:41,404 -  'rho': [{'b': 'Auto[tag_variant=dense(0)|match_type=dense_with_bias_no_reshape]',
+2026-06-12 16:42:41,404 -           'w': 'Auto[tag_variant=dense(0)|match_type=dense_with_bias_no_reshape]'},
+2026-06-12 16:42:41,404 -          {'b': 'Auto[tag_variant=dense(1)|match_type=dense_with_bias_no_reshape]',
+2026-06-12 16:42:41,404 -           'w': 'Auto[tag_variant=dense(1)|match_type=dense_with_bias_no_reshape]'}],
+2026-06-12 16:42:41,404 -  'transformer': [{'attn_ln': {'offset': 'Auto[tag_variant=scale_and_shift(0)|match_type=normalization_haiku_broadcast_1]',
+2026-06-12 16:42:41,404 -                               'scale': 'Auto[tag_variant=scale_and_shift(0)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-12 16:42:41,404 -                   'distance_bias': {'inter_w': 'Auto[generic(16)]',
+2026-06-12 16:42:41,404 -                                     'intra_w': 'Auto[generic(17)]'},
+2026-06-12 16:42:41,404 -                   'ff1': {'b': 'Auto[tag_variant=repeated_dense(5)|match_type=repeated_dense1_with_bias]',
+2026-06-12 16:42:41,404 -                           'w': 'Auto[tag_variant=repeated_dense(5)|match_type=repeated_dense1_with_bias]'},
+2026-06-12 16:42:41,404 -                   'ff2': {'b': 'Auto[tag_variant=repeated_dense(6)|match_type=repeated_dense1_with_bias]',
+2026-06-12 16:42:41,404 -                           'w': 'Auto[tag_variant=repeated_dense(6)|match_type=repeated_dense1_with_bias]'},
+2026-06-12 16:42:41,404 -                   'ff_ln': {'offset': 'Auto[tag_variant=scale_and_shift(1)|match_type=normalization_haiku_broadcast_1]',
+2026-06-12 16:42:41,404 -                             'scale': 'Auto[tag_variant=scale_and_shift(1)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-12 16:42:41,404 -                   'k_w': 'Auto[tag_variant=repeated_dense(2)|match_type=repeated_dense1_no_bias]',
+2026-06-12 16:42:41,404 -                   'out_w': 'Auto[tag_variant=repeated_dense(4)|match_type=repeated_dense1_no_bias]',
+2026-06-12 16:42:41,404 -                   'q_w': 'Auto[tag_variant=repeated_dense(1)|match_type=repeated_dense1_no_bias]',
+2026-06-12 16:42:41,404 -                   'v_w': 'Auto[tag_variant=repeated_dense(3)|match_type=repeated_dense1_no_bias]'},
+2026-06-12 16:42:41,404 -                  {'attn_ln': {'offset': 'Auto[tag_variant=scale_and_shift(2)|match_type=normalization_haiku_broadcast_1]',
+2026-06-12 16:42:41,404 -                               'scale': 'Auto[tag_variant=scale_and_shift(2)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-12 16:42:41,404 -                   'distance_bias': {'inter_w': 'Auto[generic(18)]',
+2026-06-12 16:42:41,404 -                                     'intra_w': 'Auto[generic(19)]'},
+2026-06-12 16:42:41,404 -                   'ff1': {'b': 'Auto[tag_variant=repeated_dense(11)|match_type=repeated_dense1_with_bias]',
+2026-06-12 16:42:41,404 -                           'w': 'Auto[tag_variant=repeated_dense(11)|match_type=repeated_dense1_with_bias]'},
+2026-06-12 16:42:41,404 -                   'ff2': {'b': 'Auto[tag_variant=repeated_dense(12)|match_type=repeated_dense1_with_bias]',
+2026-06-12 16:42:41,404 -                           'w': 'Auto[tag_variant=repeated_dense(12)|match_type=repeated_dense1_with_bias]'},
+2026-06-12 16:42:41,404 -                   'ff_ln': {'offset': 'Auto[tag_variant=scale_and_shift(3)|match_type=normalization_haiku_broadcast_1]',
+2026-06-12 16:42:41,405 -                             'scale': 'Auto[tag_variant=scale_and_shift(3)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-12 16:42:41,405 -                   'k_w': 'Auto[tag_variant=repeated_dense(8)|match_type=repeated_dense1_no_bias]',
+2026-06-12 16:42:41,405 -                   'out_w': 'Auto[tag_variant=repeated_dense(10)|match_type=repeated_dense1_no_bias]',
+2026-06-12 16:42:41,405 -                   'q_w': 'Auto[tag_variant=repeated_dense(7)|match_type=repeated_dense1_no_bias]',
+2026-06-12 16:42:41,405 -                   'v_w': 'Auto[tag_variant=repeated_dense(9)|match_type=repeated_dense1_no_bias]'},
+2026-06-12 16:42:41,405 -                  {'attn_ln': {'offset': 'Auto[tag_variant=scale_and_shift(4)|match_type=normalization_haiku_broadcast_1]',
+2026-06-12 16:42:41,405 -                               'scale': 'Auto[tag_variant=scale_and_shift(4)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-12 16:42:41,405 -                   'distance_bias': {'inter_w': 'Auto[generic(20)]',
+2026-06-12 16:42:41,405 -                                     'intra_w': 'Auto[generic(21)]'},
+2026-06-12 16:42:41,405 -                   'ff1': {'b': 'Auto[tag_variant=repeated_dense(17)|match_type=repeated_dense1_with_bias]',
+2026-06-12 16:42:41,405 -                           'w': 'Auto[tag_variant=repeated_dense(17)|match_type=repeated_dense1_with_bias]'},
+2026-06-12 16:42:41,405 -                   'ff2': {'b': 'Auto[tag_variant=repeated_dense(18)|match_type=repeated_dense1_with_bias]',
+2026-06-12 16:42:41,405 -                           'w': 'Auto[tag_variant=repeated_dense(18)|match_type=repeated_dense1_with_bias]'},
+2026-06-12 16:42:41,405 -                   'ff_ln': {'offset': 'Auto[tag_variant=scale_and_shift(5)|match_type=normalization_haiku_broadcast_1]',
+2026-06-12 16:42:41,405 -                             'scale': 'Auto[tag_variant=scale_and_shift(5)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-12 16:42:41,405 -                   'k_w': 'Auto[tag_variant=repeated_dense(14)|match_type=repeated_dense1_no_bias]',
+2026-06-12 16:42:41,405 -                   'out_w': 'Auto[tag_variant=repeated_dense(16)|match_type=repeated_dense1_no_bias]',
+2026-06-12 16:42:41,405 -                   'q_w': 'Auto[tag_variant=repeated_dense(13)|match_type=repeated_dense1_no_bias]',
+2026-06-12 16:42:41,405 -                   'v_w': 'Auto[tag_variant=repeated_dense(15)|match_type=repeated_dense1_no_bias]'},
+2026-06-12 16:42:41,405 -                  {'attn_ln': {'offset': 'Auto[tag_variant=scale_and_shift(6)|match_type=normalization_haiku_broadcast_1]',
+2026-06-12 16:42:41,405 -                               'scale': 'Auto[tag_variant=scale_and_shift(6)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-12 16:42:41,405 -                   'distance_bias': {'inter_w': 'Auto[generic(22)]',
+2026-06-12 16:42:41,405 -                                     'intra_w': 'Auto[generic(23)]'},
+2026-06-12 16:42:41,405 -                   'ff1': {'b': 'Auto[tag_variant=repeated_dense(23)|match_type=repeated_dense1_with_bias]',
+2026-06-12 16:42:41,405 -                           'w': 'Auto[tag_variant=repeated_dense(23)|match_type=repeated_dense1_with_bias]'},
+2026-06-12 16:42:41,405 -                   'ff2': {'b': 'Auto[tag_variant=repeated_dense(24)|match_type=repeated_dense1_with_bias]',
+2026-06-12 16:42:41,405 -                           'w': 'Auto[tag_variant=repeated_dense(24)|match_type=repeated_dense1_with_bias]'},
+2026-06-12 16:42:41,405 -                   'ff_ln': {'offset': 'Auto[tag_variant=scale_and_shift(7)|match_type=normalization_haiku_broadcast_1]',
+2026-06-12 16:42:41,405 -                             'scale': 'Auto[tag_variant=scale_and_shift(7)|match_type=normalization_haiku_broadcast_1]'},
+2026-06-12 16:42:41,405 -                   'k_w': 'Auto[tag_variant=repeated_dense(20)|match_type=repeated_dense1_no_bias]',
+2026-06-12 16:42:41,405 -                   'out_w': 'Auto[tag_variant=repeated_dense(22)|match_type=repeated_dense1_no_bias]',
+2026-06-12 16:42:41,405 -                   'q_w': 'Auto[tag_variant=repeated_dense(19)|match_type=repeated_dense1_no_bias]',
+2026-06-12 16:42:41,405 -                   'v_w': 'Auto[tag_variant=repeated_dense(21)|match_type=repeated_dense1_no_bias]'}]}
+2026-06-12 16:42:41,405 - ==================================================
+2026-06-12 16:42:41,433 - Graph registered losses:
+2026-06-12 16:42:41,433 - NormalMeanNegativeLogProbLoss(mean=Var(id=140553411206912):float32[1024,1], variance=Literal(0.5), weight=Literal(1.0), normalize_log_prob=Literal(True))
+2026-06-12 16:42:41,433 - ==================================================
+2026-06-12 16:42:41,436 - BlockDiagonalCurvature blocks:
+2026-06-12 16:42:41,436 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(0)|match_type=repeated_dense1_with_bias], params shapes: ((5, 64), (64,))
+2026-06-12 16:42:41,436 - NaiveDiagonal, tag name: Auto[generic(0)], params shapes: ((64,),)
+2026-06-12 16:42:41,436 - NaiveDiagonal, tag name: Auto[generic(1)], params shapes: ((64, 64),)
+2026-06-12 16:42:41,436 - NaiveDiagonal, tag name: Auto[generic(2)], params shapes: ((64,),)
+2026-06-12 16:42:41,436 - NaiveDiagonal, tag name: Auto[generic(3)], params shapes: ((64, 64),)
+2026-06-12 16:42:41,436 - NaiveDiagonal, tag name: Auto[generic(4)], params shapes: ((64,),)
+2026-06-12 16:42:41,436 - NaiveDiagonal, tag name: Auto[generic(5)], params shapes: ((64, 64),)
+2026-06-12 16:42:41,436 - NaiveDiagonal, tag name: Auto[generic(6)], params shapes: ((64,),)
+2026-06-12 16:42:41,436 - NaiveDiagonal, tag name: Auto[generic(7)], params shapes: ((64, 64),)
+2026-06-12 16:42:41,437 - NaiveDiagonal, tag name: Auto[generic(8)], params shapes: ((64,),)
+2026-06-12 16:42:41,437 - NaiveDiagonal, tag name: Auto[generic(9)], params shapes: ((64, 64),)
+2026-06-12 16:42:41,437 - NaiveDiagonal, tag name: Auto[generic(10)], params shapes: ((64,),)
+2026-06-12 16:42:41,437 - NaiveDiagonal, tag name: Auto[generic(11)], params shapes: ((64, 64),)
+2026-06-12 16:42:41,437 - NaiveDiagonal, tag name: Auto[generic(12)], params shapes: ((64,),)
+2026-06-12 16:42:41,437 - NaiveDiagonal, tag name: Auto[generic(13)], params shapes: ((64, 64),)
+2026-06-12 16:42:41,437 - NaiveDiagonal, tag name: Auto[generic(14)], params shapes: ((64,),)
+2026-06-12 16:42:41,437 - NaiveDiagonal, tag name: Auto[generic(15)], params shapes: ((64, 64),)
+2026-06-12 16:42:41,437 - DenseTwoKroneckerFactored(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=dense(0)|match_type=dense_with_bias_no_reshape], params shapes: ((64, 64), (64,))
+2026-06-12 16:42:41,437 - DenseTwoKroneckerFactored(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=dense(1)|match_type=dense_with_bias_no_reshape], params shapes: ((64, 1), (1,))
+2026-06-12 16:42:41,437 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(0)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-06-12 16:42:41,437 - NaiveDiagonal, tag name: Auto[generic(16)], params shapes: ((17, 4),)
+2026-06-12 16:42:41,437 - NaiveDiagonal, tag name: Auto[generic(17)], params shapes: ((17, 4),)
+2026-06-12 16:42:41,438 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(5)|match_type=repeated_dense1_with_bias], params shapes: ((64, 256), (256,))
+2026-06-12 16:42:41,438 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(6)|match_type=repeated_dense1_with_bias], params shapes: ((256, 64), (64,))
+2026-06-12 16:42:41,438 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(1)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-06-12 16:42:41,438 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(2)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,438 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(4)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,438 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(1)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,438 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(3)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,438 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(2)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-06-12 16:42:41,438 - NaiveDiagonal, tag name: Auto[generic(18)], params shapes: ((17, 4),)
+2026-06-12 16:42:41,438 - NaiveDiagonal, tag name: Auto[generic(19)], params shapes: ((17, 4),)
+2026-06-12 16:42:41,439 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(11)|match_type=repeated_dense1_with_bias], params shapes: ((64, 256), (256,))
+2026-06-12 16:42:41,439 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(12)|match_type=repeated_dense1_with_bias], params shapes: ((256, 64), (64,))
+2026-06-12 16:42:41,439 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(3)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-06-12 16:42:41,439 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(8)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,439 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(10)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,439 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(7)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,439 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(9)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,439 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(4)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-06-12 16:42:41,439 - NaiveDiagonal, tag name: Auto[generic(20)], params shapes: ((17, 4),)
+2026-06-12 16:42:41,439 - NaiveDiagonal, tag name: Auto[generic(21)], params shapes: ((17, 4),)
+2026-06-12 16:42:41,439 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(17)|match_type=repeated_dense1_with_bias], params shapes: ((64, 256), (256,))
+2026-06-12 16:42:41,440 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(18)|match_type=repeated_dense1_with_bias], params shapes: ((256, 64), (64,))
+2026-06-12 16:42:41,440 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(5)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-06-12 16:42:41,440 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(14)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,440 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(16)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,440 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(13)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,440 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(15)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,440 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(6)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-06-12 16:42:41,440 - NaiveDiagonal, tag name: Auto[generic(22)], params shapes: ((17, 4),)
+2026-06-12 16:42:41,440 - NaiveDiagonal, tag name: Auto[generic(23)], params shapes: ((17, 4),)
+2026-06-12 16:42:41,440 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(23)|match_type=repeated_dense1_with_bias], params shapes: ((64, 256), (256,))
+2026-06-12 16:42:41,441 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b', 'a -> 1a'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(24)|match_type=repeated_dense1_with_bias], params shapes: ((256, 64), (64,))
+2026-06-12 16:42:41,441 - ScaleAndShiftDiagonal, tag name: Auto[tag_variant=scale_and_shift(7)|match_type=normalization_haiku_broadcast_1], params shapes: ((64,), (64,))
+2026-06-12 16:42:41,441 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(20)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,441 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(22)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,441 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(19)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,441 - RepeatedDenseBlock(parameter_specs=['ab -> (a)b'], parameters_concat_axis=0), tag name: Auto[tag_variant=repeated_dense(21)|match_type=repeated_dense1_no_bias], params shapes: ((64, 64),)
+2026-06-12 16:42:41,441 - ==================================================
+2026-06-12 16:42:56,177 - Initial energy: 2048.1418 E_h
+2026-06-12 16:42:56,233 - Starting training stage bold at step 0
+2026-06-12 16:43:22,034 - [stage=bold step=00000 local=00000/01000] E/N=124.989 ewE/N=124.989 std/N=5.50727 ewstd/N=0 pmove=0.986 width=0.0520036 esjd/N=0.00224395 esjd/moved=0.0040799 score=130.497
+2026-06-12 16:43:50,000 - [stage=bold step=00010 local=00010/01000] E/N=3137.89 ewE/N=1577.25 std/N=36589.3 ewstd/N=1608.26 pmove=0.801 width=0.0741071 esjd/N=0.0034289 esjd/moved=0.0059633 score=38166.6
+2026-06-12 16:43:52,827 - [stage=bold step=00020 local=00020/01000] E/N=3847.93 ewE/N=3279.83 std/N=34671 ewstd/N=1660.57 pmove=0.641 width=0.0967031 esjd/N=0.0051928 esjd/moved=0.00989106 score=37950.9
+2026-06-12 16:43:55,648 - [stage=bold step=00030 local=00030/01000] E/N=2853.68 ewE/N=3859.39 std/N=16085.9 ewstd/N=1318.84 pmove=0.484 width=0.11651 esjd/N=0.00614142 esjd/moved=0.0122828 score=19945.2
+2026-06-12 16:43:58,465 - [stage=bold step=00040 local=00040/01000] E/N=4274.73 ewE/N=3683.76 std/N=35569.6 ewstd/N=1064.9 pmove=0.428 width=0.133598 esjd/N=0.00655294 esjd/moved=0.0124818 score=39253.3
+2026-06-12 16:44:01,290 - [stage=bold step=00050 local=00050/01000] E/N=3812.99 ewE/N=3666.44 std/N=31447.5 ewstd/N=817.912 pmove=0.319 width=0.145776 esjd/N=0.00503068 esjd/moved=0.00914669 score=35113.9
+2026-06-12 16:44:04,111 - [stage=bold step=00060 local=00060/01000] E/N=3591.93 ewE/N=3254.68 std/N=37058.1 ewstd/N=766.746 pmove=0.221 width=0.150739 esjd/N=0.00349165 esjd/moved=0.00634846 score=40312.7
+2026-06-12 16:44:06,938 - [stage=bold step=00070 local=00070/01000] E/N=2758.15 ewE/N=2932.19 std/N=31937.8 ewstd/N=617.916 pmove=0.178 width=0.150733 esjd/N=0.00226999 esjd/moved=0.00394781 score=34870
+2026-06-12 16:44:09,762 - [stage=bold step=00080 local=00080/01000] E/N=1437.28 ewE/N=2367.93 std/N=12310 ewstd/N=671.237 pmove=0.117 width=0.145384 esjd/N=0.00143065 esjd/moved=0.00260119 score=14677.9
+2026-06-12 16:44:12,583 - [stage=bold step=00090 local=00090/01000] E/N=1233.77 ewE/N=1837.06 std/N=13356.8 ewstd/N=614.109 pmove=0.069 width=0.137443 esjd/N=0.000853316 esjd/moved=0.00162536 score=15193.8
+2026-06-12 16:44:15,418 - [stage=bold step=00100 local=00100/01000] E/N=864.062 ewE/N=1358.11 std/N=12239.3 ewstd/N=541.19 pmove=0.057 width=0.12909 esjd/N=0.000584339 esjd/moved=0.00111303 score=13597.4
+2026-06-12 16:44:18,251 - [stage=bold step=00110 local=00110/01000] E/N=621.796 ewE/N=1113.91 std/N=7212.49 ewstd/N=464.939 pmove=0.098 width=0.121136 esjd/N=0.000420275 esjd/moved=0.000700459 score=8326.4
+2026-06-12 16:44:21,092 - [stage=bold step=00120 local=00120/01000] E/N=329.004 ewE/N=689.372 std/N=2359.58 ewstd/N=425.782 pmove=0.086 width=0.113991 esjd/N=0.000380702 esjd/moved=0.000662091 score=3048.95
+2026-06-12 16:44:23,929 - [stage=bold step=00130 local=00130/01000] E/N=473.799 ewE/N=564.527 std/N=9211.29 ewstd/N=345.806 pmove=0.104 width=0.106929 esjd/N=0.000417647 esjd/moved=0.000726342 score=9775.82
+2026-06-12 16:44:26,770 - [stage=bold step=00140 local=00140/01000] E/N=246.422 ewE/N=429.132 std/N=1636.15 ewstd/N=264.206 pmove=0.069 width=0.101221 esjd/N=0.000399048 esjd/moved=0.000760091 score=2065.28
+2026-06-12 16:44:29,627 - [stage=bold step=00150 local=00150/01000] E/N=200.017 ewE/N=297.103 std/N=369.076 ewstd/N=185.259 pmove=0.102 width=0.0956738 esjd/N=0.000431906 esjd/moved=0.000785283 score=666.18
+2026-06-12 16:44:32,477 - [stage=bold step=00160 local=00160/01000] E/N=179.285 ewE/N=310.115 std/N=490.867 ewstd/N=203.126 pmove=0.093 width=0.0918223 esjd/N=0.000480826 esjd/moved=0.000915859 score=800.983
+2026-06-12 16:44:35,316 - [stage=bold step=00170 local=00170/01000] E/N=159.162 ewE/N=217.175 std/N=203.752 ewstd/N=138.131 pmove=0.190 width=0.0895174 esjd/N=0.000581472 esjd/moved=0.00096912 score=420.927
+2026-06-12 16:44:38,169 - [stage=bold step=00180 local=00180/01000] E/N=186.337 ewE/N=180.485 std/N=2023.27 ewstd/N=87.2306 pmove=0.165 width=0.0883008 esjd/N=0.000714511 esjd/moved=0.00129911 score=2203.75
+2026-06-12 16:44:41,008 - [stage=bold step=00190 local=00190/01000] E/N=131.515 ewE/N=174.083 std/N=40.2218 ewstd/N=75.4698 pmove=0.273 width=0.0870254 esjd/N=0.000677797 esjd/moved=0.00104276 score=214.305
+2026-06-12 16:44:43,851 - [stage=bold step=00200 local=00200/01000] E/N=124.022 ewE/N=144.419 std/N=30.1605 ewstd/N=49.6024 pmove=0.191 width=0.0853149 esjd/N=0.000830399 esjd/moved=0.00150982 score=174.58
+2026-06-12 16:44:46,689 - [stage=bold step=00210 local=00210/01000] E/N=115.757 ewE/N=129.136 std/N=27.5386 ewstd/N=31.5377 pmove=0.171 width=0.0843587 esjd/N=0.000870979 esjd/moved=0.00165901 score=156.675
+2026-06-12 16:44:49,532 - [stage=bold step=00220 local=00220/01000] E/N=109.889 ewE/N=117.784 std/N=83.6459 ewstd/N=20.4625 pmove=0.141 width=0.0838286 esjd/N=0.000849956 esjd/moved=0.00169991 score=201.43
+2026-06-12 16:44:52,371 - [stage=bold step=00230 local=00230/01000] E/N=95.86 ewE/N=106.664 std/N=35.3731 ewstd/N=14.8396 pmove=0.152 width=0.0825799 esjd/N=0.000735413 esjd/moved=0.00140079 score=142.037
+2026-06-12 16:44:55,204 - [stage=bold step=00240 local=00240/01000] E/N=90.6129 ewE/N=96.8884 std/N=95.1938 ewstd/N=11.471 pmove=0.173 width=0.0819657 esjd/N=0.000682206 esjd/moved=0.00124037 score=192.082
+2026-06-12 16:44:58,052 - [stage=bold step=00250 local=00250/01000] E/N=81.8812 ewE/N=88.8302 std/N=105.312 ewstd/N=9.15362 pmove=0.139 width=0.0804463 esjd/N=0.000624223 esjd/moved=0.001189 score=194.142
+2026-06-12 16:45:00,902 - [stage=bold step=00260 local=00260/01000] E/N=71.8405 ewE/N=79.9976 std/N=19.9574 ewstd/N=8.84497 pmove=0.155 width=0.0790699 esjd/N=0.00053801 esjd/moved=0.0009782 score=99.9549
+2026-06-12 16:45:03,756 - [stage=bold step=00270 local=00270/01000] E/N=63.7513 ewE/N=71.2995 std/N=16.7509 ewstd/N=8.4226 pmove=0.189 width=0.0774803 esjd/N=0.000540483 esjd/moved=0.00093997 score=88.0504
+2026-06-12 16:45:06,600 - [stage=bold step=00280 local=00280/01000] E/N=59.5471 ewE/N=64.561 std/N=16.6244 ewstd/N=7.10895 pmove=0.163 width=0.0764206 esjd/N=0.000527642 esjd/moved=0.000959349 score=81.1853
+2026-06-12 16:45:09,445 - [stage=bold step=00290 local=00290/01000] E/N=56.2226 ewE/N=59.904 std/N=10.6323 ewstd/N=5.44999 pmove=0.195 width=0.0748103 esjd/N=0.000507474 esjd/moved=0.000882563 score=70.5363
+2026-06-12 16:45:12,303 - [stage=bold step=00300 local=00300/01000] E/N=54.2655 ewE/N=56.5421 std/N=9.15268 ewstd/N=4.07422 pmove=0.149 width=0.0730982 esjd/N=0.000535086 esjd/moved=0.00101921 score=65.6948
+2026-06-12 16:45:15,178 - [stage=bold step=00310 local=00310/01000] E/N=52.7148 ewE/N=54.2834 std/N=7.91297 ewstd/N=2.9417 pmove=0.176 width=0.0722824 esjd/N=0.000504291 esjd/moved=0.000916892 score=62.1963
+2026-06-12 16:45:18,044 - [stage=bold step=00320 local=00320/01000] E/N=51.0412 ewE/N=52.5092 std/N=6.84107 ewstd/N=2.19562 pmove=0.206 width=0.0707205 esjd/N=0.000484517 esjd/moved=0.000842638 score=59.3503
+2026-06-12 16:45:20,913 - [stage=bold step=00330 local=00330/01000] E/N=50.0085 ewE/N=51.1107 std/N=6.29861 ewstd/N=1.67629 pmove=0.163 width=0.0695692 esjd/N=0.000541714 esjd/moved=0.00103184 score=57.4093
+2026-06-12 16:45:23,785 - [stage=bold step=00340 local=00340/01000] E/N=49.8831 ewE/N=50.312 std/N=6.19155 ewstd/N=1.15407 pmove=0.319 width=0.0700037 esjd/N=0.000441072 esjd/moved=0.000653441 score=56.5036
+2026-06-12 16:45:26,655 - [stage=bold step=00350 local=00350/01000] E/N=48.9721 ewE/N=49.5826 std/N=6.18128 ewstd/N=0.883943 pmove=0.135 width=0.0693755 esjd/N=0.000552562 esjd/moved=0.00110512 score=55.7638
+2026-06-12 16:45:29,520 - [stage=bold step=00360 local=00360/01000] E/N=48.4214 ewE/N=49.0048 std/N=5.52367 ewstd/N=0.689128 pmove=0.170 width=0.0685318 esjd/N=0.000539793 esjd/moved=0.00102818 score=54.5284
+2026-06-12 16:45:32,404 - [stage=bold step=00370 local=00370/01000] E/N=48.3459 ewE/N=48.5313 std/N=5.59501 ewstd/N=0.542665 pmove=0.145 width=0.0682874 esjd/N=0.000570822 esjd/moved=0.00114164 score=54.1263
+2026-06-12 16:45:35,275 - [stage=bold step=00380 local=00380/01000] E/N=47.9392 ewE/N=48.1789 std/N=5.29232 ewstd/N=0.424957 pmove=0.199 width=0.0687637 esjd/N=0.000549098 esjd/moved=0.00099836 score=53.4713
+2026-06-12 16:45:38,146 - [stage=bold step=00390 local=00390/01000] E/N=47.6255 ewE/N=47.7817 std/N=5.37391 ewstd/N=0.390754 pmove=0.244 width=0.0690424 esjd/N=0.000499153 esjd/moved=0.000831922 score=53.1556
+2026-06-12 16:45:41,016 - [stage=bold step=00400 local=00400/01000] E/N=47.62 ewE/N=47.6199 std/N=5.30309 ewstd/N=0.274375 pmove=0.170 width=0.0693208 esjd/N=0.000566232 esjd/moved=0.00107854 score=52.923
+2026-06-12 16:45:43,880 - [stage=bold step=00410 local=00410/01000] E/N=47.1887 ewE/N=47.3756 std/N=5.49171 ewstd/N=0.249621 pmove=0.195 width=0.0689864 esjd/N=0.00053355 esjd/moved=0.000970091 score=52.8673
+2026-06-12 16:45:46,747 - [stage=bold step=00420 local=00420/01000] E/N=46.975 ewE/N=47.2148 std/N=5.02281 ewstd/N=0.204439 pmove=0.222 width=0.0689852 esjd/N=0.000531565 esjd/moved=0.000924461 score=52.2376
+2026-06-12 16:45:49,616 - [stage=bold step=00430 local=00430/01000] E/N=46.5451 ewE/N=46.8938 std/N=5.04295 ewstd/N=0.294023 pmove=0.169 width=0.0687948 esjd/N=0.000564866 esjd/moved=0.00107594 score=51.9367
+2026-06-12 16:45:52,489 - [stage=bold step=00440 local=00440/01000] E/N=46.4886 ewE/N=46.7003 std/N=5.06509 ewstd/N=0.23417 pmove=0.174 width=0.068651 esjd/N=0.000571845 esjd/moved=0.00108923 score=51.7654
+2026-06-12 16:45:55,368 - [stage=bold step=00450 local=00450/01000] E/N=46.2882 ewE/N=46.5199 std/N=4.88091 ewstd/N=0.20639 pmove=0.224 width=0.0688213 esjd/N=0.000535293 esjd/moved=0.000930944 score=51.4008
+2026-06-12 16:45:58,248 - [stage=bold step=00460 local=00460/01000] E/N=46.3035 ewE/N=46.4083 std/N=4.95028 ewstd/N=0.180155 pmove=0.144 width=0.0685288 esjd/N=0.000575607 esjd/moved=0.00115121 score=51.3585
+2026-06-12 16:46:01,127 - [stage=bold step=00470 local=00470/01000] E/N=46.2533 ewE/N=46.2534 std/N=4.69089 ewstd/N=0.166458 pmove=0.205 width=0.0687541 esjd/N=0.000581081 esjd/moved=0.00105651 score=50.9443
+2026-06-12 16:46:04,004 - [stage=bold step=00480 local=00480/01000] E/N=46.0118 ewE/N=46.1802 std/N=4.80014 ewstd/N=0.14883 pmove=0.228 width=0.0689988 esjd/N=0.000548246 esjd/moved=0.000953472 score=50.9804
+2026-06-12 16:46:06,880 - [stage=bold step=00490 local=00490/01000] E/N=45.7636 ewE/N=46.037 std/N=4.69101 ewstd/N=0.164065 pmove=0.202 width=0.0687281 esjd/N=0.0005624 esjd/moved=0.00102255 score=50.728
+2026-06-12 16:46:09,761 - [stage=bold step=00500 local=00500/01000] E/N=45.6741 ewE/N=45.8888 std/N=4.74609 ewstd/N=0.179144 pmove=0.152 width=0.0686915 esjd/N=0.00061189 esjd/moved=0.00122378 score=50.6349
+2026-06-12 16:46:12,652 - [stage=bold step=00510 local=00510/01000] E/N=45.7554 ewE/N=45.7758 std/N=4.59112 ewstd/N=0.152509 pmove=0.175 width=0.0686173 esjd/N=0.000581996 esjd/moved=0.00110856 score=50.367
+2026-06-12 16:46:15,524 - [stage=bold step=00520 local=00520/01000] E/N=45.5191 ewE/N=45.6325 std/N=4.50819 ewstd/N=0.149989 pmove=0.207 width=0.0683047 esjd/N=0.000585193 esjd/moved=0.00106399 score=50.1406
+2026-06-12 16:46:18,409 - [stage=bold step=00530 local=00530/01000] E/N=45.3589 ewE/N=45.4992 std/N=5.45008 ewstd/N=0.149087 pmove=0.230 width=0.0688448 esjd/N=0.000556416 esjd/moved=0.000967679 score=50.9493
+2026-06-12 16:46:21,302 - [stage=bold step=00540 local=00540/01000] E/N=45.2261 ewE/N=45.4183 std/N=4.36691 ewstd/N=0.139075 pmove=0.229 width=0.0691318 esjd/N=0.000545269 esjd/moved=0.000948293 score=49.7852
+2026-06-12 16:46:24,186 - [stage=bold step=00550 local=00550/01000] E/N=45.3971 ewE/N=45.3911 std/N=4.34308 ewstd/N=0.0968204 pmove=0.173 width=0.0689001 esjd/N=0.000573236 esjd/moved=0.00109188 score=49.7342
+2026-06-12 16:46:27,069 - [stage=bold step=00560 local=00560/01000] E/N=45.088 ewE/N=45.2586 std/N=4.33149 ewstd/N=0.138699 pmove=0.179 width=0.0686528 esjd/N=0.000596243 esjd/moved=0.0011357 score=49.5901
+2026-06-12 16:46:29,956 - [stage=bold step=00570 local=00570/01000] E/N=45.3135 ewE/N=45.2128 std/N=4.27683 ewstd/N=0.102911 pmove=0.197 width=0.0690458 esjd/N=0.000556807 esjd/moved=0.00101238 score=49.4897
+2026-06-12 16:46:32,844 - [stage=bold step=00580 local=00580/01000] E/N=45.2927 ewE/N=45.1542 std/N=4.35331 ewstd/N=0.116478 pmove=0.228 width=0.0689345 esjd/N=0.00055237 esjd/moved=0.000960644 score=49.5075
+2026-06-12 16:46:35,724 - [stage=bold step=00590 local=00590/01000] E/N=45.4811 ewE/N=45.1436 std/N=17.9947 ewstd/N=0.1535 pmove=0.180 width=0.0686679 esjd/N=0.000601986 esjd/moved=0.00114664 score=63.1382
+2026-06-12 16:46:38,612 - [stage=bold step=00600 local=00600/01000] E/N=44.9447 ewE/N=45.104 std/N=4.35391 ewstd/N=0.203133 pmove=0.232 width=0.0691163 esjd/N=0.00056391 esjd/moved=0.000980713 score=49.458
+2026-06-12 16:46:41,497 - [stage=bold step=00610 local=00610/01000] E/N=44.9015 ewE/N=45.0061 std/N=4.22723 ewstd/N=0.147896 pmove=0.205 width=0.069274 esjd/N=0.000584135 esjd/moved=0.00106206 score=49.2334
+2026-06-12 16:46:44,388 - [stage=bold step=00620 local=00620/01000] E/N=44.8999 ewE/N=44.972 std/N=4.25411 ewstd/N=0.0994741 pmove=0.173 width=0.0689217 esjd/N=0.00057819 esjd/moved=0.00110131 score=49.2261
+2026-06-12 16:46:47,299 - [stage=bold step=00630 local=00630/01000] E/N=44.89 ewE/N=44.8824 std/N=4.13213 ewstd/N=0.1101 pmove=0.254 width=0.0694316 esjd/N=0.000546049 esjd/moved=0.000910082 score=49.0146
+2026-06-12 16:46:50,194 - [stage=bold step=00640 local=00640/01000] E/N=44.7477 ewE/N=44.7919 std/N=4.66885 ewstd/N=0.1058 pmove=0.278 width=0.0698171 esjd/N=0.0005234 esjd/moved=0.00083744 score=49.4607
+2026-06-12 16:46:53,099 - [stage=bold step=00650 local=00650/01000] E/N=44.6158 ewE/N=44.6687 std/N=4.07376 ewstd/N=0.119976 pmove=0.150 width=0.0696809 esjd/N=0.000625055 esjd/moved=0.00125011 score=48.7425
+2026-06-12 16:46:55,997 - [stage=bold step=00660 local=00660/01000] E/N=44.7091 ewE/N=44.6514 std/N=4.0231 ewstd/N=0.0956954 pmove=0.229 width=0.0695182 esjd/N=0.000560722 esjd/moved=0.000975168 score=48.6745
+2026-06-12 16:46:58,908 - [stage=bold step=00670 local=00670/01000] E/N=44.4983 ewE/N=44.5278 std/N=3.98567 ewstd/N=0.116176 pmove=0.280 width=0.0701294 esjd/N=0.000529217 esjd/moved=0.000846747 score=48.5135
+2026-06-12 16:47:01,815 - [stage=bold step=00680 local=00680/01000] E/N=44.6134 ewE/N=44.469 std/N=3.99996 ewstd/N=0.118238 pmove=0.225 width=0.0707458 esjd/N=0.000564423 esjd/moved=0.000981606 score=48.469
+2026-06-12 16:47:04,717 - [stage=bold step=00690 local=00690/01000] E/N=44.44 ewE/N=44.4762 std/N=4.09571 ewstd/N=0.0895195 pmove=0.227 width=0.0707584 esjd/N=0.000569512 esjd/moved=0.000990455 score=48.5719
+2026-06-12 16:47:07,626 - [stage=bold step=00700 local=00700/01000] E/N=44.3132 ewE/N=44.3605 std/N=3.95034 ewstd/N=0.117235 pmove=0.221 width=0.0710607 esjd/N=0.000549491 esjd/moved=0.000955637 score=48.3108
+2026-06-12 16:47:10,541 - [stage=bold step=00710 local=00710/01000] E/N=44.2791 ewE/N=44.2898 std/N=4.08257 ewstd/N=0.109019 pmove=0.167 width=0.0708603 esjd/N=0.000576686 esjd/moved=0.00109845 score=48.3723
+2026-06-12 16:47:13,468 - [stage=bold step=00720 local=00720/01000] E/N=43.987 ewE/N=44.2146 std/N=3.89551 ewstd/N=0.149674 pmove=0.297 width=0.0716947 esjd/N=0.000508662 esjd/moved=0.000782557 score=48.1101
+2026-06-12 16:47:16,397 - [stage=bold step=00730 local=00730/01000] E/N=44.1619 ewE/N=44.2028 std/N=3.84837 ewstd/N=0.110883 pmove=0.170 width=0.0706424 esjd/N=0.000591517 esjd/moved=0.0011267 score=48.0512
+2026-06-12 16:47:19,322 - [stage=bold step=00740 local=00740/01000] E/N=44.2166 ewE/N=44.1609 std/N=6.56518 ewstd/N=0.0967094 pmove=0.172 width=0.0705058 esjd/N=0.000592379 esjd/moved=0.00112834 score=50.7261
+2026-06-12 16:47:22,246 - [stage=bold step=00750 local=00750/01000] E/N=43.8432 ewE/N=44.0463 std/N=3.72804 ewstd/N=0.123736 pmove=0.218 width=0.0707078 esjd/N=0.000545445 esjd/moved=0.0009486 score=47.7744
+2026-06-12 16:47:25,169 - [stage=bold step=00760 local=00760/01000] E/N=43.9534 ewE/N=43.9567 std/N=4.14961 ewstd/N=0.109849 pmove=0.195 width=0.0701428 esjd/N=0.000559009 esjd/moved=0.00101638 score=48.1063
+2026-06-12 16:47:28,106 - [stage=bold step=00770 local=00770/01000] E/N=43.6872 ewE/N=43.8945 std/N=3.85684 ewstd/N=0.126531 pmove=0.202 width=0.0695469 esjd/N=0.000580732 esjd/moved=0.00105588 score=47.7513
+2026-06-12 16:47:31,748 - [stage=bold step=00780 local=00780/01000] E/N=43.7442 ewE/N=43.8167 std/N=3.94697 ewstd/N=0.104841 pmove=0.199 width=0.0696031 esjd/N=0.00057638 esjd/moved=0.00104796 score=47.7637
+2026-06-12 16:47:34,678 - [stage=bold step=00790 local=00790/01000] E/N=43.6735 ewE/N=43.7315 std/N=3.91623 ewstd/N=0.104004 pmove=0.152 width=0.0693905 esjd/N=0.000617978 esjd/moved=0.00123596 score=47.6478
+2026-06-12 16:47:37,614 - [stage=bold step=00800 local=00800/01000] E/N=43.6075 ewE/N=43.7123 std/N=4.01568 ewstd/N=0.079277 pmove=0.146 width=0.0699701 esjd/N=0.000606577 esjd/moved=0.00121315 score=47.728
+2026-06-12 16:47:40,547 - [stage=bold step=00810 local=00810/01000] E/N=43.678 ewE/N=43.6877 std/N=4.67717 ewstd/N=0.0811582 pmove=0.206 width=0.0697171 esjd/N=0.000600688 esjd/moved=0.00109216 score=48.3648
+2026-06-12 16:47:43,479 - [stage=bold step=00820 local=00820/01000] E/N=43.2892 ewE/N=43.4921 std/N=3.88541 ewstd/N=0.180696 pmove=0.205 width=0.06963 esjd/N=0.000581161 esjd/moved=0.00105666 score=47.3775
+2026-06-12 16:47:46,429 - [stage=bold step=00830 local=00830/01000] E/N=43.3967 ewE/N=43.3365 std/N=3.76654 ewstd/N=0.171207 pmove=0.173 width=0.0698355 esjd/N=0.0005833 esjd/moved=0.00111105 score=47.103
+2026-06-12 16:47:49,374 - [stage=bold step=00840 local=00840/01000] E/N=43.2517 ewE/N=43.2994 std/N=3.90245 ewstd/N=0.136484 pmove=0.170 width=0.070178 esjd/N=0.000589649 esjd/moved=0.00112314 score=47.2018
+2026-06-12 16:47:52,318 - [stage=bold step=00850 local=00850/01000] E/N=43.318 ewE/N=43.237 std/N=3.63627 ewstd/N=0.130266 pmove=0.144 width=0.0703459 esjd/N=0.000601941 esjd/moved=0.00120388 score=46.8732
+2026-06-12 16:47:55,255 - [stage=bold step=00860 local=00860/01000] E/N=43.1311 ewE/N=43.1699 std/N=3.72582 ewstd/N=0.10082 pmove=0.198 width=0.0702107 esjd/N=0.000567056 esjd/moved=0.00103101 score=46.8957
+2026-06-12 16:47:58,189 - [stage=bold step=00870 local=00870/01000] E/N=43.022 ewE/N=43.1024 std/N=3.83543 ewstd/N=0.0899417 pmove=0.144 width=0.0698935 esjd/N=0.000599088 esjd/moved=0.00119818 score=46.9378
+2026-06-12 16:48:01,138 - [stage=bold step=00880 local=00880/01000] E/N=42.7576 ewE/N=42.9393 std/N=3.81564 ewstd/N=0.146879 pmove=0.225 width=0.0708549 esjd/N=0.000569383 esjd/moved=0.000990231 score=46.7549
+2026-06-12 16:48:04,081 - [stage=bold step=00890 local=00890/01000] E/N=42.6439 ewE/N=42.8527 std/N=3.77018 ewstd/N=0.134285 pmove=0.201 width=0.0703619 esjd/N=0.00058861 esjd/moved=0.0010702 score=46.6228
+2026-06-12 16:48:07,023 - [stage=bold step=00900 local=00900/01000] E/N=42.6702 ewE/N=42.8216 std/N=3.90652 ewstd/N=0.110578 pmove=0.232 width=0.0698764 esjd/N=0.000579157 esjd/moved=0.00100723 score=46.7281
+2026-06-12 16:48:09,973 - [stage=bold step=00910 local=00910/01000] E/N=42.5806 ewE/N=42.7422 std/N=3.78857 ewstd/N=0.112658 pmove=0.200 width=0.0695194 esjd/N=0.00057203 esjd/moved=0.00104005 score=46.5308
+2026-06-12 16:48:12,914 - [stage=bold step=00920 local=00920/01000] E/N=42.5938 ewE/N=42.6778 std/N=3.79013 ewstd/N=0.0949719 pmove=0.180 width=0.0697043 esjd/N=0.000609066 esjd/moved=0.00116013 score=46.4679
+2026-06-12 16:48:15,850 - [stage=bold step=00930 local=00930/01000] E/N=42.5623 ewE/N=42.6497 std/N=3.75924 ewstd/N=0.0776234 pmove=0.206 width=0.0694982 esjd/N=0.00058667 esjd/moved=0.00106667 score=46.4089
+2026-06-12 16:48:18,809 - [stage=bold step=00940 local=00940/01000] E/N=42.511 ewE/N=42.5725 std/N=3.72549 ewstd/N=0.0873425 pmove=0.201 width=0.0695359 esjd/N=0.000571632 esjd/moved=0.00103933 score=46.298
+2026-06-12 16:48:21,751 - [stage=bold step=00950 local=00950/01000] E/N=42.5353 ewE/N=42.4936 std/N=3.80324 ewstd/N=0.106799 pmove=0.231 width=0.0693814 esjd/N=0.000558594 esjd/moved=0.000971468 score=46.2969
+2026-06-12 16:48:24,701 - [stage=bold step=00960 local=00960/01000] E/N=42.2878 ewE/N=42.3969 std/N=3.70144 ewstd/N=0.122014 pmove=0.177 width=0.0694148 esjd/N=0.000599142 esjd/moved=0.00114122 score=46.0983
+2026-06-12 16:48:27,667 - [stage=bold step=00970 local=00970/01000] E/N=42.2517 ewE/N=42.3308 std/N=3.74201 ewstd/N=0.0966221 pmove=0.176 width=0.0697448 esjd/N=0.000598044 esjd/moved=0.00113913 score=46.0728
+2026-06-12 16:48:30,617 - [stage=bold step=00980 local=00980/01000] E/N=42.3555 ewE/N=42.3348 std/N=3.71471 ewstd/N=0.0674831 pmove=0.177 width=0.0697073 esjd/N=0.000608709 esjd/moved=0.00115945 score=46.0495
+2026-06-12 16:48:33,558 - [stage=bold step=00990 local=00990/01000] E/N=42.2036 ewE/N=42.3064 std/N=3.54664 ewstd/N=0.12286 pmove=0.176 width=0.0699045 esjd/N=0.000598595 esjd/moved=0.00114018 score=45.8531
+2026-06-12 16:48:36,216 - Starting training stage retune at step 1000
+2026-06-12 16:48:39,287 - [stage=retune step=01000 local=00000/01000] E/N=42.4057 ewE/N=42.2921 std/N=3.6758 ewstd/N=0.100194 pmove=0.544 width=0.0705396 esjd/N=0.000408021 esjd/moved=0.00168836 score=45.9679
+2026-06-12 16:48:42,796 - [stage=retune step=01010 local=00010/01000] E/N=42.146 ewE/N=42.2883 std/N=3.75378 ewstd/N=0.0980108 pmove=0.498 width=0.0803381 esjd/N=0.000437651 esjd/moved=0.00170791 score=46.042
+2026-06-12 16:48:46,288 - [stage=retune step=01020 local=00020/01000] E/N=42.2355 ewE/N=42.2968 std/N=3.46157 ewstd/N=0.0771528 pmove=0.471 width=0.0891698 esjd/N=0.000464505 esjd/moved=0.00171509 score=45.7584
+2026-06-12 16:48:49,760 - [stage=retune step=01030 local=00030/01000] E/N=42.2163 ewE/N=42.2624 std/N=3.73567 ewstd/N=0.0853592 pmove=0.401 width=0.0970749 esjd/N=0.000510765 esjd/moved=0.0024036 score=45.9981
+2026-06-12 16:48:53,239 - [stage=retune step=01040 local=00040/01000] E/N=42.2575 ewE/N=42.2472 std/N=3.51978 ewstd/N=0.0916295 pmove=0.367 width=0.103935 esjd/N=0.000534131 esjd/moved=0.00269877 score=45.767
+2026-06-12 16:48:56,724 - [stage=retune step=01050 local=00050/01000] E/N=42.1863 ewE/N=42.1776 std/N=3.6997 ewstd/N=0.109441 pmove=0.326 width=0.110203 esjd/N=0.000560246 esjd/moved=0.00331998 score=45.8773
+2026-06-12 16:49:00,216 - [stage=retune step=01060 local=00060/01000] E/N=42.0838 ewE/N=42.1357 std/N=3.57497 ewstd/N=0.0889984 pmove=0.315 width=0.115351 esjd/N=0.000570978 esjd/moved=0.00338357 score=45.7106
+2026-06-12 16:49:03,707 - [stage=retune step=01070 local=00070/01000] E/N=42.0315 ewE/N=42.1019 std/N=3.52066 ewstd/N=0.0760718 pmove=0.301 width=0.120073 esjd/N=0.000547272 esjd/moved=0.00298512 score=45.6226
+2026-06-12 16:49:07,199 - [stage=retune step=01080 local=00080/01000] E/N=42.0991 ewE/N=42.0618 std/N=3.5688 ewstd/N=0.0753451 pmove=0.322 width=0.123439 esjd/N=0.000524002 esjd/moved=0.00230753 score=45.6306
+2026-06-12 16:49:10,688 - [stage=retune step=01090 local=00090/01000] E/N=42.0048 ewE/N=42.0827 std/N=3.48037 ewstd/N=0.0726716 pmove=0.330 width=0.127297 esjd/N=0.000502111 esjd/moved=0.00195946 score=45.5631
+2026-06-12 16:49:14,182 - [stage=retune step=01100 local=00100/01000] E/N=41.9868 ewE/N=41.9957 std/N=3.6694 ewstd/N=0.106182 pmove=0.272 width=0.13051 esjd/N=0.000547954 esjd/moved=0.00298884 score=45.6651
+2026-06-12 16:49:17,673 - [stage=retune step=01110 local=00110/01000] E/N=41.9077 ewE/N=41.9585 std/N=3.49659 ewstd/N=0.0793565 pmove=0.275 width=0.132583 esjd/N=0.000525017 esjd/moved=0.00265272 score=45.4551
+2026-06-12 16:49:21,169 - [stage=retune step=01120 local=00120/01000] E/N=41.9569 ewE/N=41.9514 std/N=3.45117 ewstd/N=0.0688609 pmove=0.292 width=0.134474 esjd/N=0.000507912 esjd/moved=0.00223667 score=45.4026
+2026-06-12 16:49:24,663 - [stage=retune step=01130 local=00130/01000] E/N=41.8389 ewE/N=41.9368 std/N=3.35248 ewstd/N=0.0836562 pmove=0.276 width=0.136997 esjd/N=0.000514369 esjd/moved=0.00242056 score=45.2893
+2026-06-12 16:49:28,148 - [stage=retune step=01140 local=00140/01000] E/N=41.8263 ewE/N=41.8901 std/N=3.51827 ewstd/N=0.0784987 pmove=0.267 width=0.138124 esjd/N=0.00050143 esjd/moved=0.00235967 score=45.4083
+2026-06-12 16:49:31,653 - [stage=retune step=01150 local=00150/01000] E/N=41.8256 ewE/N=41.841 std/N=3.38353 ewstd/N=0.085947 pmove=0.256 width=0.139333 esjd/N=0.000516983 esjd/moved=0.00261213 score=45.2245
+2026-06-12 16:49:35,155 - [stage=retune step=01160 local=00160/01000] E/N=42.0295 ewE/N=41.878 std/N=3.42458 ewstd/N=0.0881875 pmove=0.284 width=0.140299 esjd/N=0.000490378 esjd/moved=0.00202915 score=45.3026
+2026-06-12 16:49:38,650 - [stage=retune step=01170 local=00170/01000] E/N=41.8194 ewE/N=41.8509 std/N=3.21985 ewstd/N=0.0666072 pmove=0.298 width=0.140878 esjd/N=0.000489766 esjd/moved=0.00191128 score=45.0707
+2026-06-12 16:49:42,151 - [stage=retune step=01180 local=00180/01000] E/N=41.7813 ewE/N=41.8226 std/N=3.32855 ewstd/N=0.0623353 pmove=0.229 width=0.142237 esjd/N=0.000533509 esjd/moved=0.00316154 score=45.1511
+2026-06-12 16:49:45,660 - [stage=retune step=01190 local=00190/01000] E/N=41.7273 ewE/N=41.8032 std/N=3.30322 ewstd/N=0.0630013 pmove=0.248 width=0.142275 esjd/N=0.000501607 esjd/moved=0.00253443 score=45.1064
+2026-06-12 16:49:49,173 - [stage=retune step=01200 local=00200/01000] E/N=41.7359 ewE/N=41.7857 std/N=3.22575 ewstd/N=0.0780143 pmove=0.232 width=0.142726 esjd/N=0.000538019 esjd/moved=0.00318826 score=45.0115
+2026-06-12 16:49:52,682 - [stage=retune step=01210 local=00210/01000] E/N=41.7342 ewE/N=41.735 std/N=3.14535 ewstd/N=0.0939359 pmove=0.259 width=0.143241 esjd/N=0.000508248 esjd/moved=0.00239176 score=44.8804
+2026-06-12 16:49:56,190 - [stage=retune step=01220 local=00220/01000] E/N=41.6365 ewE/N=41.7381 std/N=3.51962 ewstd/N=0.0770349 pmove=0.246 width=0.143186 esjd/N=0.000501346 esjd/moved=0.00253312 score=45.2577
+2026-06-12 16:49:59,703 - [stage=retune step=01230 local=00230/01000] E/N=41.8193 ewE/N=41.7484 std/N=3.26288 ewstd/N=0.0691412 pmove=0.247 width=0.14421 esjd/N=0.000515845 esjd/moved=0.00260638 score=45.0113
+2026-06-12 16:50:03,232 - [stage=retune step=01240 local=00240/01000] E/N=41.5407 ewE/N=41.6906 std/N=3.12656 ewstd/N=0.091684 pmove=0.245 width=0.145152 esjd/N=0.000518066 esjd/moved=0.0026176 score=44.8172
+2026-06-12 16:50:06,759 - [stage=retune step=01250 local=00250/01000] E/N=41.7315 ewE/N=41.6933 std/N=3.4776 ewstd/N=0.0709674 pmove=0.287 width=0.145459 esjd/N=0.00047907 esjd/moved=0.00186954 score=45.1709
+2026-06-12 16:50:10,285 - [stage=retune step=01260 local=00260/01000] E/N=41.7075 ewE/N=41.7351 std/N=3.22771 ewstd/N=0.157834 pmove=0.260 width=0.146597 esjd/N=0.000482911 esjd/moved=0.00212658 score=44.9628
+2026-06-12 16:50:13,801 - [stage=retune step=01270 local=00270/01000] E/N=41.615 ewE/N=41.7077 std/N=3.0337 ewstd/N=0.107722 pmove=0.239 width=0.145974 esjd/N=0.000501959 esjd/moved=0.00253621 score=44.7414
+2026-06-12 16:50:17,324 - [stage=retune step=01280 local=00280/01000] E/N=41.6328 ewE/N=41.6805 std/N=3.17159 ewstd/N=0.0787685 pmove=0.219 width=0.145951 esjd/N=0.000517468 esjd/moved=0.00306648 score=44.8521
+2026-06-12 16:50:20,856 - [stage=retune step=01290 local=00290/01000] E/N=41.6381 ewE/N=41.6302 std/N=3.12907 ewstd/N=0.0826276 pmove=0.262 width=0.146656 esjd/N=0.000494008 esjd/moved=0.00217545 score=44.7593
+2026-06-12 16:50:24,370 - [stage=retune step=01300 local=00300/01000] E/N=41.6447 ewE/N=41.6038 std/N=2.97781 ewstd/N=0.0669906 pmove=0.264 width=0.146021 esjd/N=0.000497041 esjd/moved=0.0021888 score=44.5816
+2026-06-12 16:50:27,889 - [stage=retune step=01310 local=00310/01000] E/N=41.645 ewE/N=41.6137 std/N=3.12082 ewstd/N=0.0570688 pmove=0.262 width=0.146216 esjd/N=0.000490104 esjd/moved=0.00215826 score=44.7345
+2026-06-12 16:50:31,436 - [stage=retune step=01320 local=00320/01000] E/N=41.5513 ewE/N=41.6689 std/N=3.05261 ewstd/N=0.268175 pmove=0.229 width=0.146468 esjd/N=0.000512305 esjd/moved=0.00279439 score=44.7215
+2026-06-12 16:50:34,971 - [stage=retune step=01330 local=00330/01000] E/N=41.6166 ewE/N=41.6017 std/N=3.05267 ewstd/N=0.17208 pmove=0.326 width=0.147246 esjd/N=0.000449402 esjd/moved=0.00142856 score=44.6543
+2026-06-12 16:50:38,499 - [stage=retune step=01340 local=00340/01000] E/N=41.5767 ewE/N=41.5664 std/N=3.04815 ewstd/N=0.114724 pmove=0.219 width=0.146791 esjd/N=0.000520121 esjd/moved=0.0030822 score=44.6146
+2026-06-12 16:50:42,048 - [stage=retune step=01350 local=00350/01000] E/N=41.6304 ewE/N=41.5679 std/N=2.97454 ewstd/N=0.0834412 pmove=0.230 width=0.147761 esjd/N=0.000518449 esjd/moved=0.0028279 score=44.5425
+2026-06-12 16:50:45,614 - [stage=retune step=01360 local=00360/01000] E/N=41.4419 ewE/N=41.5365 std/N=2.97475 ewstd/N=0.0743279 pmove=0.271 width=0.147649 esjd/N=0.000480571 esjd/moved=0.00198857 score=44.5112
+2026-06-12 16:50:49,176 - [stage=retune step=01370 local=00370/01000] E/N=41.4397 ewE/N=41.5312 std/N=3.07699 ewstd/N=0.0610946 pmove=0.210 width=0.146661 esjd/N=0.000527869 esjd/moved=0.00342401 score=44.6082
+2026-06-12 16:50:52,795 - [stage=retune step=01380 local=00380/01000] E/N=41.6232 ewE/N=41.5702 std/N=3.10043 ewstd/N=0.0754278 pmove=0.232 width=0.146884 esjd/N=0.00052563 esjd/moved=0.00286707 score=44.6706
+2026-06-12 16:50:56,332 - [stage=retune step=01390 local=00390/01000] E/N=41.5353 ewE/N=41.572 std/N=2.96482 ewstd/N=0.0789336 pmove=0.209 width=0.146351 esjd/N=0.000534433 esjd/moved=0.00346659 score=44.5369
+2026-06-12 16:50:59,886 - [stage=retune step=01400 local=00400/01000] E/N=41.3558 ewE/N=41.5204 std/N=2.93235 ewstd/N=0.0849258 pmove=0.230 width=0.147163 esjd/N=0.000522799 esjd/moved=0.00285163 score=44.4527
+2026-06-12 16:51:03,425 - [stage=retune step=01410 local=00410/01000] E/N=41.491 ewE/N=41.4999 std/N=2.89717 ewstd/N=0.0681087 pmove=0.253 width=0.148052 esjd/N=0.000502101 esjd/moved=0.00236283 score=44.3971
+2026-06-12 16:51:06,967 - [stage=retune step=01420 local=00420/01000] E/N=41.4567 ewE/N=41.468 std/N=2.9211 ewstd/N=0.0664664 pmove=0.280 width=0.148658 esjd/N=0.000470066 esjd/moved=0.0018344 score=44.3891
+2026-06-12 16:51:10,515 - [stage=retune step=01430 local=00430/01000] E/N=41.5067 ewE/N=41.458 std/N=2.83728 ewstd/N=0.0692982 pmove=0.256 width=0.148973 esjd/N=0.000490486 esjd/moved=0.00215994 score=44.2953
+2026-06-12 16:51:14,050 - [stage=retune step=01440 local=00440/01000] E/N=41.4236 ewE/N=41.4721 std/N=2.86507 ewstd/N=0.0542199 pmove=0.239 width=0.148952 esjd/N=0.000513709 esjd/moved=0.00259559 score=44.3372
+2026-06-12 16:51:17,599 - [stage=retune step=01450 local=00450/01000] E/N=41.6623 ewE/N=41.4832 std/N=2.99259 ewstd/N=0.0738281 pmove=0.281 width=0.149041 esjd/N=0.00048545 esjd/moved=0.00189444 score=44.4758
+2026-06-12 16:51:21,139 - [stage=retune step=01460 local=00460/01000] E/N=41.4693 ewE/N=41.4535 std/N=3.00176 ewstd/N=0.0624195 pmove=0.234 width=0.148976 esjd/N=0.000495211 esjd/moved=0.00250212 score=44.4553
+2026-06-12 16:51:24,698 - [stage=retune step=01470 local=00470/01000] E/N=41.2535 ewE/N=41.4008 std/N=3.03512 ewstd/N=0.0901805 pmove=0.257 width=0.149753 esjd/N=0.000491794 esjd/moved=0.0021657 score=44.436
+2026-06-12 16:51:28,372 - [stage=retune step=01480 local=00480/01000] E/N=41.4816 ewE/N=41.434 std/N=2.88388 ewstd/N=0.0720268 pmove=0.279 width=0.14961 esjd/N=0.000473842 esjd/moved=0.00184914 score=44.3178
+2026-06-12 16:51:31,960 - [stage=retune step=01490 local=00490/01000] E/N=41.5438 ewE/N=41.4433 std/N=2.94638 ewstd/N=0.0575846 pmove=0.260 width=0.148974 esjd/N=0.000488789 esjd/moved=0.00215246 score=44.3896
+2026-06-12 16:51:35,608 - [stage=retune step=01500 local=00500/01000] E/N=41.3563 ewE/N=41.4113 std/N=2.81621 ewstd/N=0.0648522 pmove=0.292 width=0.148747 esjd/N=0.00047357 esjd/moved=0.00174857 score=44.2275
+2026-06-12 16:51:39,198 - [stage=retune step=01510 local=00510/01000] E/N=41.4593 ewE/N=41.4123 std/N=2.88573 ewstd/N=0.0711361 pmove=0.248 width=0.149013 esjd/N=0.000503419 esjd/moved=0.00236903 score=44.298
+2026-06-12 16:51:42,867 - [stage=retune step=01520 local=00520/01000] E/N=41.3794 ewE/N=41.4027 std/N=2.94208 ewstd/N=0.0780613 pmove=0.225 width=0.149137 esjd/N=0.000510748 esjd/moved=0.0027859 score=44.3448
+2026-06-12 16:51:46,424 - [stage=retune step=01530 local=00530/01000] E/N=41.433 ewE/N=41.4028 std/N=2.76494 ewstd/N=0.0608851 pmove=0.226 width=0.149262 esjd/N=0.000509892 esjd/moved=0.00278123 score=44.1677
+2026-06-12 16:51:50,025 - [stage=retune step=01540 local=00540/01000] E/N=41.3505 ewE/N=41.4075 std/N=2.99145 ewstd/N=0.0608576 pmove=0.224 width=0.149562 esjd/N=0.000512495 esjd/moved=0.00279543 score=44.399
+2026-06-12 16:51:53,610 - [stage=retune step=01550 local=00550/01000] E/N=41.3345 ewE/N=41.3644 std/N=2.84816 ewstd/N=0.0581749 pmove=0.235 width=0.14959 esjd/N=0.000501486 esjd/moved=0.00253382 score=44.2126
+2026-06-12 16:51:57,196 - [stage=retune step=01560 local=00560/01000] E/N=41.4231 ewE/N=41.3871 std/N=2.65023 ewstd/N=0.0558427 pmove=0.246 width=0.149239 esjd/N=0.000489803 esjd/moved=0.00230496 score=44.0373
+2026-06-12 16:52:00,788 - [stage=retune step=01570 local=00570/01000] E/N=41.3634 ewE/N=41.3936 std/N=2.8276 ewstd/N=0.0437583 pmove=0.331 width=0.149161 esjd/N=0.000438725 esjd/moved=0.00133283 score=44.2212
+2026-06-12 16:52:04,375 - [stage=retune step=01580 local=00580/01000] E/N=41.4455 ewE/N=41.3858 std/N=2.80874 ewstd/N=0.0461817 pmove=0.250 width=0.148021 esjd/N=0.000509152 esjd/moved=0.00239601 score=44.1946
+2026-06-12 16:52:07,970 - [stage=retune step=01590 local=00590/01000] E/N=41.3244 ewE/N=41.347 std/N=2.83416 ewstd/N=0.049535 pmove=0.239 width=0.148111 esjd/N=0.000509918 esjd/moved=0.00257643 score=44.1811
+2026-06-12 16:52:11,562 - [stage=retune step=01600 local=00600/01000] E/N=41.2974 ewE/N=41.3505 std/N=2.72068 ewstd/N=0.0597164 pmove=0.238 width=0.148514 esjd/N=0.000509034 esjd/moved=0.00257196 score=44.0712
+2026-06-12 16:52:15,158 - [stage=retune step=01610 local=00610/01000] E/N=41.3596 ewE/N=41.3426 std/N=2.668 ewstd/N=0.0519217 pmove=0.237 width=0.148656 esjd/N=0.000509794 esjd/moved=0.0025758 score=44.0106
+2026-06-12 16:52:18,751 - [stage=retune step=01620 local=00620/01000] E/N=41.3271 ewE/N=41.3475 std/N=2.87786 ewstd/N=0.0622526 pmove=0.250 width=0.148266 esjd/N=0.000506256 esjd/moved=0.00238238 score=44.2254
+2026-06-12 16:52:22,338 - [stage=retune step=01630 local=00630/01000] E/N=41.3305 ewE/N=41.3214 std/N=2.71269 ewstd/N=0.0614822 pmove=0.245 width=0.14825 esjd/N=0.0004859 esjd/moved=0.00228659 score=44.0341
+2026-06-12 16:52:25,921 - [stage=retune step=01640 local=00640/01000] E/N=41.2596 ewE/N=41.3257 std/N=2.76068 ewstd/N=0.0596426 pmove=0.272 width=0.148642 esjd/N=0.000496169 esjd/moved=0.00205311 score=44.0864
+2026-06-12 16:52:29,515 - [stage=retune step=01650 local=00650/01000] E/N=41.1719 ewE/N=41.2895 std/N=2.75801 ewstd/N=0.0782092 pmove=0.268 width=0.149444 esjd/N=0.000480279 esjd/moved=0.00198736 score=44.0475
+2026-06-12 16:52:33,141 - [stage=retune step=01660 local=00660/01000] E/N=41.3287 ewE/N=41.3059 std/N=2.85421 ewstd/N=0.087181 pmove=0.288 width=0.150015 esjd/N=0.000467187 esjd/moved=0.001725 score=44.1601
+2026-06-12 16:52:36,915 - [stage=retune step=01670 local=00670/01000] E/N=41.3174 ewE/N=41.3137 std/N=2.74775 ewstd/N=0.0838024 pmove=0.231 width=0.150494 esjd/N=0.000492926 esjd/moved=0.00249058 score=44.0614
+2026-06-12 16:52:40,543 - [stage=retune step=01680 local=00680/01000] E/N=41.1775 ewE/N=41.3078 std/N=2.73151 ewstd/N=0.0729734 pmove=0.275 width=0.15125 esjd/N=0.000468229 esjd/moved=0.00182724 score=44.0393
+2026-06-12 16:52:44,159 - [stage=retune step=01690 local=00690/01000] E/N=41.2983 ewE/N=41.2761 std/N=2.72095 ewstd/N=0.0680508 pmove=0.276 width=0.150976 esjd/N=0.000477719 esjd/moved=0.00186427 score=43.9971
+2026-06-12 16:52:47,771 - [stage=retune step=01700 local=00700/01000] E/N=41.3236 ewE/N=41.2817 std/N=2.76358 ewstd/N=0.0593758 pmove=0.287 width=0.150561 esjd/N=0.000472084 esjd/moved=0.00174308 score=44.0453
+2026-06-12 16:52:51,389 - [stage=retune step=01710 local=00710/01000] E/N=41.2537 ewE/N=41.3088 std/N=2.68154 ewstd/N=0.0510722 pmove=0.245 width=0.149398 esjd/N=0.000487535 esjd/moved=0.00229428 score=43.9904
+2026-06-12 16:52:55,016 - [stage=retune step=01720 local=00720/01000] E/N=41.268 ewE/N=41.2996 std/N=2.63505 ewstd/N=0.052728 pmove=0.224 width=0.149067 esjd/N=0.000514307 esjd/moved=0.00280531 score=43.9346
+2026-06-12 16:52:58,623 - [stage=retune step=01730 local=00730/01000] E/N=41.3331 ewE/N=41.2908 std/N=2.59235 ewstd/N=0.0678467 pmove=0.197 width=0.147818 esjd/N=0.000542542 esjd/moved=0.00388687 score=43.8832
+2026-06-12 16:53:02,258 - [stage=retune step=01740 local=00740/01000] E/N=41.2571 ewE/N=41.2627 std/N=2.76495 ewstd/N=0.0587701 pmove=0.259 width=0.148678 esjd/N=0.000494187 esjd/moved=0.00217624 score=44.0277
+2026-06-12 16:53:05,883 - [stage=retune step=01750 local=00750/01000] E/N=41.318 ewE/N=43.9837 std/N=2.88609 ewstd/N=13.471 pmove=0.258 width=0.149099 esjd/N=0.000495431 esjd/moved=0.00218172 score=46.8697
+2026-06-12 16:53:09,502 - [stage=retune step=01760 local=00760/01000] E/N=41.2845 ewE/N=42.2122 std/N=2.59443 ewstd/N=8.05951 pmove=0.236 width=0.148624 esjd/N=0.000500067 esjd/moved=0.00252665 score=44.8066
+2026-06-12 16:53:13,113 - [stage=retune step=01770 local=00770/01000] E/N=41.3173 ewE/N=41.6036 std/N=2.68511 ewstd/N=4.78012 pmove=0.258 width=0.148318 esjd/N=0.00048932 esjd/moved=0.0021548 score=44.2887
+2026-06-12 16:53:16,799 - [stage=retune step=01780 local=00780/01000] E/N=41.3334 ewE/N=41.3894 std/N=2.83528 ewstd/N=2.82724 pmove=0.258 width=0.148594 esjd/N=0.000492443 esjd/moved=0.00216855 score=44.2247
+2026-06-12 16:53:20,407 - [stage=retune step=01790 local=00790/01000] E/N=41.2313 ewE/N=41.3143 std/N=2.55233 ewstd/N=1.67138 pmove=0.239 width=0.148838 esjd/N=0.000512365 esjd/moved=0.00258879 score=43.8666
+2026-06-12 16:53:24,028 - [stage=retune step=01800 local=00800/01000] E/N=41.2227 ewE/N=41.2984 std/N=2.83188 ewstd/N=0.988314 pmove=0.203 width=0.148694 esjd/N=0.000517852 esjd/moved=0.00335904 score=44.1303
+2026-06-12 16:53:28,511 - [stage=retune step=01810 local=00810/01000] E/N=41.2263 ewE/N=41.2521 std/N=2.65317 ewstd/N=0.5865 pmove=0.271 width=0.148579 esjd/N=0.000489458 esjd/moved=0.00202534 score=43.9053
+2026-06-12 16:53:32,282 - [stage=retune step=01820 local=00820/01000] E/N=41.2388 ewE/N=41.2593 std/N=2.93583 ewstd/N=0.348014 pmove=0.258 width=0.148323 esjd/N=0.000489613 esjd/moved=0.00215609 score=44.1951
+2026-06-12 16:53:35,897 - [stage=retune step=01830 local=00830/01000] E/N=41.2249 ewE/N=41.2414 std/N=2.65835 ewstd/N=0.209685 pmove=0.230 width=0.148271 esjd/N=0.000519579 esjd/moved=0.00283407 score=43.8997
+2026-06-12 16:53:39,509 - [stage=retune step=01840 local=00840/01000] E/N=41.2037 ewE/N=41.239 std/N=2.62692 ewstd/N=0.12962 pmove=0.248 width=0.14826 esjd/N=0.000503289 esjd/moved=0.00236842 score=43.8659
+2026-06-12 16:53:43,144 - [stage=retune step=01850 local=00850/01000] E/N=41.2834 ewE/N=41.2536 std/N=2.51707 ewstd/N=0.0855627 pmove=0.239 width=0.147876 esjd/N=0.000510248 esjd/moved=0.0025781 score=43.7706
+2026-06-12 16:53:46,759 - [stage=retune step=01860 local=00860/01000] E/N=41.1695 ewE/N=41.2298 std/N=2.72557 ewstd/N=0.0599166 pmove=0.279 width=0.148092 esjd/N=0.000466544 esjd/moved=0.00182066 score=43.9553
+2026-06-12 16:53:50,653 - [stage=retune step=01870 local=00870/01000] E/N=41.2476 ewE/N=41.2311 std/N=2.4552 ewstd/N=0.0700297 pmove=0.282 width=0.149201 esjd/N=0.000484789 esjd/moved=0.00189186 score=43.6863
+2026-06-12 16:53:54,294 - [stage=retune step=01880 local=00880/01000] E/N=41.2096 ewE/N=41.2307 std/N=2.68667 ewstd/N=0.047395 pmove=0.246 width=0.148935 esjd/N=0.000493365 esjd/moved=0.00232172 score=43.9173
+2026-06-12 16:53:57,898 - [stage=retune step=01890 local=00890/01000] E/N=41.1675 ewE/N=41.231 std/N=2.61906 ewstd/N=0.0531298 pmove=0.249 width=0.148365 esjd/N=0.000493063 esjd/moved=0.0023203 score=43.8501
+2026-06-12 16:54:01,558 - [stage=retune step=01900 local=00900/01000] E/N=41.26 ewE/N=41.2325 std/N=2.53637 ewstd/N=0.035131 pmove=0.323 width=0.148591 esjd/N=0.000450429 esjd/moved=0.00143183 score=43.7688
+2026-06-12 16:54:05,290 - [stage=retune step=01910 local=00910/01000] E/N=41.248 ewE/N=41.2318 std/N=2.55365 ewstd/N=0.0424354 pmove=0.206 width=0.148735 esjd/N=0.000529054 esjd/moved=0.0034317 score=43.7854
+2026-06-12 16:54:09,063 - [stage=retune step=01920 local=00920/01000] E/N=41.2093 ewE/N=41.209 std/N=2.51883 ewstd/N=0.0509388 pmove=0.216 width=0.148979 esjd/N=0.000520989 esjd/moved=0.00308734 score=43.7278
+2026-06-12 16:54:12,701 - [stage=retune step=01930 local=00930/01000] E/N=41.154 ewE/N=41.2179 std/N=2.5523 ewstd/N=0.0533892 pmove=0.268 width=0.149155 esjd/N=0.000480477 esjd/moved=0.00198818 score=43.7702
+2026-06-12 16:54:16,338 - [stage=retune step=01940 local=00940/01000] E/N=41.2702 ewE/N=41.212 std/N=2.6618 ewstd/N=0.0434775 pmove=0.230 width=0.148176 esjd/N=0.000524106 esjd/moved=0.00285876 score=43.8738
+2026-06-12 16:54:19,994 - [stage=retune step=01950 local=00950/01000] E/N=41.1585 ewE/N=41.1796 std/N=2.35419 ewstd/N=0.0531414 pmove=0.283 width=0.147574 esjd/N=0.00048526 esjd/moved=0.0018937 score=43.5338
+2026-06-12 16:54:23,656 - [stage=retune step=01960 local=00960/01000] E/N=41.2504 ewE/N=41.1871 std/N=2.4595 ewstd/N=0.0658377 pmove=0.239 width=0.148012 esjd/N=0.000510181 esjd/moved=0.00257776 score=43.6466
+2026-06-12 16:54:27,321 - [stage=retune step=01970 local=00970/01000] E/N=41.1045 ewE/N=41.1873 std/N=2.38563 ewstd/N=0.0653682 pmove=0.244 width=0.146773 esjd/N=0.000525872 esjd/moved=0.00265704 score=43.5729
+2026-06-12 16:54:30,993 - [stage=retune step=01980 local=00980/01000] E/N=41.2429 ewE/N=41.1941 std/N=2.38534 ewstd/N=0.0531253 pmove=0.241 width=0.146073 esjd/N=0.000514977 esjd/moved=0.00260199 score=43.5795
+2026-06-12 16:54:34,659 - [stage=retune step=01990 local=00990/01000] E/N=41.1524 ewE/N=41.1783 std/N=2.56503 ewstd/N=0.0380749 pmove=0.263 width=0.146468 esjd/N=0.000490203 esjd/moved=0.00215869 score=43.7434
+2026-06-12 16:54:37,956 - Starting training stage fine at step 2000
+2026-06-12 16:54:40,930 - [stage=fine step=02000 local=00000/03000] E/N=41.1642 ewE/N=41.1781 std/N=2.59798 ewstd/N=0.0389004 pmove=0.219 width=0.146653 esjd/N=0.000526874 esjd/moved=0.00312221 score=43.7761
+2026-06-12 16:54:43,749 - [stage=fine step=02010 local=00010/03000] E/N=41.1753 ewE/N=41.1931 std/N=2.40032 ewstd/N=0.0460749 pmove=0.210 width=0.146653 esjd/N=0.000532947 esjd/moved=0.00345695 score=43.5934
+2026-06-12 16:54:46,570 - [stage=fine step=02020 local=00020/03000] E/N=41.2076 ewE/N=41.18 std/N=2.51344 ewstd/N=0.0366029 pmove=0.252 width=0.146653 esjd/N=0.000505251 esjd/moved=0.00237765 score=43.6935
+2026-06-12 16:54:49,379 - [stage=fine step=02030 local=00030/03000] E/N=41.1419 ewE/N=41.1896 std/N=2.42339 ewstd/N=0.0399244 pmove=0.218 width=0.146653 esjd/N=0.000517771 esjd/moved=0.00306827 score=43.613
+2026-06-12 16:54:52,193 - [stage=fine step=02040 local=00040/03000] E/N=41.1687 ewE/N=41.165 std/N=2.40616 ewstd/N=0.0472366 pmove=0.239 width=0.146653 esjd/N=0.000501789 esjd/moved=0.00253535 score=43.5712
+2026-06-12 16:54:54,996 - [stage=fine step=02050 local=00050/03000] E/N=41.139 ewE/N=41.1483 std/N=2.55962 ewstd/N=0.0555153 pmove=0.190 width=0.146653 esjd/N=0.00055052 esjd/moved=0.00440416 score=43.7079
+2026-06-12 16:54:57,804 - [stage=fine step=02060 local=00060/03000] E/N=41.2686 ewE/N=41.1542 std/N=3.32507 ewstd/N=0.061761 pmove=0.240 width=0.146653 esjd/N=0.000508326 esjd/moved=0.00256838 score=44.4793
+2026-06-12 16:55:00,619 - [stage=fine step=02070 local=00070/03000] E/N=41.2189 ewE/N=41.1595 std/N=2.35465 ewstd/N=0.0570575 pmove=0.192 width=0.146653 esjd/N=0.000566865 esjd/moved=0.00453492 score=43.5141
+2026-06-12 16:55:03,425 - [stage=fine step=02080 local=00080/03000] E/N=41.1546 ewE/N=41.1283 std/N=2.44564 ewstd/N=0.0502907 pmove=0.229 width=0.146653 esjd/N=0.00051646 esjd/moved=0.00281705 score=43.574
+2026-06-12 16:55:06,233 - [stage=fine step=02090 local=00090/03000] E/N=41.169 ewE/N=41.1235 std/N=2.42089 ewstd/N=0.0486579 pmove=0.218 width=0.146653 esjd/N=0.000522186 esjd/moved=0.00309444 score=43.5444
+2026-06-12 16:55:09,037 - [stage=fine step=02100 local=00100/03000] E/N=41.1849 ewE/N=41.117 std/N=2.58843 ewstd/N=0.0477651 pmove=0.231 width=0.146653 esjd/N=0.000522644 esjd/moved=0.00285078 score=43.7054
+2026-06-12 16:55:11,839 - [stage=fine step=02110 local=00110/03000] E/N=41.1774 ewE/N=41.1378 std/N=2.39747 ewstd/N=0.0445095 pmove=0.191 width=0.146653 esjd/N=0.000558834 esjd/moved=0.00447067 score=43.5353
+2026-06-12 16:55:14,648 - [stage=fine step=02120 local=00120/03000] E/N=41.1518 ewE/N=41.1577 std/N=2.55092 ewstd/N=0.0622029 pmove=0.210 width=0.146653 esjd/N=0.000535922 esjd/moved=0.00347625 score=43.7086
+2026-06-12 16:55:17,451 - [stage=fine step=02130 local=00130/03000] E/N=41.0588 ewE/N=41.1371 std/N=2.50142 ewstd/N=0.0643707 pmove=0.225 width=0.146653 esjd/N=0.000540554 esjd/moved=0.00320328 score=43.6385
+2026-06-12 16:55:20,260 - [stage=fine step=02140 local=00140/03000] E/N=41.2023 ewE/N=41.1356 std/N=2.4827 ewstd/N=0.0581425 pmove=0.233 width=0.146653 esjd/N=0.000531326 esjd/moved=0.00289814 score=43.6183
+2026-06-12 16:55:23,069 - [stage=fine step=02150 local=00150/03000] E/N=41.18 ewE/N=41.1099 std/N=2.42667 ewstd/N=0.0551671 pmove=0.221 width=0.146653 esjd/N=0.000528147 esjd/moved=0.00312976 score=43.5366
+2026-06-12 16:55:25,886 - [stage=fine step=02160 local=00160/03000] E/N=41.1198 ewE/N=41.1255 std/N=2.46322 ewstd/N=0.0404252 pmove=0.201 width=0.146653 esjd/N=0.00054067 esjd/moved=0.00387346 score=43.5887
+2026-06-12 16:55:28,698 - [stage=fine step=02170 local=00170/03000] E/N=41.0894 ewE/N=41.1293 std/N=2.3923 ewstd/N=0.0358273 pmove=0.252 width=0.146653 esjd/N=0.000501733 esjd/moved=0.0023611 score=43.5216
+2026-06-12 16:55:31,503 - [stage=fine step=02180 local=00180/03000] E/N=41.0891 ewE/N=41.1198 std/N=2.31214 ewstd/N=0.0450247 pmove=0.243 width=0.146653 esjd/N=0.00050966 esjd/moved=0.00257513 score=43.4319
+2026-06-12 16:55:34,312 - [stage=fine step=02190 local=00190/03000] E/N=41.0818 ewE/N=41.118 std/N=2.348 ewstd/N=0.0308246 pmove=0.223 width=0.146653 esjd/N=0.000528708 esjd/moved=0.00313309 score=43.466
+2026-06-12 16:55:37,122 - [stage=fine step=02200 local=00200/03000] E/N=41.1213 ewE/N=41.1004 std/N=2.40046 ewstd/N=0.0397347 pmove=0.225 width=0.146653 esjd/N=0.000536327 esjd/moved=0.00317824 score=43.5009
+2026-06-12 16:55:39,928 - [stage=fine step=02210 local=00210/03000] E/N=41.0957 ewE/N=41.1126 std/N=2.38592 ewstd/N=0.0504662 pmove=0.197 width=0.146653 esjd/N=0.000539436 esjd/moved=0.00386462 score=43.4985
+2026-06-12 16:55:42,738 - [stage=fine step=02220 local=00220/03000] E/N=41.0765 ewE/N=41.0957 std/N=2.45255 ewstd/N=0.0435042 pmove=0.212 width=0.146653 esjd/N=0.000542992 esjd/moved=0.00352211 score=43.5482
+2026-06-12 16:55:45,546 - [stage=fine step=02230 local=00230/03000] E/N=41.0583 ewE/N=41.0973 std/N=2.32361 ewstd/N=0.0444994 pmove=0.240 width=0.146653 esjd/N=0.0005062 esjd/moved=0.00255764 score=43.4209
+2026-06-12 16:55:48,352 - [stage=fine step=02240 local=00240/03000] E/N=41.1413 ewE/N=41.0973 std/N=2.25868 ewstd/N=0.0486551 pmove=0.210 width=0.146653 esjd/N=0.000542652 esjd/moved=0.0035199 score=43.356
+2026-06-12 16:55:51,171 - [stage=fine step=02250 local=00250/03000] E/N=41.0872 ewE/N=41.0597 std/N=2.34842 ewstd/N=0.0637933 pmove=0.188 width=0.146653 esjd/N=0.000554583 esjd/moved=0.00443666 score=43.4081
+2026-06-12 16:55:53,981 - [stage=fine step=02260 local=00260/03000] E/N=41.1727 ewE/N=41.093 std/N=2.29006 ewstd/N=0.0570525 pmove=0.199 width=0.146653 esjd/N=0.000546541 esjd/moved=0.00391552 score=43.3831
+2026-06-12 16:55:56,791 - [stage=fine step=02270 local=00270/03000] E/N=41.0806 ewE/N=41.0768 std/N=2.36795 ewstd/N=0.0529659 pmove=0.188 width=0.146653 esjd/N=0.000546125 esjd/moved=0.004369 score=43.4447
+2026-06-12 16:55:59,593 - [stage=fine step=02280 local=00280/03000] E/N=41.0075 ewE/N=41.0888 std/N=2.29303 ewstd/N=0.0525776 pmove=0.220 width=0.146653 esjd/N=0.000524318 esjd/moved=0.00310707 score=43.3819
+2026-06-12 16:56:02,402 - [stage=fine step=02290 local=00290/03000] E/N=41.1414 ewE/N=41.0845 std/N=2.32148 ewstd/N=0.052466 pmove=0.203 width=0.146653 esjd/N=0.000559236 esjd/moved=0.00400647 score=43.406
+2026-06-12 16:56:05,200 - [stage=fine step=02300 local=00300/03000] E/N=41.0364 ewE/N=41.0886 std/N=2.3895 ewstd/N=0.0563233 pmove=0.229 width=0.146653 esjd/N=0.000513535 esjd/moved=0.0028011 score=43.4781
+2026-06-12 16:56:08,000 - [stage=fine step=02310 local=00310/03000] E/N=41.0652 ewE/N=41.0576 std/N=2.32037 ewstd/N=0.068965 pmove=0.224 width=0.146653 esjd/N=0.000538387 esjd/moved=0.00319044 score=43.3779
+2026-06-12 16:56:10,798 - [stage=fine step=02320 local=00320/03000] E/N=41.0775 ewE/N=41.0648 std/N=2.29112 ewstd/N=0.0496427 pmove=0.202 width=0.146653 esjd/N=0.000553384 esjd/moved=0.00396455 score=43.356
+2026-06-12 16:56:13,600 - [stage=fine step=02330 local=00330/03000] E/N=41.0722 ewE/N=41.059 std/N=2.28508 ewstd/N=0.0538994 pmove=0.212 width=0.146653 esjd/N=0.000537975 esjd/moved=0.00348957 score=43.3441
+2026-06-12 16:56:16,406 - [stage=fine step=02340 local=00340/03000] E/N=41.0948 ewE/N=41.0836 std/N=2.41293 ewstd/N=0.064959 pmove=0.222 width=0.146653 esjd/N=0.000528778 esjd/moved=0.0031335 score=43.4965
+2026-06-12 16:56:19,213 - [stage=fine step=02350 local=00350/03000] E/N=41.0626 ewE/N=41.0803 std/N=2.30974 ewstd/N=0.0504895 pmove=0.218 width=0.146653 esjd/N=0.000528597 esjd/moved=0.00313243 score=43.3901
+2026-06-12 16:56:22,018 - [stage=fine step=02360 local=00360/03000] E/N=41.0193 ewE/N=41.0725 std/N=2.17885 ewstd/N=0.0494924 pmove=0.212 width=0.146653 esjd/N=0.000541487 esjd/moved=0.00351235 score=43.2513
+2026-06-12 16:56:24,826 - [stage=fine step=02370 local=00370/03000] E/N=41.0801 ewE/N=41.0631 std/N=2.33719 ewstd/N=0.0450884 pmove=0.202 width=0.146653 esjd/N=0.000549445 esjd/moved=0.00393632 score=43.4003
+2026-06-12 16:56:27,633 - [stage=fine step=02380 local=00380/03000] E/N=41.0375 ewE/N=41.0663 std/N=2.37799 ewstd/N=0.0485068 pmove=0.248 width=0.146653 esjd/N=0.000491104 esjd/moved=0.00231108 score=43.4443
+2026-06-12 16:56:30,443 - [stage=fine step=02390 local=00390/03000] E/N=41.0212 ewE/N=41.0488 std/N=2.39714 ewstd/N=0.0499523 pmove=0.213 width=0.146653 esjd/N=0.000543342 esjd/moved=0.00352438 score=43.4459
+2026-06-12 16:56:33,251 - [stage=fine step=02400 local=00400/03000] E/N=41.0887 ewE/N=41.0702 std/N=2.21586 ewstd/N=0.0559892 pmove=0.221 width=0.146653 esjd/N=0.00052693 esjd/moved=0.00312255 score=43.286
+2026-06-12 16:56:36,063 - [stage=fine step=02410 local=00410/03000] E/N=40.9975 ewE/N=41.0647 std/N=2.31108 ewstd/N=0.0519313 pmove=0.190 width=0.146653 esjd/N=0.000554825 esjd/moved=0.0044386 score=43.3758
+2026-06-12 16:56:38,882 - [stage=fine step=02420 local=00420/03000] E/N=41.0398 ewE/N=41.0318 std/N=2.38739 ewstd/N=0.0469827 pmove=0.211 width=0.146653 esjd/N=0.000533206 esjd/moved=0.00345863 score=43.4192
+2026-06-12 16:56:41,697 - [stage=fine step=02430 local=00430/03000] E/N=41.023 ewE/N=41.0305 std/N=2.43076 ewstd/N=0.0415748 pmove=0.213 width=0.146653 esjd/N=0.000545658 esjd/moved=0.00353941 score=43.4612
+2026-06-12 16:56:44,507 - [stage=fine step=02440 local=00440/03000] E/N=40.955 ewE/N=41.0321 std/N=2.35597 ewstd/N=0.0514032 pmove=0.220 width=0.146653 esjd/N=0.000519992 esjd/moved=0.00308144 score=43.3881
+2026-06-12 16:56:47,320 - [stage=fine step=02450 local=00450/03000] E/N=41.0645 ewE/N=41.0468 std/N=2.37541 ewstd/N=0.0479179 pmove=0.306 width=0.146653 esjd/N=0.000472216 esjd/moved=0.00165448 score=43.4223
+2026-06-12 16:56:50,133 - [stage=fine step=02460 local=00460/03000] E/N=41.0867 ewE/N=41.0665 std/N=2.22648 ewstd/N=0.0541261 pmove=0.230 width=0.146653 esjd/N=0.000511742 esjd/moved=0.00279132 score=43.293
+2026-06-12 16:56:52,941 - [stage=fine step=02470 local=00470/03000] E/N=41.0952 ewE/N=41.0642 std/N=2.27238 ewstd/N=0.0434163 pmove=0.241 width=0.146653 esjd/N=0.000509578 esjd/moved=0.00257471 score=43.3366
+2026-06-12 16:56:55,752 - [stage=fine step=02480 local=00480/03000] E/N=41.0013 ewE/N=41.0433 std/N=2.2517 ewstd/N=0.0417613 pmove=0.212 width=0.146653 esjd/N=0.00054478 esjd/moved=0.00353371 score=43.295
+2026-06-12 16:56:58,561 - [stage=fine step=02490 local=00490/03000] E/N=40.9407 ewE/N=41.0193 std/N=2.22993 ewstd/N=0.0517728 pmove=0.201 width=0.146653 esjd/N=0.000542202 esjd/moved=0.00388443 score=43.2492
+2026-06-12 16:57:01,375 - [stage=fine step=02500 local=00500/03000] E/N=40.9935 ewE/N=41.0369 std/N=2.15503 ewstd/N=0.0473016 pmove=0.221 width=0.146653 esjd/N=0.000535058 esjd/moved=0.00317071 score=43.1919
+2026-06-12 16:57:04,184 - [stage=fine step=02510 local=00510/03000] E/N=41.0405 ewE/N=41.0373 std/N=2.2276 ewstd/N=0.0697481 pmove=0.214 width=0.146653 esjd/N=0.000543214 esjd/moved=0.00352355 score=43.2649
+2026-06-12 16:57:07,002 - [stage=fine step=02520 local=00520/03000] E/N=40.9434 ewE/N=41.0181 std/N=2.23702 ewstd/N=0.0619669 pmove=0.209 width=0.146653 esjd/N=0.000532817 esjd/moved=0.00345611 score=43.2551
+2026-06-12 16:57:09,818 - [stage=fine step=02530 local=00530/03000] E/N=41.0034 ewE/N=41.022 std/N=2.22296 ewstd/N=0.0578572 pmove=0.231 width=0.146653 esjd/N=0.000525591 esjd/moved=0.00286686 score=43.245
+2026-06-12 16:57:12,630 - [stage=fine step=02540 local=00540/03000] E/N=41.118 ewE/N=41.0577 std/N=2.29526 ewstd/N=0.0546408 pmove=0.254 width=0.146653 esjd/N=0.000505231 esjd/moved=0.00237756 score=43.353
+2026-06-12 16:57:15,439 - [stage=fine step=02550 local=00550/03000] E/N=40.9831 ewE/N=41.0383 std/N=2.19165 ewstd/N=0.0522357 pmove=0.233 width=0.146653 esjd/N=0.000528792 esjd/moved=0.00288432 score=43.2299
+2026-06-12 16:57:18,246 - [stage=fine step=02560 local=00560/03000] E/N=41.0623 ewE/N=41.029 std/N=2.12074 ewstd/N=0.0480229 pmove=0.225 width=0.146653 esjd/N=0.000540485 esjd/moved=0.00320288 score=43.1497
+2026-06-12 16:57:21,057 - [stage=fine step=02570 local=00570/03000] E/N=41.0303 ewE/N=41.0325 std/N=2.13256 ewstd/N=0.0419434 pmove=0.211 width=0.146653 esjd/N=0.000542104 esjd/moved=0.00351635 score=43.165
+2026-06-12 16:57:23,868 - [stage=fine step=02580 local=00580/03000] E/N=40.9228 ewE/N=41.0347 std/N=2.17079 ewstd/N=0.0746438 pmove=0.223 width=0.146653 esjd/N=0.000542305 esjd/moved=0.00321366 score=43.2055
+2026-06-12 16:57:26,681 - [stage=fine step=02590 local=00590/03000] E/N=41.0597 ewE/N=41.0299 std/N=2.13609 ewstd/N=0.061002 pmove=0.202 width=0.146653 esjd/N=0.000555924 esjd/moved=0.00398274 score=43.166
+2026-06-12 16:57:29,500 - [stage=fine step=02600 local=00600/03000] E/N=40.9959 ewE/N=41.0114 std/N=2.13892 ewstd/N=0.0543433 pmove=0.211 width=0.146653 esjd/N=0.000543937 esjd/moved=0.00352824 score=43.1503
+2026-06-12 16:57:32,310 - [stage=fine step=02610 local=00610/03000] E/N=41.0107 ewE/N=41.023 std/N=2.28179 ewstd/N=0.0466507 pmove=0.202 width=0.146653 esjd/N=0.000551871 esjd/moved=0.0039537 score=43.3048
+2026-06-12 16:57:35,114 - [stage=fine step=02620 local=00620/03000] E/N=41.0346 ewE/N=41.0143 std/N=2.33082 ewstd/N=0.0446372 pmove=0.235 width=0.146653 esjd/N=0.00053227 esjd/moved=0.00290329 score=43.3451
+2026-06-12 16:57:37,916 - [stage=fine step=02630 local=00630/03000] E/N=41.0532 ewE/N=41.0149 std/N=2.10718 ewstd/N=0.0533798 pmove=0.232 width=0.146653 esjd/N=0.000514832 esjd/moved=0.00280818 score=43.122
+2026-06-12 16:57:40,730 - [stage=fine step=02640 local=00640/03000] E/N=40.8841 ewE/N=40.9881 std/N=2.25272 ewstd/N=0.0648064 pmove=0.233 width=0.146653 esjd/N=0.00052876 esjd/moved=0.00288415 score=43.2408
+2026-06-12 16:57:43,537 - [stage=fine step=02650 local=00650/03000] E/N=41.0171 ewE/N=40.975 std/N=2.22797 ewstd/N=0.0526131 pmove=0.214 width=0.146653 esjd/N=0.00054736 esjd/moved=0.00355044 score=43.203
+2026-06-12 16:57:46,343 - [stage=fine step=02660 local=00660/03000] E/N=41.0711 ewE/N=41.0004 std/N=2.10217 ewstd/N=0.0517052 pmove=0.190 width=0.146653 esjd/N=0.000550794 esjd/moved=0.00440635 score=43.1025
+2026-06-12 16:57:49,156 - [stage=fine step=02670 local=00670/03000] E/N=40.9071 ewE/N=40.9963 std/N=2.19658 ewstd/N=0.064918 pmove=0.243 width=0.146653 esjd/N=0.000518243 esjd/moved=0.00261849 score=43.1928
+2026-06-12 16:57:51,967 - [stage=fine step=02680 local=00680/03000] E/N=40.9446 ewE/N=40.9877 std/N=2.12234 ewstd/N=0.0440515 pmove=0.233 width=0.146653 esjd/N=0.000529596 esjd/moved=0.00288871 score=43.1101
+2026-06-12 16:57:54,782 - [stage=fine step=02690 local=00690/03000] E/N=41.0381 ewE/N=41.0215 std/N=2.20958 ewstd/N=0.0495348 pmove=0.190 width=0.146653 esjd/N=0.000553947 esjd/moved=0.00443158 score=43.2311
+2026-06-12 16:57:57,592 - [stage=fine step=02700 local=00700/03000] E/N=40.9713 ewE/N=41.0085 std/N=2.094 ewstd/N=0.0411493 pmove=0.222 width=0.146653 esjd/N=0.000533868 esjd/moved=0.00316366 score=43.1025
+2026-06-12 16:58:00,401 - [stage=fine step=02710 local=00710/03000] E/N=40.9525 ewE/N=40.9913 std/N=2.19438 ewstd/N=0.0430351 pmove=0.198 width=0.146653 esjd/N=0.000539478 esjd/moved=0.00386492 score=43.1857
+2026-06-12 16:58:03,210 - [stage=fine step=02720 local=00720/03000] E/N=41.0082 ewE/N=40.9898 std/N=2.25948 ewstd/N=0.0373839 pmove=0.233 width=0.146653 esjd/N=0.000530332 esjd/moved=0.00289272 score=43.2493
+2026-06-12 16:58:06,015 - [stage=fine step=02730 local=00730/03000] E/N=41.0132 ewE/N=41.0007 std/N=2.16962 ewstd/N=0.0440687 pmove=0.233 width=0.146653 esjd/N=0.000522496 esjd/moved=0.00284998 score=43.1703
+2026-06-12 16:58:08,820 - [stage=fine step=02740 local=00740/03000] E/N=41.0393 ewE/N=41.0106 std/N=2.20126 ewstd/N=0.0366936 pmove=0.192 width=0.146653 esjd/N=0.000558026 esjd/moved=0.00446421 score=43.2119
+2026-06-12 16:58:11,625 - [stage=fine step=02750 local=00750/03000] E/N=41.0218 ewE/N=41.0008 std/N=2.46909 ewstd/N=0.0353034 pmove=0.213 width=0.146653 esjd/N=0.000544666 esjd/moved=0.00353297 score=43.4699
+2026-06-12 16:58:14,430 - [stage=fine step=02760 local=00760/03000] E/N=41.0091 ewE/N=40.9943 std/N=2.04025 ewstd/N=0.033458 pmove=0.205 width=0.146653 esjd/N=0.000555871 esjd/moved=0.00398236 score=43.0346
+2026-06-12 16:58:17,240 - [stage=fine step=02770 local=00770/03000] E/N=40.9917 ewE/N=40.9914 std/N=2.08918 ewstd/N=0.0390383 pmove=0.222 width=0.146653 esjd/N=0.000528576 esjd/moved=0.0031323 score=43.0806
+2026-06-12 16:58:20,047 - [stage=fine step=02780 local=00780/03000] E/N=40.8874 ewE/N=40.9453 std/N=2.11948 ewstd/N=0.0522013 pmove=0.210 width=0.146653 esjd/N=0.000534081 esjd/moved=0.00346431 score=43.0648
+2026-06-12 16:58:22,856 - [stage=fine step=02790 local=00790/03000] E/N=40.9783 ewE/N=40.9636 std/N=2.14146 ewstd/N=0.0386973 pmove=0.242 width=0.146653 esjd/N=0.000517141 esjd/moved=0.00261293 score=43.105
+2026-06-12 16:58:25,663 - [stage=fine step=02800 local=00800/03000] E/N=40.9271 ewE/N=40.964 std/N=2.03659 ewstd/N=0.0459347 pmove=0.222 width=0.146653 esjd/N=0.000528078 esjd/moved=0.00312935 score=43.0006
+2026-06-12 16:58:28,472 - [stage=fine step=02810 local=00810/03000] E/N=40.9578 ewE/N=40.9621 std/N=2.15279 ewstd/N=0.0351645 pmove=0.255 width=0.146653 esjd/N=0.000515173 esjd/moved=0.00242435 score=43.1149
+2026-06-12 16:58:31,278 - [stage=fine step=02820 local=00820/03000] E/N=41.0451 ewE/N=40.9778 std/N=2.16036 ewstd/N=0.0403932 pmove=0.215 width=0.146653 esjd/N=0.000550534 esjd/moved=0.00357103 score=43.1381
+2026-06-12 16:58:34,092 - [stage=fine step=02830 local=00830/03000] E/N=40.9346 ewE/N=40.9637 std/N=2.05628 ewstd/N=0.0352879 pmove=0.223 width=0.146653 esjd/N=0.000533052 esjd/moved=0.00315883 score=43.02
+2026-06-12 16:58:36,908 - [stage=fine step=02840 local=00840/03000] E/N=40.9679 ewE/N=40.9766 std/N=2.179 ewstd/N=0.0459257 pmove=0.243 width=0.146653 esjd/N=0.000515642 esjd/moved=0.00260535 score=43.1556
+2026-06-12 16:58:39,715 - [stage=fine step=02850 local=00850/03000] E/N=40.9945 ewE/N=40.9832 std/N=2.15689 ewstd/N=0.045069 pmove=0.224 width=0.146653 esjd/N=0.000538421 esjd/moved=0.00319065 score=43.1401
+2026-06-12 16:58:42,521 - [stage=fine step=02860 local=00860/03000] E/N=40.9444 ewE/N=40.974 std/N=2.05372 ewstd/N=0.0338043 pmove=0.223 width=0.146653 esjd/N=0.000532443 esjd/moved=0.00315522 score=43.0277
+2026-06-12 16:58:45,338 - [stage=fine step=02870 local=00870/03000] E/N=40.9208 ewE/N=40.9684 std/N=2.07955 ewstd/N=0.0304252 pmove=0.211 width=0.146653 esjd/N=0.000531407 esjd/moved=0.00344697 score=43.048
+2026-06-12 16:58:48,150 - [stage=fine step=02880 local=00880/03000] E/N=40.9631 ewE/N=40.9763 std/N=2.00103 ewstd/N=0.0406643 pmove=0.220 width=0.146653 esjd/N=0.000529949 esjd/moved=0.00314044 score=42.9773
+2026-06-12 16:58:50,957 - [stage=fine step=02890 local=00890/03000] E/N=40.9026 ewE/N=40.9487 std/N=2.19606 ewstd/N=0.0386193 pmove=0.231 width=0.146653 esjd/N=0.00051556 esjd/moved=0.00281215 score=43.1448
+2026-06-12 16:58:53,767 - [stage=fine step=02900 local=00900/03000] E/N=40.9819 ewE/N=40.9724 std/N=2.03957 ewstd/N=0.0364989 pmove=0.233 width=0.146653 esjd/N=0.000526138 esjd/moved=0.00286984 score=43.0119
+2026-06-12 16:58:56,576 - [stage=fine step=02910 local=00910/03000] E/N=41.0147 ewE/N=40.9695 std/N=2.15526 ewstd/N=0.0385725 pmove=0.221 width=0.146653 esjd/N=0.000531574 esjd/moved=0.00315007 score=43.1248
+2026-06-12 16:58:59,380 - [stage=fine step=02920 local=00920/03000] E/N=40.9905 ewE/N=40.9938 std/N=2.07564 ewstd/N=0.0705067 pmove=0.235 width=0.146653 esjd/N=0.000538743 esjd/moved=0.0029386 score=43.0695
+2026-06-12 16:59:02,197 - [stage=fine step=02930 local=00930/03000] E/N=41.0259 ewE/N=40.9936 std/N=2.25019 ewstd/N=0.0549845 pmove=0.213 width=0.146653 esjd/N=0.000548356 esjd/moved=0.0035569 score=43.2438
+2026-06-12 16:59:05,015 - [stage=fine step=02940 local=00940/03000] E/N=40.8975 ewE/N=40.9871 std/N=2.0831 ewstd/N=0.0614956 pmove=0.244 width=0.146653 esjd/N=0.00051246 esjd/moved=0.00258927 score=43.0702
+2026-06-12 16:59:07,825 - [stage=fine step=02950 local=00950/03000] E/N=40.9516 ewE/N=40.964 std/N=2.14375 ewstd/N=0.0598381 pmove=0.222 width=0.146653 esjd/N=0.000526716 esjd/moved=0.00312128 score=43.1078
+2026-06-12 16:59:10,640 - [stage=fine step=02960 local=00960/03000] E/N=40.9009 ewE/N=40.9626 std/N=2.073 ewstd/N=0.0592594 pmove=0.213 width=0.146653 esjd/N=0.000536084 esjd/moved=0.0034773 score=43.0356
+2026-06-12 16:59:13,447 - [stage=fine step=02970 local=00970/03000] E/N=41 ewE/N=40.9696 std/N=2.10269 ewstd/N=0.0416785 pmove=0.200 width=0.146653 esjd/N=0.000548052 esjd/moved=0.00392634 score=43.0723
+2026-06-12 16:59:16,257 - [stage=fine step=02980 local=00980/03000] E/N=40.9673 ewE/N=40.9666 std/N=1.99236 ewstd/N=0.0377788 pmove=0.233 width=0.146653 esjd/N=0.00052188 esjd/moved=0.00284662 score=42.959
+2026-06-12 16:59:19,064 - [stage=fine step=02990 local=00990/03000] E/N=40.9606 ewE/N=40.9608 std/N=2.08396 ewstd/N=0.0365436 pmove=0.243 width=0.146653 esjd/N=0.000519235 esjd/moved=0.0026235 score=43.0447
+2026-06-12 16:59:21,871 - [stage=fine step=03000 local=01000/03000] E/N=40.9565 ewE/N=40.9761 std/N=2.34505 ewstd/N=0.0435278 pmove=0.210 width=0.146653 esjd/N=0.000532384 esjd/moved=0.0034533 score=43.3212
+2026-06-12 16:59:24,681 - [stage=fine step=03010 local=01010/03000] E/N=41.0023 ewE/N=40.9887 std/N=2.06362 ewstd/N=0.0353576 pmove=0.233 width=0.146653 esjd/N=0.000520369 esjd/moved=0.00283838 score=43.0523
+2026-06-12 16:59:27,490 - [stage=fine step=03020 local=01020/03000] E/N=40.9436 ewE/N=40.9613 std/N=2.0485 ewstd/N=0.0375844 pmove=0.256 width=0.146653 esjd/N=0.000519498 esjd/moved=0.0024447 score=43.0098
+2026-06-12 16:59:30,295 - [stage=fine step=03030 local=01030/03000] E/N=40.9217 ewE/N=40.9449 std/N=2.02911 ewstd/N=0.0497503 pmove=0.225 width=0.146653 esjd/N=0.000538755 esjd/moved=0.00319262 score=42.974
+2026-06-12 16:59:33,106 - [stage=fine step=03040 local=01040/03000] E/N=40.93 ewE/N=40.9465 std/N=2.11593 ewstd/N=0.0394474 pmove=0.210 width=0.146653 esjd/N=0.000540283 esjd/moved=0.00350454 score=43.0624
+2026-06-12 16:59:35,919 - [stage=fine step=03050 local=01050/03000] E/N=40.9406 ewE/N=40.9564 std/N=2.06811 ewstd/N=0.0624377 pmove=0.250 width=0.146653 esjd/N=0.000495819 esjd/moved=0.00233326 score=43.0245
+2026-06-12 16:59:38,725 - [stage=fine step=03060 local=01060/03000] E/N=40.9857 ewE/N=40.9446 std/N=2.10678 ewstd/N=0.0459731 pmove=0.230 width=0.146653 esjd/N=0.00052329 esjd/moved=0.00285431 score=43.0514
+2026-06-12 16:59:41,532 - [stage=fine step=03070 local=01070/03000] E/N=41.0369 ewE/N=40.9661 std/N=2.06331 ewstd/N=0.0458378 pmove=0.223 width=0.146653 esjd/N=0.000538571 esjd/moved=0.00319153 score=43.0294
+2026-06-12 16:59:44,342 - [stage=fine step=03080 local=01080/03000] E/N=40.92 ewE/N=40.9493 std/N=1.98886 ewstd/N=0.0435204 pmove=0.215 width=0.146653 esjd/N=0.000549552 esjd/moved=0.00356466 score=42.9381
+2026-06-12 16:59:47,146 - [stage=fine step=03090 local=01090/03000] E/N=40.9255 ewE/N=40.9614 std/N=2.15692 ewstd/N=0.0412834 pmove=0.222 width=0.146653 esjd/N=0.000534569 esjd/moved=0.00316781 score=43.1183
+2026-06-12 16:59:49,953 - [stage=fine step=03100 local=01100/03000] E/N=40.888 ewE/N=40.9603 std/N=1.99548 ewstd/N=0.0483714 pmove=0.189 width=0.146653 esjd/N=0.000547919 esjd/moved=0.00438335 score=42.9558
+2026-06-12 16:59:52,761 - [stage=fine step=03110 local=01110/03000] E/N=40.9621 ewE/N=40.9623 std/N=2.07033 ewstd/N=0.0356703 pmove=0.200 width=0.146653 esjd/N=0.000541208 esjd/moved=0.00387731 score=43.0327
+2026-06-12 16:59:55,573 - [stage=fine step=03120 local=01120/03000] E/N=41.0378 ewE/N=40.9805 std/N=2.1409 ewstd/N=0.0641147 pmove=0.232 width=0.146653 esjd/N=0.000521953 esjd/moved=0.00284701 score=43.1214
+2026-06-12 16:59:58,385 - [stage=fine step=03130 local=01130/03000] E/N=40.9119 ewE/N=40.9628 std/N=2.15361 ewstd/N=0.0511361 pmove=0.251 width=0.146653 esjd/N=0.00049871 esjd/moved=0.00234687 score=43.1164
+2026-06-12 17:00:01,199 - [stage=fine step=03140 local=01140/03000] E/N=40.9343 ewE/N=40.9381 std/N=2.03281 ewstd/N=0.0432775 pmove=0.202 width=0.146653 esjd/N=0.000551173 esjd/moved=0.0039487 score=42.9709
+2026-06-12 17:00:04,010 - [stage=fine step=03150 local=01150/03000] E/N=40.9115 ewE/N=40.9351 std/N=2.02932 ewstd/N=0.0378586 pmove=0.223 width=0.146653 esjd/N=0.000539221 esjd/moved=0.00319538 score=42.9644
+2026-06-12 17:00:06,816 - [stage=fine step=03160 local=01160/03000] E/N=40.9419 ewE/N=40.9294 std/N=1.96695 ewstd/N=0.035257 pmove=0.211 width=0.146653 esjd/N=0.000540344 esjd/moved=0.00350494 score=42.8963
+2026-06-12 17:00:09,630 - [stage=fine step=03170 local=01170/03000] E/N=40.9538 ewE/N=40.9279 std/N=2.04713 ewstd/N=0.0409503 pmove=0.213 width=0.146653 esjd/N=0.000543229 esjd/moved=0.00352364 score=42.9751
+2026-06-12 17:00:12,439 - [stage=fine step=03180 local=01180/03000] E/N=40.8776 ewE/N=40.9346 std/N=2.19554 ewstd/N=0.0391314 pmove=0.192 width=0.146653 esjd/N=0.000562888 esjd/moved=0.0045031 score=43.1301
+2026-06-12 17:00:15,253 - [stage=fine step=03190 local=01190/03000] E/N=40.9694 ewE/N=40.941 std/N=1.92782 ewstd/N=0.0358661 pmove=0.210 width=0.146653 esjd/N=0.000535223 esjd/moved=0.00347172 score=42.8688
+2026-06-12 17:00:18,067 - [stage=fine step=03200 local=01200/03000] E/N=40.8659 ewE/N=40.9329 std/N=1.91587 ewstd/N=0.0454414 pmove=0.212 width=0.146653 esjd/N=0.000545701 esjd/moved=0.00353968 score=42.8488
+2026-06-12 17:00:20,876 - [stage=fine step=03210 local=01210/03000] E/N=40.9299 ewE/N=40.9304 std/N=2.05928 ewstd/N=0.0387757 pmove=0.212 width=0.146653 esjd/N=0.000542824 esjd/moved=0.00352102 score=42.9897
+2026-06-12 17:00:23,695 - [stage=fine step=03220 local=01220/03000] E/N=40.9568 ewE/N=40.9306 std/N=2.01704 ewstd/N=0.0384066 pmove=0.223 width=0.146653 esjd/N=0.000531257 esjd/moved=0.00314819 score=42.9477
+2026-06-12 17:00:26,505 - [stage=fine step=03230 local=01230/03000] E/N=40.9289 ewE/N=40.9203 std/N=1.98843 ewstd/N=0.0465451 pmove=0.219 width=0.146653 esjd/N=0.000529264 esjd/moved=0.00313638 score=42.9087
+2026-06-12 17:00:29,310 - [stage=fine step=03240 local=01240/03000] E/N=40.9215 ewE/N=40.9077 std/N=2.06164 ewstd/N=0.0356106 pmove=0.245 width=0.146653 esjd/N=0.000520045 esjd/moved=0.0026276 score=42.9693
+2026-06-12 17:00:32,120 - [stage=fine step=03250 local=01250/03000] E/N=40.9228 ewE/N=40.9151 std/N=2.01604 ewstd/N=0.0311743 pmove=0.201 width=0.146653 esjd/N=0.000550976 esjd/moved=0.00394729 score=42.9312
+2026-06-12 17:00:34,926 - [stage=fine step=03260 local=01260/03000] E/N=40.8686 ewE/N=40.9198 std/N=2.12411 ewstd/N=0.0419946 pmove=0.209 width=0.146653 esjd/N=0.000535154 esjd/moved=0.00347127 score=43.0439
+2026-06-12 17:00:37,738 - [stage=fine step=03270 local=01270/03000] E/N=40.9392 ewE/N=40.9294 std/N=2.19418 ewstd/N=0.0310815 pmove=0.265 width=0.146653 esjd/N=0.000506125 esjd/moved=0.00222881 score=43.1236
+2026-06-12 17:00:40,549 - [stage=fine step=03280 local=01280/03000] E/N=40.9193 ewE/N=40.912 std/N=2.04997 ewstd/N=0.0373767 pmove=0.259 width=0.146653 esjd/N=0.000532314 esjd/moved=0.00250501 score=42.962
+2026-06-12 17:00:43,362 - [stage=fine step=03290 local=01290/03000] E/N=40.9917 ewE/N=40.9289 std/N=1.96386 ewstd/N=0.039942 pmove=0.222 width=0.146653 esjd/N=0.00053334 esjd/moved=0.00316053 score=42.8928
+2026-06-12 17:00:46,176 - [stage=fine step=03300 local=01300/03000] E/N=40.8707 ewE/N=40.9164 std/N=2.09116 ewstd/N=0.0402095 pmove=0.222 width=0.146653 esjd/N=0.000532016 esjd/moved=0.00315269 score=43.0076
+2026-06-12 17:00:48,986 - [stage=fine step=03310 local=01310/03000] E/N=40.9811 ewE/N=40.9213 std/N=3.14756 ewstd/N=0.0453326 pmove=0.211 width=0.146653 esjd/N=0.000533444 esjd/moved=0.00346018 score=44.0689
+2026-06-12 17:00:51,796 - [stage=fine step=03320 local=01320/03000] E/N=40.9643 ewE/N=40.9347 std/N=1.9552 ewstd/N=0.0427722 pmove=0.218 width=0.146653 esjd/N=0.000518191 esjd/moved=0.00307076 score=42.8899
+2026-06-12 17:00:54,606 - [stage=fine step=03330 local=01330/03000] E/N=40.9001 ewE/N=40.9287 std/N=1.87119 ewstd/N=0.038317 pmove=0.233 width=0.146653 esjd/N=0.000518861 esjd/moved=0.00283015 score=42.7999
+2026-06-12 17:00:57,413 - [stage=fine step=03340 local=01340/03000] E/N=40.8775 ewE/N=40.9123 std/N=1.92516 ewstd/N=0.0470804 pmove=0.193 width=0.146653 esjd/N=0.000561191 esjd/moved=0.00448953 score=42.8375
+2026-06-12 17:01:00,228 - [stage=fine step=03350 local=01350/03000] E/N=40.9179 ewE/N=40.9167 std/N=2.14463 ewstd/N=0.033108 pmove=0.223 width=0.146653 esjd/N=0.00053682 esjd/moved=0.00318116 score=43.0614
+2026-06-12 17:01:03,028 - [stage=fine step=03360 local=01360/03000] E/N=40.9331 ewE/N=40.9249 std/N=2.01036 ewstd/N=0.0392044 pmove=0.201 width=0.146653 esjd/N=0.000548617 esjd/moved=0.00393039 score=42.9353
+2026-06-12 17:01:05,831 - [stage=fine step=03370 local=01370/03000] E/N=40.9359 ewE/N=40.9306 std/N=1.92589 ewstd/N=0.0348451 pmove=0.202 width=0.146653 esjd/N=0.000555032 esjd/moved=0.00397635 score=42.8565
+2026-06-12 17:01:08,646 - [stage=fine step=03380 local=01380/03000] E/N=40.9155 ewE/N=40.9126 std/N=2.04152 ewstd/N=0.0365104 pmove=0.203 width=0.146653 esjd/N=0.000554967 esjd/moved=0.00397588 score=42.9541
+2026-06-12 17:01:11,462 - [stage=fine step=03390 local=01390/03000] E/N=40.9531 ewE/N=40.9237 std/N=1.91534 ewstd/N=0.0330031 pmove=0.224 width=0.146653 esjd/N=0.000540394 esjd/moved=0.00320234 score=42.8391
+2026-06-12 17:01:14,275 - [stage=fine step=03400 local=01400/03000] E/N=40.9331 ewE/N=40.9194 std/N=2.21145 ewstd/N=0.0252891 pmove=0.221 width=0.146653 esjd/N=0.000529939 esjd/moved=0.00314038 score=43.1308
+2026-06-12 17:01:17,081 - [stage=fine step=03410 local=01410/03000] E/N=40.8945 ewE/N=40.918 std/N=2.06309 ewstd/N=0.0369293 pmove=0.253 width=0.146653 esjd/N=0.000506929 esjd/moved=0.00238555 score=42.9811
+2026-06-12 17:01:19,886 - [stage=fine step=03420 local=01420/03000] E/N=41.031 ewE/N=40.925 std/N=1.99629 ewstd/N=0.0549659 pmove=0.220 width=0.146653 esjd/N=0.000528597 esjd/moved=0.00313243 score=42.9213
+2026-06-12 17:01:22,696 - [stage=fine step=03430 local=01430/03000] E/N=40.9258 ewE/N=41.2862 std/N=1.98396 ewstd/N=1.36013 pmove=0.211 width=0.146653 esjd/N=0.000534627 esjd/moved=0.00346785 score=43.2702
+2026-06-12 17:01:25,502 - [stage=fine step=03440 local=01440/03000] E/N=40.9145 ewE/N=41.0324 std/N=2.00306 ewstd/N=0.824802 pmove=0.234 width=0.146653 esjd/N=0.000529814 esjd/moved=0.00288989 score=43.0354
+2026-06-12 17:01:28,307 - [stage=fine step=03450 local=01450/03000] E/N=40.926 ewE/N=40.9556 std/N=1.89521 ewstd/N=0.49074 pmove=0.204 width=0.146653 esjd/N=0.000560027 esjd/moved=0.00401213 score=42.8508
+2026-06-12 17:01:31,118 - [stage=fine step=03460 local=01460/03000] E/N=40.9364 ewE/N=40.9325 std/N=2.03929 ewstd/N=0.293584 pmove=0.220 width=0.146653 esjd/N=0.000532731 esjd/moved=0.00315693 score=42.9717
+2026-06-12 17:01:33,936 - [stage=fine step=03470 local=01470/03000] E/N=40.9054 ewE/N=40.8998 std/N=2.05133 ewstd/N=0.17841 pmove=0.253 width=0.146653 esjd/N=0.000509477 esjd/moved=0.00239754 score=42.9511
+2026-06-12 17:01:36,751 - [stage=fine step=03480 local=01480/03000] E/N=40.9134 ewE/N=40.8802 std/N=1.88112 ewstd/N=0.113629 pmove=0.224 width=0.146653 esjd/N=0.000544408 esjd/moved=0.00322612 score=42.7613
+2026-06-12 17:01:39,559 - [stage=fine step=03490 local=01490/03000] E/N=40.9686 ewE/N=40.8972 std/N=1.89 ewstd/N=0.0764527 pmove=0.235 width=0.146653 esjd/N=0.000525058 esjd/moved=0.00286396 score=42.7872
+2026-06-12 17:01:42,372 - [stage=fine step=03500 local=01500/03000] E/N=40.9017 ewE/N=40.9217 std/N=1.90232 ewstd/N=0.0613821 pmove=0.219 width=0.146653 esjd/N=0.000521358 esjd/moved=0.00308953 score=42.8241
+2026-06-12 17:01:45,183 - [stage=fine step=03510 local=01510/03000] E/N=40.9472 ewE/N=40.9146 std/N=1.91521 ewstd/N=0.0484614 pmove=0.211 width=0.146653 esjd/N=0.000532625 esjd/moved=0.00345486 score=42.8299
+2026-06-12 17:01:47,984 - [stage=fine step=03520 local=01520/03000] E/N=40.9967 ewE/N=40.905 std/N=1.92099 ewstd/N=0.054341 pmove=0.222 width=0.146653 esjd/N=0.000524425 esjd/moved=0.0031077 score=42.826
+2026-06-12 17:01:50,790 - [stage=fine step=03530 local=01530/03000] E/N=40.8763 ewE/N=40.8926 std/N=2.15144 ewstd/N=0.0538312 pmove=0.250 width=0.146653 esjd/N=0.000496117 esjd/moved=0.00233467 score=43.044
+2026-06-12 17:01:53,600 - [stage=fine step=03540 local=01540/03000] E/N=40.8783 ewE/N=40.8835 std/N=1.91621 ewstd/N=0.0448465 pmove=0.256 width=0.146653 esjd/N=0.000515827 esjd/moved=0.00242742 score=42.7997
+2026-06-12 17:01:56,407 - [stage=fine step=03550 local=01550/03000] E/N=40.9256 ewE/N=40.8849 std/N=1.85698 ewstd/N=0.0398966 pmove=0.225 width=0.146653 esjd/N=0.000539253 esjd/moved=0.00319557 score=42.7419
+2026-06-12 17:01:59,213 - [stage=fine step=03560 local=01560/03000] E/N=40.8239 ewE/N=40.8633 std/N=1.94368 ewstd/N=0.0342587 pmove=0.211 width=0.146653 esjd/N=0.000537453 esjd/moved=0.00348618 score=42.807
+2026-06-12 17:02:02,033 - [stage=fine step=03570 local=01570/03000] E/N=40.9438 ewE/N=40.8997 std/N=1.91109 ewstd/N=0.0416286 pmove=0.215 width=0.146653 esjd/N=0.000546607 esjd/moved=0.00354556 score=42.8108
+2026-06-12 17:02:04,839 - [stage=fine step=03580 local=01580/03000] E/N=40.9193 ewE/N=40.8874 std/N=1.84441 ewstd/N=0.0529069 pmove=0.222 width=0.146653 esjd/N=0.000533989 esjd/moved=0.00316438 score=42.7318
+2026-06-12 17:02:07,650 - [stage=fine step=03590 local=01590/03000] E/N=40.9687 ewE/N=40.9063 std/N=1.87837 ewstd/N=0.0436505 pmove=0.215 width=0.146653 esjd/N=0.000552214 esjd/moved=0.00358193 score=42.7847
+2026-06-12 17:02:10,455 - [stage=fine step=03600 local=01600/03000] E/N=40.9493 ewE/N=40.9245 std/N=1.90371 ewstd/N=0.0424216 pmove=0.191 width=0.146653 esjd/N=0.000558281 esjd/moved=0.00446625 score=42.8282
+2026-06-12 17:02:13,266 - [stage=fine step=03610 local=01610/03000] E/N=40.9086 ewE/N=40.9193 std/N=1.95908 ewstd/N=0.0429214 pmove=0.233 width=0.146653 esjd/N=0.000518123 esjd/moved=0.00282612 score=42.8783
+2026-06-12 17:02:16,071 - [stage=fine step=03620 local=01620/03000] E/N=40.9201 ewE/N=40.9032 std/N=1.94807 ewstd/N=0.0359176 pmove=0.210 width=0.146653 esjd/N=0.000535125 esjd/moved=0.00347108 score=42.8512
+2026-06-12 17:02:18,877 - [stage=fine step=03630 local=01630/03000] E/N=40.8262 ewE/N=40.9026 std/N=1.82293 ewstd/N=0.0405971 pmove=0.243 width=0.146653 esjd/N=0.000516418 esjd/moved=0.00260927 score=42.7256
+2026-06-12 17:02:21,685 - [stage=fine step=03640 local=01640/03000] E/N=40.9097 ewE/N=40.8772 std/N=2.03726 ewstd/N=0.0501734 pmove=0.233 width=0.146653 esjd/N=0.000519077 esjd/moved=0.00283133 score=42.9144
+2026-06-12 17:02:24,484 - [stage=fine step=03650 local=01650/03000] E/N=40.9632 ewE/N=40.9051 std/N=1.96751 ewstd/N=0.0547541 pmove=0.210 width=0.146653 esjd/N=0.000532943 esjd/moved=0.00345693 score=42.8726
+2026-06-12 17:02:27,287 - [stage=fine step=03660 local=01660/03000] E/N=40.9264 ewE/N=40.8971 std/N=1.89504 ewstd/N=0.0431303 pmove=0.241 width=0.146653 esjd/N=0.000505587 esjd/moved=0.00255454 score=42.7921
+2026-06-12 17:02:30,095 - [stage=fine step=03670 local=01670/03000] E/N=40.9682 ewE/N=40.8982 std/N=1.82816 ewstd/N=0.045993 pmove=0.192 width=0.146653 esjd/N=0.000554802 esjd/moved=0.00443841 score=42.7264
+2026-06-12 17:02:32,903 - [stage=fine step=03680 local=01680/03000] E/N=40.8628 ewE/N=40.884 std/N=1.80071 ewstd/N=0.0356908 pmove=0.230 width=0.146653 esjd/N=0.000517303 esjd/moved=0.00282165 score=42.6847
+2026-06-12 17:02:35,712 - [stage=fine step=03690 local=01690/03000] E/N=41.0023 ewE/N=40.8722 std/N=1.87128 ewstd/N=0.0597824 pmove=0.211 width=0.146653 esjd/N=0.000531483 esjd/moved=0.00344745 score=42.7435
+2026-06-12 17:02:38,526 - [stage=fine step=03700 local=01700/03000] E/N=40.9315 ewE/N=40.8822 std/N=1.93562 ewstd/N=0.0448003 pmove=0.235 width=0.146653 esjd/N=0.000533935 esjd/moved=0.00291237 score=42.8178
+2026-06-12 17:02:41,332 - [stage=fine step=03710 local=01710/03000] E/N=40.9364 ewE/N=40.8899 std/N=1.95792 ewstd/N=0.0465975 pmove=0.223 width=0.146653 esjd/N=0.000536888 esjd/moved=0.00318156 score=42.8478
+2026-06-12 17:02:44,142 - [stage=fine step=03720 local=01720/03000] E/N=40.8687 ewE/N=40.8862 std/N=1.93269 ewstd/N=0.0481413 pmove=0.200 width=0.146653 esjd/N=0.000542878 esjd/moved=0.00388928 score=42.8189
+2026-06-12 17:02:46,946 - [stage=fine step=03730 local=01730/03000] E/N=40.8355 ewE/N=40.8768 std/N=2.00764 ewstd/N=0.0497594 pmove=0.223 width=0.146653 esjd/N=0.000543575 esjd/moved=0.00322119 score=42.8844
+2026-06-12 17:02:49,748 - [stage=fine step=03740 local=01740/03000] E/N=40.8332 ewE/N=40.8643 std/N=1.91761 ewstd/N=0.0401241 pmove=0.211 width=0.146653 esjd/N=0.000536304 esjd/moved=0.00347873 score=42.7819
+2026-06-12 17:02:52,558 - [stage=fine step=03750 local=01750/03000] E/N=40.8362 ewE/N=40.8846 std/N=1.89749 ewstd/N=0.0506892 pmove=0.252 width=0.146653 esjd/N=0.000506622 esjd/moved=0.0023841 score=42.7821
+2026-06-12 17:02:55,365 - [stage=fine step=03760 local=01760/03000] E/N=40.8485 ewE/N=40.8848 std/N=1.75681 ewstd/N=0.0501842 pmove=0.224 width=0.146653 esjd/N=0.000542876 esjd/moved=0.00321705 score=42.6416
+2026-06-12 17:02:58,169 - [stage=fine step=03770 local=01770/03000] E/N=40.8405 ewE/N=40.8831 std/N=2.00366 ewstd/N=0.0499301 pmove=0.228 width=0.146653 esjd/N=0.000515939 esjd/moved=0.00281421 score=42.8868
+2026-06-12 17:03:00,977 - [stage=fine step=03780 local=01780/03000] E/N=40.8999 ewE/N=40.8708 std/N=1.78444 ewstd/N=0.0430689 pmove=0.246 width=0.146653 esjd/N=0.000522463 esjd/moved=0.00263982 score=42.6552
+2026-06-12 17:03:03,786 - [stage=fine step=03790 local=01790/03000] E/N=40.8381 ewE/N=40.8679 std/N=1.84234 ewstd/N=0.0510296 pmove=0.244 width=0.146653 esjd/N=0.000520169 esjd/moved=0.00262822 score=42.7103
+2026-06-12 17:03:06,592 - [stage=fine step=03800 local=01800/03000] E/N=40.8467 ewE/N=40.8743 std/N=1.92383 ewstd/N=0.0470919 pmove=0.222 width=0.146653 esjd/N=0.000533989 esjd/moved=0.00316438 score=42.7981
+2026-06-12 17:03:09,399 - [stage=fine step=03810 local=01810/03000] E/N=40.8896 ewE/N=40.8805 std/N=1.80433 ewstd/N=0.0527805 pmove=0.221 width=0.146653 esjd/N=0.000524841 esjd/moved=0.00311017 score=42.6848
+2026-06-12 17:03:12,215 - [stage=fine step=03820 local=01820/03000] E/N=40.77 ewE/N=40.8675 std/N=1.7691 ewstd/N=0.054612 pmove=0.200 width=0.146653 esjd/N=0.000546593 esjd/moved=0.00391589 score=42.6366
+2026-06-12 17:03:15,015 - [stage=fine step=03830 local=01830/03000] E/N=40.9506 ewE/N=40.8724 std/N=1.78689 ewstd/N=0.0470454 pmove=0.211 width=0.146653 esjd/N=0.000536421 esjd/moved=0.00347948 score=42.6593
+2026-06-12 17:03:17,816 - [stage=fine step=03840 local=01840/03000] E/N=40.9241 ewE/N=40.8622 std/N=1.99334 ewstd/N=0.0498438 pmove=0.220 width=0.146653 esjd/N=0.00052835 esjd/moved=0.00313096 score=42.8555
+2026-06-12 17:03:20,621 - [stage=fine step=03850 local=01850/03000] E/N=40.9113 ewE/N=40.8891 std/N=2.04368 ewstd/N=0.0425585 pmove=0.213 width=0.146653 esjd/N=0.000541484 esjd/moved=0.00351233 score=42.9328
+2026-06-12 17:03:23,427 - [stage=fine step=03860 local=01860/03000] E/N=40.8208 ewE/N=40.8836 std/N=1.80691 ewstd/N=0.0433772 pmove=0.223 width=0.146653 esjd/N=0.000541179 esjd/moved=0.00320698 score=42.6905
+2026-06-12 17:03:26,239 - [stage=fine step=03870 local=01870/03000] E/N=40.8691 ewE/N=40.8706 std/N=1.75193 ewstd/N=0.0393718 pmove=0.222 width=0.146653 esjd/N=0.000533278 esjd/moved=0.00316016 score=42.6226
+2026-06-12 17:03:29,048 - [stage=fine step=03880 local=01880/03000] E/N=40.9126 ewE/N=40.8709 std/N=1.81576 ewstd/N=0.0401557 pmove=0.199 width=0.146653 esjd/N=0.000538448 esjd/moved=0.00385754 score=42.6867
+2026-06-12 17:03:31,854 - [stage=fine step=03890 local=01890/03000] E/N=40.8656 ewE/N=40.8717 std/N=1.97283 ewstd/N=0.0425641 pmove=0.223 width=0.146653 esjd/N=0.00053757 esjd/moved=0.0031856 score=42.8445
+2026-06-12 17:03:34,658 - [stage=fine step=03900 local=01900/03000] E/N=40.8958 ewE/N=40.8732 std/N=1.84953 ewstd/N=0.0491393 pmove=0.241 width=0.146653 esjd/N=0.000508373 esjd/moved=0.00256862 score=42.7227
+2026-06-12 17:03:37,465 - [stage=fine step=03910 local=01910/03000] E/N=40.9746 ewE/N=40.8801 std/N=1.82316 ewstd/N=0.0611956 pmove=0.222 width=0.146653 esjd/N=0.000530767 esjd/moved=0.00314528 score=42.7033
+2026-06-12 17:03:40,277 - [stage=fine step=03920 local=01920/03000] E/N=40.8166 ewE/N=40.8608 std/N=1.85671 ewstd/N=0.0509253 pmove=0.207 width=0.146653 esjd/N=0.000535034 esjd/moved=0.00347049 score=42.7175
+2026-06-12 17:03:43,086 - [stage=fine step=03930 local=01930/03000] E/N=40.8263 ewE/N=40.8614 std/N=1.85404 ewstd/N=0.0410861 pmove=0.188 width=0.146653 esjd/N=0.00054446 esjd/moved=0.00435568 score=42.7155
+2026-06-12 17:03:45,893 - [stage=fine step=03940 local=01940/03000] E/N=40.8465 ewE/N=40.8582 std/N=1.8164 ewstd/N=0.0428457 pmove=0.241 width=0.146653 esjd/N=0.000507327 esjd/moved=0.00256334 score=42.6746
+2026-06-12 17:03:48,702 - [stage=fine step=03950 local=01950/03000] E/N=40.8305 ewE/N=40.868 std/N=1.80676 ewstd/N=0.043772 pmove=0.219 width=0.146653 esjd/N=0.000520987 esjd/moved=0.00308733 score=42.6748
+2026-06-12 17:03:51,513 - [stage=fine step=03960 local=01960/03000] E/N=40.8773 ewE/N=40.8704 std/N=1.82951 ewstd/N=0.0413147 pmove=0.200 width=0.146653 esjd/N=0.00054679 esjd/moved=0.0039173 score=42.6999
+2026-06-12 17:03:54,318 - [stage=fine step=03970 local=01970/03000] E/N=40.8292 ewE/N=40.8645 std/N=1.90035 ewstd/N=0.0362242 pmove=0.232 width=0.146653 esjd/N=0.000526684 esjd/moved=0.00287282 score=42.7649
+2026-06-12 17:03:57,128 - [stage=fine step=03980 local=01980/03000] E/N=40.9388 ewE/N=40.88 std/N=1.94507 ewstd/N=0.0411068 pmove=0.245 width=0.146653 esjd/N=0.000516764 esjd/moved=0.00261102 score=42.8251
+2026-06-12 17:03:59,939 - [stage=fine step=03990 local=01990/03000] E/N=40.9135 ewE/N=40.8827 std/N=1.93795 ewstd/N=0.0295776 pmove=0.245 width=0.146653 esjd/N=0.000522489 esjd/moved=0.00263994 score=42.8206
+2026-06-12 17:04:02,757 - [stage=fine step=04000 local=02000/03000] E/N=40.8597 ewE/N=40.8747 std/N=1.79994 ewstd/N=0.0464547 pmove=0.198 width=0.146653 esjd/N=0.000537444 esjd/moved=0.00385034 score=42.6746
+2026-06-12 17:04:05,568 - [stage=fine step=04010 local=02010/03000] E/N=40.8113 ewE/N=40.8497 std/N=1.89945 ewstd/N=0.0406472 pmove=0.232 width=0.146653 esjd/N=0.000522304 esjd/moved=0.00284893 score=42.7492
+2026-06-12 17:04:08,372 - [stage=fine step=04020 local=02020/03000] E/N=40.8159 ewE/N=40.8452 std/N=1.78097 ewstd/N=0.0485627 pmove=0.233 width=0.146653 esjd/N=0.00052507 esjd/moved=0.00286402 score=42.6262
+2026-06-12 17:04:11,177 - [stage=fine step=04030 local=02030/03000] E/N=40.9021 ewE/N=40.8552 std/N=1.87582 ewstd/N=0.0409359 pmove=0.189 width=0.146653 esjd/N=0.000554623 esjd/moved=0.00443698 score=42.731
+2026-06-12 17:04:13,982 - [stage=fine step=04040 local=02040/03000] E/N=40.8675 ewE/N=40.8762 std/N=1.89028 ewstd/N=0.0377371 pmove=0.224 width=0.146653 esjd/N=0.000537475 esjd/moved=0.00318504 score=42.7665
+2026-06-12 17:04:16,783 - [stage=fine step=04050 local=02050/03000] E/N=40.8706 ewE/N=40.8518 std/N=1.92886 ewstd/N=0.0348614 pmove=0.217 width=0.146653 esjd/N=0.000555923 esjd/moved=0.00360599 score=42.7807
+2026-06-12 17:04:19,593 - [stage=fine step=04060 local=02060/03000] E/N=40.969 ewE/N=40.8745 std/N=1.80399 ewstd/N=0.0461204 pmove=0.220 width=0.146653 esjd/N=0.00052736 esjd/moved=0.0031251 score=42.6785
+2026-06-12 17:04:22,402 - [stage=fine step=04070 local=02070/03000] E/N=40.921 ewE/N=40.8665 std/N=1.8075 ewstd/N=0.0444718 pmove=0.230 width=0.146653 esjd/N=0.000520426 esjd/moved=0.00283869 score=42.674
+2026-06-12 17:04:25,206 - [stage=fine step=04080 local=02080/03000] E/N=40.85 ewE/N=40.8596 std/N=1.78085 ewstd/N=0.029268 pmove=0.223 width=0.146653 esjd/N=0.00053089 esjd/moved=0.00314601 score=42.6404
+2026-06-12 17:04:28,055 - [stage=fine step=04090 local=02090/03000] E/N=40.9148 ewE/N=40.8684 std/N=1.82102 ewstd/N=0.0322821 pmove=0.245 width=0.146653 esjd/N=0.000524278 esjd/moved=0.00264899 score=42.6894
+2026-06-12 17:04:30,862 - [stage=fine step=04100 local=02100/03000] E/N=40.8618 ewE/N=40.8458 std/N=1.75891 ewstd/N=0.0455397 pmove=0.227 width=0.146653 esjd/N=0.000547134 esjd/moved=0.00324227 score=42.6048
+2026-06-12 17:04:33,673 - [stage=fine step=04110 local=02110/03000] E/N=40.8226 ewE/N=40.844 std/N=1.80578 ewstd/N=0.0358984 pmove=0.232 width=0.146653 esjd/N=0.000521278 esjd/moved=0.00284334 score=42.6498
+2026-06-12 17:04:36,477 - [stage=fine step=04120 local=02120/03000] E/N=40.9148 ewE/N=40.8564 std/N=1.8489 ewstd/N=0.0397685 pmove=0.202 width=0.146653 esjd/N=0.000552926 esjd/moved=0.00396126 score=42.7053
+2026-06-12 17:04:39,282 - [stage=fine step=04130 local=02130/03000] E/N=40.8047 ewE/N=40.8574 std/N=1.7758 ewstd/N=0.0322909 pmove=0.213 width=0.146653 esjd/N=0.000530445 esjd/moved=0.00344073 score=42.6332
+2026-06-12 17:04:42,091 - [stage=fine step=04140 local=02140/03000] E/N=40.8367 ewE/N=40.862 std/N=1.8065 ewstd/N=0.0285957 pmove=0.211 width=0.146653 esjd/N=0.000529478 esjd/moved=0.00343445 score=42.6685
+2026-06-12 17:04:44,896 - [stage=fine step=04150 local=02150/03000] E/N=40.8739 ewE/N=40.8619 std/N=1.8499 ewstd/N=0.0278339 pmove=0.221 width=0.146653 esjd/N=0.000524468 esjd/moved=0.00310796 score=42.7118
+2026-06-12 17:04:47,705 - [stage=fine step=04160 local=02160/03000] E/N=40.9098 ewE/N=40.8529 std/N=1.81229 ewstd/N=0.0437641 pmove=0.201 width=0.146653 esjd/N=0.000549776 esjd/moved=0.00393869 score=42.6652
+2026-06-12 17:04:50,524 - [stage=fine step=04170 local=02170/03000] E/N=40.9183 ewE/N=40.8517 std/N=1.83259 ewstd/N=0.0400527 pmove=0.212 width=0.146653 esjd/N=0.000541828 esjd/moved=0.00351456 score=42.6843
+2026-06-12 17:04:53,331 - [stage=fine step=04180 local=02180/03000] E/N=40.9044 ewE/N=40.8578 std/N=1.81135 ewstd/N=0.0396283 pmove=0.212 width=0.146653 esjd/N=0.000542686 esjd/moved=0.00352012 score=42.6692
+2026-06-12 17:04:56,136 - [stage=fine step=04190 local=02190/03000] E/N=40.9385 ewE/N=40.8908 std/N=1.83522 ewstd/N=0.0668165 pmove=0.198 width=0.146653 esjd/N=0.000536344 esjd/moved=0.00384246 score=42.7261
+2026-06-12 17:04:58,940 - [stage=fine step=04200 local=02200/03000] E/N=40.9187 ewE/N=40.8729 std/N=1.73966 ewstd/N=0.0549627 pmove=0.241 width=0.146653 esjd/N=0.00050961 esjd/moved=0.00257487 score=42.6126
+2026-06-12 17:05:01,754 - [stage=fine step=04210 local=02210/03000] E/N=40.828 ewE/N=40.8588 std/N=1.80867 ewstd/N=0.0395496 pmove=0.262 width=0.146653 esjd/N=0.000495269 esjd/moved=0.002181 score=42.6675
+2026-06-12 17:05:04,564 - [stage=fine step=04220 local=02220/03000] E/N=40.8426 ewE/N=40.858 std/N=1.66513 ewstd/N=0.0345554 pmove=0.232 width=0.146653 esjd/N=0.000529404 esjd/moved=0.00288766 score=42.5231
+2026-06-12 17:05:07,373 - [stage=fine step=04230 local=02230/03000] E/N=40.8936 ewE/N=40.8507 std/N=1.8277 ewstd/N=0.032959 pmove=0.202 width=0.146653 esjd/N=0.000544567 esjd/moved=0.00390138 score=42.6784
+2026-06-12 17:05:10,179 - [stage=fine step=04240 local=02240/03000] E/N=40.8115 ewE/N=40.844 std/N=1.84896 ewstd/N=0.0330006 pmove=0.235 width=0.146653 esjd/N=0.000527759 esjd/moved=0.00287868 score=42.6929
+2026-06-12 17:05:12,988 - [stage=fine step=04250 local=02250/03000] E/N=40.8291 ewE/N=40.8367 std/N=1.77037 ewstd/N=0.0327068 pmove=0.223 width=0.146653 esjd/N=0.000537042 esjd/moved=0.00318247 score=42.607
+2026-06-12 17:05:15,793 - [stage=fine step=04260 local=02260/03000] E/N=40.8235 ewE/N=40.8436 std/N=1.93917 ewstd/N=0.0419377 pmove=0.215 width=0.146653 esjd/N=0.000544481 esjd/moved=0.00353177 score=42.7828
+2026-06-12 17:05:18,605 - [stage=fine step=04270 local=02270/03000] E/N=40.8833 ewE/N=40.844 std/N=1.85702 ewstd/N=0.0370754 pmove=0.199 width=0.146653 esjd/N=0.000542634 esjd/moved=0.00388753 score=42.701
+2026-06-12 17:05:21,413 - [stage=fine step=04280 local=02280/03000] E/N=40.8662 ewE/N=40.8522 std/N=1.67026 ewstd/N=0.0365508 pmove=0.213 width=0.146653 esjd/N=0.000544778 esjd/moved=0.00353369 score=42.5225
+2026-06-12 17:05:24,215 - [stage=fine step=04290 local=02290/03000] E/N=40.8937 ewE/N=40.8641 std/N=1.87426 ewstd/N=0.0348472 pmove=0.243 width=0.146653 esjd/N=0.000514232 esjd/moved=0.00259822 score=42.7383
+2026-06-12 17:05:27,016 - [stage=fine step=04300 local=02300/03000] E/N=40.8604 ewE/N=40.8503 std/N=1.69911 ewstd/N=0.0365457 pmove=0.209 width=0.146653 esjd/N=0.000537031 esjd/moved=0.00348344 score=42.5494
+2026-06-12 17:05:29,819 - [stage=fine step=04310 local=02310/03000] E/N=40.9167 ewE/N=40.8557 std/N=1.95783 ewstd/N=0.0393899 pmove=0.213 width=0.146653 esjd/N=0.000532152 esjd/moved=0.0034518 score=42.8135
+2026-06-12 17:05:32,618 - [stage=fine step=04320 local=02320/03000] E/N=40.835 ewE/N=40.8557 std/N=1.76721 ewstd/N=0.028701 pmove=0.200 width=0.146653 esjd/N=0.000541332 esjd/moved=0.0038782 score=42.6229
+2026-06-12 17:05:35,419 - [stage=fine step=04330 local=02330/03000] E/N=40.8391 ewE/N=40.8434 std/N=1.78968 ewstd/N=0.0361975 pmove=0.192 width=0.146653 esjd/N=0.000565792 esjd/moved=0.00452634 score=42.6331
+2026-06-12 17:05:38,223 - [stage=fine step=04340 local=02340/03000] E/N=40.8552 ewE/N=40.8333 std/N=1.72559 ewstd/N=0.0314278 pmove=0.213 width=0.146653 esjd/N=0.000545526 esjd/moved=0.00353855 score=42.5589
+2026-06-12 17:05:41,030 - [stage=fine step=04350 local=02350/03000] E/N=40.8094 ewE/N=40.818 std/N=1.74839 ewstd/N=0.0278444 pmove=0.223 width=0.146653 esjd/N=0.000533419 esjd/moved=0.003161 score=42.5664
+2026-06-12 17:05:43,839 - [stage=fine step=04360 local=02360/03000] E/N=40.8867 ewE/N=40.8401 std/N=1.6452 ewstd/N=0.0296631 pmove=0.227 width=0.146653 esjd/N=0.000546457 esjd/moved=0.00323827 score=42.4853
+2026-06-12 17:05:46,646 - [stage=fine step=04370 local=02370/03000] E/N=40.7947 ewE/N=40.8479 std/N=1.82498 ewstd/N=0.0385037 pmove=0.214 width=0.146653 esjd/N=0.000554885 esjd/moved=0.00359926 score=42.6729
+2026-06-12 17:05:49,451 - [stage=fine step=04380 local=02380/03000] E/N=40.8342 ewE/N=40.8382 std/N=1.78136 ewstd/N=0.0329893 pmove=0.244 width=0.146653 esjd/N=0.000522516 esjd/moved=0.00264008 score=42.6196
+2026-06-12 17:05:52,258 - [stage=fine step=04390 local=02390/03000] E/N=40.7765 ewE/N=40.8342 std/N=1.84959 ewstd/N=0.0336392 pmove=0.221 width=0.146653 esjd/N=0.000525451 esjd/moved=0.00311379 score=42.6838
+2026-06-12 17:05:55,066 - [stage=fine step=04400 local=02400/03000] E/N=40.8409 ewE/N=40.8212 std/N=1.75752 ewstd/N=0.029269 pmove=0.210 width=0.146653 esjd/N=0.000528811 esjd/moved=0.00343012 score=42.5787
+2026-06-12 17:05:57,876 - [stage=fine step=04410 local=02410/03000] E/N=40.8091 ewE/N=40.8143 std/N=1.70293 ewstd/N=0.0343052 pmove=0.223 width=0.146653 esjd/N=0.000534144 esjd/moved=0.0031653 score=42.5172
+2026-06-12 17:06:00,687 - [stage=fine step=04420 local=02420/03000] E/N=40.847 ewE/N=40.8258 std/N=1.66822 ewstd/N=0.0375647 pmove=0.213 width=0.146653 esjd/N=0.00054658 esjd/moved=0.00354538 score=42.494
+2026-06-12 17:06:03,489 - [stage=fine step=04430 local=02430/03000] E/N=40.868 ewE/N=40.8212 std/N=1.69055 ewstd/N=0.0394119 pmove=0.220 width=0.146653 esjd/N=0.000523662 esjd/moved=0.00310318 score=42.5117
+2026-06-12 17:06:06,302 - [stage=fine step=04440 local=02440/03000] E/N=40.8521 ewE/N=40.8122 std/N=1.82016 ewstd/N=0.0360111 pmove=0.213 width=0.146653 esjd/N=0.000542174 esjd/moved=0.0035168 score=42.6323
+2026-06-12 17:06:09,104 - [stage=fine step=04450 local=02450/03000] E/N=40.7693 ewE/N=40.8067 std/N=1.8173 ewstd/N=0.0342868 pmove=0.211 width=0.146653 esjd/N=0.000536434 esjd/moved=0.00347957 score=42.624
+2026-06-12 17:06:11,912 - [stage=fine step=04460 local=02460/03000] E/N=40.8027 ewE/N=40.8174 std/N=1.73009 ewstd/N=0.0269876 pmove=0.210 width=0.146653 esjd/N=0.000537468 esjd/moved=0.00348628 score=42.5475
+2026-06-12 17:06:14,718 - [stage=fine step=04470 local=02470/03000] E/N=40.7868 ewE/N=40.8091 std/N=1.79121 ewstd/N=0.0349489 pmove=0.201 width=0.146653 esjd/N=0.000557519 esjd/moved=0.00399417 score=42.6003
+2026-06-12 17:06:17,528 - [stage=fine step=04480 local=02480/03000] E/N=40.8412 ewE/N=40.8297 std/N=1.77561 ewstd/N=0.0383162 pmove=0.211 width=0.146653 esjd/N=0.000534222 esjd/moved=0.00346522 score=42.6053
+2026-06-12 17:06:20,329 - [stage=fine step=04490 local=02490/03000] E/N=40.834 ewE/N=40.821 std/N=1.68338 ewstd/N=0.0291513 pmove=0.238 width=0.146653 esjd/N=0.000542449 esjd/moved=0.00295881 score=42.5044
+2026-06-12 17:06:23,129 - [stage=fine step=04500 local=02500/03000] E/N=40.8091 ewE/N=40.8239 std/N=1.73482 ewstd/N=0.0315088 pmove=0.222 width=0.146653 esjd/N=0.000536377 esjd/moved=0.00317853 score=42.5587
+2026-06-12 17:06:25,931 - [stage=fine step=04510 local=02510/03000] E/N=40.8901 ewE/N=40.8322 std/N=1.72619 ewstd/N=0.0404712 pmove=0.221 width=0.146653 esjd/N=0.000535604 esjd/moved=0.00317395 score=42.5584
+2026-06-12 17:06:28,743 - [stage=fine step=04520 local=02520/03000] E/N=40.7513 ewE/N=40.8202 std/N=2.24775 ewstd/N=0.0450266 pmove=0.266 width=0.146653 esjd/N=0.000502095 esjd/moved=0.00221106 score=43.0679
+2026-06-12 17:06:31,553 - [stage=fine step=04530 local=02530/03000] E/N=40.8288 ewE/N=40.8297 std/N=1.69319 ewstd/N=0.0337297 pmove=0.223 width=0.146653 esjd/N=0.000532885 esjd/moved=0.00315784 score=42.5229
+2026-06-12 17:06:34,361 - [stage=fine step=04540 local=02540/03000] E/N=40.8402 ewE/N=40.8354 std/N=1.79882 ewstd/N=0.0335482 pmove=0.198 width=0.146653 esjd/N=0.000535002 esjd/moved=0.00383285 score=42.6342
+2026-06-12 17:06:37,170 - [stage=fine step=04550 local=02550/03000] E/N=40.8145 ewE/N=40.8263 std/N=1.64191 ewstd/N=0.0319361 pmove=0.211 width=0.146653 esjd/N=0.00053449 esjd/moved=0.00346696 score=42.4682
+2026-06-12 17:06:39,975 - [stage=fine step=04560 local=02560/03000] E/N=40.8345 ewE/N=40.8179 std/N=1.79215 ewstd/N=0.0425371 pmove=0.199 width=0.146653 esjd/N=0.000538348 esjd/moved=0.00385682 score=42.6101
+2026-06-12 17:06:42,781 - [stage=fine step=04570 local=02570/03000] E/N=40.7617 ewE/N=40.8264 std/N=1.83999 ewstd/N=0.0405385 pmove=0.234 width=0.146653 esjd/N=0.000531524 esjd/moved=0.00289922 score=42.6663
+2026-06-12 17:06:45,586 - [stage=fine step=04580 local=02580/03000] E/N=40.8465 ewE/N=40.8358 std/N=1.68513 ewstd/N=0.0356697 pmove=0.211 width=0.146653 esjd/N=0.000536042 esjd/moved=0.00347703 score=42.521
+2026-06-12 17:06:48,398 - [stage=fine step=04590 local=02590/03000] E/N=40.8183 ewE/N=40.8352 std/N=1.78058 ewstd/N=0.037415 pmove=0.212 width=0.146653 esjd/N=0.000534577 esjd/moved=0.00346753 score=42.6157
+2026-06-12 17:06:51,196 - [stage=fine step=04600 local=02600/03000] E/N=40.811 ewE/N=40.8134 std/N=1.89433 ewstd/N=0.0405941 pmove=0.190 width=0.146653 esjd/N=0.000558413 esjd/moved=0.0044673 score=42.7078
+2026-06-12 17:06:53,992 - [stage=fine step=04610 local=02610/03000] E/N=40.7698 ewE/N=40.8041 std/N=1.8763 ewstd/N=0.0302412 pmove=0.224 width=0.146653 esjd/N=0.000537263 esjd/moved=0.00318378 score=42.6804
+2026-06-12 17:06:56,795 - [stage=fine step=04620 local=02620/03000] E/N=40.8569 ewE/N=40.8196 std/N=1.65359 ewstd/N=0.0301855 pmove=0.225 width=0.146653 esjd/N=0.000542695 esjd/moved=0.00321597 score=42.4731
+2026-06-12 17:06:59,589 - [stage=fine step=04630 local=02630/03000] E/N=40.7927 ewE/N=40.8135 std/N=1.87743 ewstd/N=0.0317068 pmove=0.213 width=0.146653 esjd/N=0.000546284 esjd/moved=0.00354346 score=42.691
+2026-06-12 17:07:02,390 - [stage=fine step=04640 local=02640/03000] E/N=40.8897 ewE/N=40.8135 std/N=1.71195 ewstd/N=0.0410795 pmove=0.223 width=0.146653 esjd/N=0.000532623 esjd/moved=0.00315629 score=42.5255
+2026-06-12 17:07:05,193 - [stage=fine step=04650 local=02650/03000] E/N=40.8848 ewE/N=40.8345 std/N=1.66574 ewstd/N=0.0440738 pmove=0.193 width=0.146653 esjd/N=0.000562443 esjd/moved=0.00449954 score=42.5003
+2026-06-12 17:07:07,996 - [stage=fine step=04660 local=02660/03000] E/N=40.9149 ewE/N=40.8475 std/N=2.86345 ewstd/N=0.0493114 pmove=0.210 width=0.146653 esjd/N=0.000531783 esjd/moved=0.0034494 score=43.7109
+2026-06-12 17:07:10,797 - [stage=fine step=04670 local=02670/03000] E/N=40.7528 ewE/N=40.83 std/N=1.97708 ewstd/N=0.0436354 pmove=0.213 width=0.146653 esjd/N=0.000549102 esjd/moved=0.00356174 score=42.8071
+2026-06-12 17:07:13,603 - [stage=fine step=04680 local=02680/03000] E/N=40.864 ewE/N=40.8308 std/N=1.73769 ewstd/N=0.0354292 pmove=0.234 width=0.146653 esjd/N=0.000526444 esjd/moved=0.00287151 score=42.5685
+2026-06-12 17:07:16,410 - [stage=fine step=04690 local=02690/03000] E/N=40.7611 ewE/N=40.8198 std/N=1.60421 ewstd/N=0.0417609 pmove=0.222 width=0.146653 esjd/N=0.000537654 esjd/moved=0.0031861 score=42.424
+2026-06-12 17:07:19,223 - [stage=fine step=04700 local=02700/03000] E/N=40.851 ewE/N=40.8205 std/N=1.69569 ewstd/N=0.0346401 pmove=0.246 width=0.146653 esjd/N=0.000525029 esjd/moved=0.00265278 score=42.5162
+2026-06-12 17:07:22,032 - [stage=fine step=04710 local=02710/03000] E/N=40.8472 ewE/N=40.8193 std/N=1.68192 ewstd/N=0.0355109 pmove=0.215 width=0.146653 esjd/N=0.000546976 esjd/moved=0.00354795 score=42.5012
+2026-06-12 17:07:24,838 - [stage=fine step=04720 local=02720/03000] E/N=40.8055 ewE/N=40.8182 std/N=1.65877 ewstd/N=0.0344232 pmove=0.254 width=0.146653 esjd/N=0.000511703 esjd/moved=0.00240802 score=42.477
+2026-06-12 17:07:27,647 - [stage=fine step=04730 local=02730/03000] E/N=40.8015 ewE/N=40.8164 std/N=2.02105 ewstd/N=0.0368507 pmove=0.222 width=0.146653 esjd/N=0.000531448 esjd/moved=0.00314932 score=42.8375
+2026-06-12 17:07:30,456 - [stage=fine step=04740 local=02740/03000] E/N=40.7722 ewE/N=40.8118 std/N=1.82267 ewstd/N=0.0377955 pmove=0.213 width=0.146653 esjd/N=0.000544651 esjd/moved=0.00353287 score=42.6344
+2026-06-12 17:07:33,263 - [stage=fine step=04750 local=02750/03000] E/N=40.7646 ewE/N=40.8026 std/N=1.91789 ewstd/N=0.0310285 pmove=0.236 width=0.146653 esjd/N=0.000536073 esjd/moved=0.00292404 score=42.7205
+2026-06-12 17:07:36,070 - [stage=fine step=04760 local=02760/03000] E/N=40.8623 ewE/N=40.8307 std/N=1.6895 ewstd/N=0.0370433 pmove=0.203 width=0.146653 esjd/N=0.000553419 esjd/moved=0.0039648 score=42.5202
+2026-06-12 17:07:38,878 - [stage=fine step=04770 local=02770/03000] E/N=40.8265 ewE/N=40.8216 std/N=1.50977 ewstd/N=0.0343935 pmove=0.276 width=0.146653 esjd/N=0.000495224 esjd/moved=0.0020492 score=42.3314
+2026-06-12 17:07:41,686 - [stage=fine step=04780 local=02780/03000] E/N=40.7647 ewE/N=40.8076 std/N=1.72381 ewstd/N=0.0350467 pmove=0.244 width=0.146653 esjd/N=0.000522306 esjd/moved=0.00263902 score=42.5314
+2026-06-12 17:07:44,488 - [stage=fine step=04790 local=02790/03000] E/N=40.8069 ewE/N=40.8056 std/N=1.71133 ewstd/N=0.0314134 pmove=0.222 width=0.146653 esjd/N=0.000535234 esjd/moved=0.00317175 score=42.517
+2026-06-12 17:07:47,302 - [stage=fine step=04800 local=02800/03000] E/N=40.8452 ewE/N=40.8075 std/N=1.82808 ewstd/N=0.028971 pmove=0.210 width=0.146653 esjd/N=0.000535206 esjd/moved=0.00347161 score=42.6356
+2026-06-12 17:07:50,108 - [stage=fine step=04810 local=02810/03000] E/N=40.8536 ewE/N=40.8245 std/N=1.68372 ewstd/N=0.0270397 pmove=0.212 width=0.146653 esjd/N=0.000545269 esjd/moved=0.00353688 score=42.5082
+2026-06-12 17:07:52,915 - [stage=fine step=04820 local=02820/03000] E/N=40.9277 ewE/N=40.8206 std/N=1.7358 ewstd/N=0.0472644 pmove=0.213 width=0.146653 esjd/N=0.000549732 esjd/moved=0.00356583 score=42.5564
+2026-06-12 17:07:55,719 - [stage=fine step=04830 local=02830/03000] E/N=40.7914 ewE/N=40.8057 std/N=1.87554 ewstd/N=0.0432182 pmove=0.211 width=0.146653 esjd/N=0.000542147 esjd/moved=0.00351663 score=42.6812
+2026-06-12 17:07:58,526 - [stage=fine step=04840 local=02840/03000] E/N=40.7988 ewE/N=40.8096 std/N=1.6557 ewstd/N=0.0325737 pmove=0.246 width=0.146653 esjd/N=0.000528468 esjd/moved=0.00267015 score=42.4653
+2026-06-12 17:08:01,335 - [stage=fine step=04850 local=02850/03000] E/N=40.8373 ewE/N=40.798 std/N=1.82479 ewstd/N=0.0363363 pmove=0.225 width=0.146653 esjd/N=0.000545826 esjd/moved=0.00323452 score=42.6228
+2026-06-12 17:08:04,141 - [stage=fine step=04860 local=02860/03000] E/N=40.8388 ewE/N=40.8217 std/N=1.58946 ewstd/N=0.0481261 pmove=0.234 width=0.146653 esjd/N=0.000526302 esjd/moved=0.00287074 score=42.4112
+2026-06-12 17:08:06,950 - [stage=fine step=04870 local=02870/03000] E/N=40.7591 ewE/N=40.8306 std/N=1.72508 ewstd/N=0.0424691 pmove=0.211 width=0.146653 esjd/N=0.000532743 esjd/moved=0.00345563 score=42.5557
+2026-06-12 17:08:09,757 - [stage=fine step=04880 local=02880/03000] E/N=40.7875 ewE/N=40.8136 std/N=1.70419 ewstd/N=0.0384706 pmove=0.200 width=0.146653 esjd/N=0.000540353 esjd/moved=0.00387118 score=42.5178
+2026-06-12 17:08:12,565 - [stage=fine step=04890 local=02890/03000] E/N=40.8375 ewE/N=40.8006 std/N=1.61847 ewstd/N=0.0317676 pmove=0.220 width=0.146653 esjd/N=0.000524088 esjd/moved=0.00310571 score=42.419
+2026-06-12 17:08:15,372 - [stage=fine step=04900 local=02900/03000] E/N=40.8357 ewE/N=40.8054 std/N=1.98539 ewstd/N=0.0371481 pmove=0.220 width=0.146653 esjd/N=0.000524401 esjd/moved=0.00310756 score=42.7908
+2026-06-12 17:08:18,178 - [stage=fine step=04910 local=02910/03000] E/N=40.8166 ewE/N=40.8116 std/N=1.62641 ewstd/N=0.0307481 pmove=0.243 width=0.146653 esjd/N=0.000515099 esjd/moved=0.00260261 score=42.438
+2026-06-12 17:08:20,984 - [stage=fine step=04920 local=02920/03000] E/N=40.8201 ewE/N=40.8185 std/N=1.67596 ewstd/N=0.0230719 pmove=0.219 width=0.146653 esjd/N=0.000528882 esjd/moved=0.00313412 score=42.4945
+2026-06-12 17:08:23,786 - [stage=fine step=04930 local=02930/03000] E/N=40.8175 ewE/N=40.8189 std/N=1.62336 ewstd/N=0.020614 pmove=0.221 width=0.146653 esjd/N=0.000525853 esjd/moved=0.00311617 score=42.4422
+2026-06-12 17:08:26,579 - [stage=fine step=04940 local=02940/03000] E/N=40.8175 ewE/N=40.8133 std/N=1.65986 ewstd/N=0.0249296 pmove=0.243 width=0.146653 esjd/N=0.000518725 esjd/moved=0.00262093 score=42.4732
+2026-06-12 17:08:29,387 - [stage=fine step=04950 local=02950/03000] E/N=40.8388 ewE/N=40.8361 std/N=1.68669 ewstd/N=0.0312707 pmove=0.203 width=0.146653 esjd/N=0.000548434 esjd/moved=0.00392908 score=42.5227
+2026-06-12 17:08:32,201 - [stage=fine step=04960 local=02960/03000] E/N=40.8825 ewE/N=40.8077 std/N=1.75569 ewstd/N=0.0469633 pmove=0.236 width=0.146653 esjd/N=0.000534924 esjd/moved=0.00291777 score=42.5634
+2026-06-12 17:08:35,010 - [stage=fine step=04970 local=02970/03000] E/N=40.8471 ewE/N=40.8186 std/N=1.70111 ewstd/N=0.0385148 pmove=0.215 width=0.146653 esjd/N=0.00055058 esjd/moved=0.00357133 score=42.5197
+2026-06-12 17:08:37,816 - [stage=fine step=04980 local=02980/03000] E/N=40.8961 ewE/N=40.8117 std/N=1.64552 ewstd/N=0.0540418 pmove=0.232 width=0.146653 esjd/N=0.000518851 esjd/moved=0.0028301 score=42.4573
+2026-06-12 17:08:40,627 - [stage=fine step=04990 local=02990/03000] E/N=40.7889 ewE/N=40.8154 std/N=1.62474 ewstd/N=0.0423983 pmove=0.222 width=0.146653 esjd/N=0.000525655 esjd/moved=0.00311499 score=42.4401
+2026-06-12 17:08:43,148 - Saving checkpoint results/rs_d_scan_N16_D20_sq/N16_layers8_8_rs0.4_d0.5_D20.0_seed69_sq/qmcjax_ckpt_004999.npz
+2026-06-12 17:08:43,443 - Saved best-candidate checkpoint results/rs_d_scan_N16_D20_sq/N16_layers8_8_rs0.4_d0.5_D20.0_seed69_sq/qmcjax_best_004999.npz with score 42.516411
+2026-06-12 17:08:43,463 - Training completed after t [s] = 1572

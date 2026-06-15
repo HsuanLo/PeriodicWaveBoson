@@ -1,0 +1,23 @@
+=== PeriodicWaveBoson submit launch ===
+date=2026-06-15T02:39:41-04:00
+host=d-14-9-1
+pwd=/home/gridsan/hlo1/project/PeriodicWaveBoson
+python=/home/gridsan/hlo1/venv/periodicwaveboson/bin/python
+slurm_job_id=4946461
+slurm_job_name=submit.sh
+slurm_nodelist=d-14-9-1
+slurm_procid=0
+slurm_localid=0
+cuda_visible_devices=GPU-745be0d7-20cb-0c84-dda6-d958e5cf3fc0
+xla_preallocate=<unset>
+xla_mem_fraction=<unset>
+command=/home/gridsan/hlo1/venv/periodicwaveboson/bin/python scripts/train/run_bilayer_D_d_scan.py --results-dir results/D_d_scan_N24_rs1.0_sq 
+Worker rank 3/20 received 2 of 40 scan points.
+command=/home/gridsan/hlo1/venv/periodicwaveboson/bin/python /home/gridsan/hlo1/project/PeriodicWaveBoson/scripts/train/run_bilayer.py --results-dir results/D_d_scan_N24_rs1.0_sq --dipole-strength 0.1 --d 1.0 --seed 69
+Jax Devices: [CudaDevice(id=0)]
+Folder 'results/D_d_scan_N24_rs1.0_sq/N24_layers12_12_rs1.0_d1.0_D0.1_seed69_sq' does not exist.
+Device and environment info logged to results/D_d_scan_N24_rs1.0_sq/N24_layers12_12_rs1.0_d1.0_D0.1_seed69_sq/device_info.log
+'config.json' does not exist in the folder 'results/D_d_scan_N24_rs1.0_sq/N24_layers12_12_rs1.0_d1.0_D0.1_seed69_sq'.
+Configuration saved as JSON to results/D_d_scan_N24_rs1.0_sq/N24_layers12_12_rs1.0_d1.0_D0.1_seed69_sq/config.json
+'train_stats.csv' does not exist in the folder 'results/D_d_scan_N24_rs1.0_sq/N24_layers12_12_rs1.0_d1.0_D0.1_seed69_sq'.
+command=/home/gridsan/hlo1/venv/periodicwaveboson/bin/python /home/gridsan/hlo1/project/PeriodicWaveBoson/scripts/train/run_bilayer.py --results-dir results/D_d_scan_N24_rs1.0_sq --dipole-strength 1.6 --d 2.0 --seed 69

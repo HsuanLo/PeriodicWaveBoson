@@ -4,7 +4,7 @@
 
 """Bilayer boson Hamiltonian with xy PBC and discrete z layers."""
 
-from typing import Optional, Sequence, Tuple
+from typing import Mapping, Optional, Sequence, Tuple
 
 import chex
 from periodicwave import hamiltonians
@@ -19,7 +19,8 @@ def _minimum_image_xy(displacements: jnp.ndarray,
   """Folds xy displacement vectors into the first periodic cell."""
   rec_no_2pi = jnp.linalg.inv(lattice)
   fractional = jnp.einsum("ij,...j->...i", rec_no_2pi, displacements)
-  fractional = (fractional + 0.5) % 1.0 - 0.5
+  image = jax.lax.stop_gradient(jnp.floor(fractional + 0.5))
+  fractional = fractional - image
   return jnp.einsum("ij,...j->...i", lattice, fractional)
 
 
@@ -288,20 +289,31 @@ def local_energy(
     potential = make_ewald_bilayer_potential(
         lattice=jnp.asarray(lattice),
         layer_separation=layer_separation,
+        return_components=True,
         **potential_kwargs,
         **ewald_kwargs)
   else:
     potential = make_direct_bilayer_potential(
         lattice=jnp.asarray(lattice),
         layer_separation=layer_separation,
+        return_components=True,
         **potential_kwargs)
 
   def _e_l(
       params: networks.ParamTree,
       key: chex.PRNGKey,
       data: networks.WalkerData,
-  ) -> Tuple[jnp.ndarray, Optional[jnp.ndarray]]:
+  ) -> Tuple[jnp.ndarray, Mapping[str, jnp.ndarray]]:
     del key
-    return kinetic(params, data) + potential(data.positions, data.spins), None
+    kinetic_energy = kinetic(params, data)
+    potential_parts = potential(data.positions, data.spins)
+    potential_energy = potential_parts["total"]
+    total_energy = kinetic_energy + potential_energy
+    return total_energy, {
+        "kinetic": kinetic_energy,
+        "potential": potential_energy,
+        "potential_intra": potential_parts["intra"],
+        "potential_inter": potential_parts["inter"],
+    }
 
   return _e_l

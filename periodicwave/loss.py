@@ -42,6 +42,10 @@ class AuxiliaryLossData:
     variance: mean variance over batch, and over all devices if inside a pmap.
     local_energy: local energy for each MCMC configuration.
     clipped_energy: local energy after clipping has been applied
+    kinetic_energy: mean kinetic energy over batch/devices.
+    potential_energy: mean potential energy over batch/devices.
+    potential_intra: mean intralayer potential energy over batch/devices.
+    potential_inter: mean interlayer potential energy over batch/devices.
     grad_local_energy: gradient of the local energy.
     local_energy_mat: for excited states, the local energy matrix.
     s_ij: Matrix of overlaps between wavefunctions.
@@ -51,6 +55,10 @@ class AuxiliaryLossData:
   variance: jax.Array
   local_energy: jax.Array
   clipped_energy: jax.Array
+  kinetic_energy: jax.Array | None = None
+  potential_energy: jax.Array | None = None
+  potential_intra: jax.Array | None = None
+  potential_inter: jax.Array | None = None
   grad_local_energy: jax.Array | None = None
   local_energy_mat: jax.Array | None = None
   s_ij: jax.Array | None = None
@@ -229,19 +237,33 @@ def make_loss(network: networks.LogNetworkLike,
     """
     # Generate batch_size number of RNG keys from passed key
     keys = jax.random.split(key, num=data.positions.shape[0])
-    # Compute e_l and e_l_mat (for excited states) over the whole batch
-    e_l, e_l_mat = batch_local_energy(params, keys, data)
+    # Compute local energy and optional diagnostics over the whole batch.
+    e_l, e_l_aux = batch_local_energy(params, keys, data)
     # Take mean of e_l to as loss function
     loss = constants.pmean(jnp.mean(e_l))
     # Get variance of local energy
     loss_diff = e_l - loss
     variance = constants.pmean(jnp.mean(loss_diff * jnp.conj(loss_diff)))
+    def component_mean(name: str):
+      if e_l_aux is None or name not in e_l_aux:
+        return None
+      return constants.pmean(jnp.mean(e_l_aux[name]))
+
+    local_energy_mat = (
+        e_l_aux.get("local_energy_mat")
+        if e_l_aux is not None and "local_energy_mat" in e_l_aux
+        else None)
+
     return loss, AuxiliaryLossData(
         energy=loss,
         variance=variance.real,
         local_energy=e_l,
         clipped_energy=e_l,
-        local_energy_mat=e_l_mat,
+        kinetic_energy=component_mean("kinetic"),
+        potential_energy=component_mean("potential"),
+        potential_intra=component_mean("potential_intra"),
+        potential_inter=component_mean("potential_inter"),
+        local_energy_mat=local_energy_mat,
     )
 
   @total_energy.defjvp

@@ -461,11 +461,11 @@ def _best_checkpoint_score(metric: str,
                            std_weight: float) -> float:
   """Returns the scalar score used to rank best checkpoint candidates."""
   if metric == 'ewmean':
-    return float(np.asarray(weighted_stats.mean))
+    return float(np.asarray(weighted_stats.mean / num_particles))
   if metric == 'energy':
-    return float(np.asarray(loss))
+    return float(np.asarray(loss / num_particles))
   if metric == 'variance':
-    return float(np.asarray(local_std ** 2))
+    return float(np.asarray((local_std / num_particles) ** 2))
   if metric == 'energy_std':
     return float(np.asarray((loss + std_weight * local_std) / num_particles))
   if metric == 'ewmean_std':
@@ -705,6 +705,8 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
   # Set up logging and observables
   train_schema = [
       'step', 'stage', 'energy', 'ewmean', 'ewvar', 'pmove', 'locstd',
+      'kinetic_energy', 'potential_energy', 'potential_intra',
+      'potential_inter',
       'mcmc_width', 'mcmc_esjd_per_particle',
       'mcmc_esjd_per_moved_particle'
   ]
@@ -1125,16 +1127,28 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
                 num_particles=num_particles,
                 std_weight=cfg.log.get('best_checkpoint_std_weight', 1.0))
             if has_loss else np.nan)
+
+        def aux_scalar(name):
+          value = getattr(aux_data, name, None) if has_loss else None
+          return np.asarray(value[0] / num_particles) if value is not None else np.nan
+
         # write to train_stats
         writer_kwargs = {
             'step': t,
             'stage': current_stage_name,
-            'energy': np.asarray(loss) if has_loss else np.nan,
-            'ewmean': np.asarray(weighted_stats.mean) if has_loss else np.nan,
-            'ewvar': np.asarray(
-                weighted_stats.variance) if has_loss else np.nan,
+            'energy': np.asarray(loss / num_particles) if has_loss else np.nan,
+            'ewmean': (
+                np.asarray(weighted_stats.mean / num_particles)
+                if has_loss else np.nan),
+            'ewvar': (
+                np.asarray(weighted_stats.variance / (num_particles ** 2))
+                if has_loss else np.nan),
             'pmove': np.asarray(pmove),
-            'locstd': np.asarray(local_std),
+            'locstd': np.asarray(local_std / num_particles),
+            'kinetic_energy': aux_scalar('kinetic_energy'),
+            'potential_energy': aux_scalar('potential_energy'),
+            'potential_intra': aux_scalar('potential_intra'),
+            'potential_inter': aux_scalar('potential_inter'),
             'mcmc_width': np.asarray(mcmc_width[0]),
             'mcmc_esjd_per_particle': np.asarray(esjd_per_particle),
             'mcmc_esjd_per_moved_particle': np.asarray(

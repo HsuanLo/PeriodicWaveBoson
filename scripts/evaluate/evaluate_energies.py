@@ -38,8 +38,20 @@ RUN_RE = re.compile(
     r"N(?P<num_bosons>\d+)_layers(?P<layer_a>\d+)_(?P<layer_b>\d+)"
     r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)"
     r"(?:_seed(?P<seed>\d+))?_"
-    r"(?P<cell>[^/]+)$"
+    r"(?P<cell>sq|tri)(?:_[^/]+)?$"
 )
+COLORS = {
+    "total": "#2563eb",
+    "ewmean": "#111827",
+    "kinetic": "#7c3aed",
+    "potential": "#dc2626",
+    "intra": "#059669",
+    "inter": "#d97706",
+    "acceptance": "#0f766e",
+    "width": "#be123c",
+    "esjd": "#0284c7",
+    "esjd_moved": "#4f46e5",
+}
 
 
 @dataclass(frozen=True)
@@ -146,16 +158,12 @@ def _best_selection(params: RunParams, plot_data: pd.DataFrame) -> BestSelection
     score = float(plot_data.loc[idx, "locstd"] ** 2)
   elif metric == "energy_std" and "locstd" in plot_data:
     std_weight = _best_checkpoint_std_weight(params.path)
-    scores = (
-        plot_data["energy"] + std_weight * plot_data["locstd"]
-    ) / params.num_bosons
+    scores = plot_data["energy"] + std_weight * plot_data["locstd"]
     idx = scores.idxmin()
     score = float(scores.loc[idx])
   elif metric == "ewmean_std" and {"ewmean", "locstd"}.issubset(plot_data.columns):
     std_weight = _best_checkpoint_std_weight(params.path)
-    scores = (
-        plot_data["ewmean"] + std_weight * plot_data["locstd"]
-    ) / params.num_bosons
+    scores = plot_data["ewmean"] + std_weight * plot_data["locstd"]
     idx = scores.idxmin()
     score = float(scores.loc[idx])
   else:
@@ -171,25 +179,93 @@ def _best_selection(params: RunParams, plot_data: pd.DataFrame) -> BestSelection
       source="train_stats")
 
 
+def _rolling_rows_from_step_window(steps: pd.Series, rolling_window: int) -> int:
+  """Converts a requested optimizer-step window to saved CSV rows."""
+  if rolling_window <= 0 or len(steps) < 2:
+    return max(1, rolling_window)
+  step_diffs = steps.sort_values().diff().dropna()
+  step_diffs = step_diffs[step_diffs > 0]
+  if step_diffs.empty:
+    return max(1, rolling_window)
+  step_interval = float(step_diffs.median())
+  return max(1, int(round(float(rolling_window) / step_interval)))
+
+
 def _add_rolling_average(ax, x, y, label, rolling_window, color=None):
   ax.plot(
       x,
       y,
-      marker="o",
-      linestyle="-",
-      linewidth=0.4,
-      markersize=1,
-      alpha=0.25,
+      linewidth=0.55,
+      alpha=0.28,
       color=color,
-      label=label)
-  if len(y) >= rolling_window:
-    rolling = y.rolling(rolling_window, min_periods=max(1, rolling_window // 5)).mean()
+      label=f"{label}, logged")
+  ax.scatter(
+      x,
+      y,
+      s=7,
+      alpha=0.38,
+      color=color,
+      edgecolors="none",
+      rasterized=True)
+  rolling_rows = _rolling_rows_from_step_window(x, rolling_window)
+  if len(y) >= rolling_rows:
+    rolling = y.rolling(
+        rolling_rows,
+        min_periods=max(1, rolling_rows // 5)).mean()
     ax.plot(
         x,
         rolling,
-        linewidth=1.8,
+        linewidth=2.1,
         color=color,
-        label=f"{label}, rolling mean")
+        label=f"{label}, rolling {rolling_window} steps")
+
+
+def _set_robust_ylim(
+    ax,
+    series_list,
+    *,
+    lower_quantile: float = 0.01,
+    upper_quantile: float = 0.99,
+    include_zero: bool = False,
+    positive_only: bool = False,
+) -> None:
+  values = []
+  for series in series_list:
+    clean = pd.to_numeric(pd.Series(series), errors="coerce")
+    clean = clean.replace([float("inf"), -float("inf")], pd.NA).dropna()
+    if positive_only:
+      clean = clean[clean > 0.0]
+    if not clean.empty:
+      values.append(clean)
+  if not values:
+    return
+
+  data = pd.concat(values, ignore_index=True)
+  q1 = float(data.quantile(0.25))
+  q3 = float(data.quantile(0.75))
+  iqr = q3 - q1
+  quantile_lo = float(data.quantile(lower_quantile))
+  quantile_hi = float(data.quantile(upper_quantile))
+  if iqr > 0.0:
+    lo = max(quantile_lo, q1 - 3.0 * iqr)
+    hi = min(quantile_hi, q3 + 3.0 * iqr)
+  else:
+    lo = quantile_lo
+    hi = quantile_hi
+  if include_zero:
+    lo = min(lo, 0.0)
+    hi = max(hi, 0.0)
+  if not hi > lo:
+    pad = max(abs(hi), 1.0) * 0.05
+    lo -= pad
+    hi += pad
+  else:
+    pad = 0.08 * (hi - lo)
+    lo -= pad
+    hi += pad
+  if positive_only:
+    lo = max(lo, float(data.min()) * 0.5, 1.0e-12)
+  ax.set_ylim(lo, hi)
 
 
 def _format_float(value: float) -> str:
@@ -223,10 +299,7 @@ def _format_run_title(params: RunParams) -> str:
 
 
 def _score_per_particle(selection: BestSelection, params: RunParams) -> float:
-  if selection.metric in ("ewmean", "energy"):
-    return selection.score / params.num_bosons
-  if selection.metric == "variance":
-    return selection.score / (params.num_bosons ** 2)
+  del params
   return selection.score
 
 
@@ -238,16 +311,15 @@ def _selection_summary(
   lines = [
       f"best step = {selection.step} ({selection.metric})",
       f"best score/N = {_format_float(_score_per_particle(selection, params))}",
-      f"E/N at best = "
-      f"{_format_float(selection.row['energy'] / params.num_bosons)}",
+      f"E/N at best = {_format_float(selection.row['energy'])}",
   ]
   if not include_uncertainty:
     return "\n".join(lines)
   if "locstd" in selection.row:
-    std = selection.row["locstd"] / params.num_bosons
+    std = selection.row["locstd"]
     lines.append(f"std(E_L)/N at best = {_format_float(std)}")
   elif "ewvar" in selection.row:
-    ewstd = (selection.row["ewvar"] ** 0.5) / params.num_bosons
+    ewstd = selection.row["ewvar"] ** 0.5
     lines.append(f"EW std(E_L)/N at best = {_format_float(ewstd)}")
   return "\n".join(lines)
 
@@ -257,7 +329,7 @@ def _plot_energy(params: RunParams, plot_data: pd.DataFrame) -> None:
   fig, ax = plt.subplots(1, 1, figsize=(11, 5.5))
   ax.plot(
       plot_data["step"],
-      plot_data["energy"] / params.num_bosons,
+      plot_data["energy"],
       marker="o",
       linestyle="-",
       linewidth=0.4,
@@ -266,8 +338,11 @@ def _plot_energy(params: RunParams, plot_data: pd.DataFrame) -> None:
       label="energy per boson")
   ax.set_xlabel("step")
   ax.set_ylabel("energy per boson")
-  if (plot_data["energy"] / params.num_bosons > 0).all():
+  if (plot_data["energy"] > 0).all():
     ax.set_yscale("log")
+    _set_robust_ylim(ax, [plot_data["energy"]], positive_only=True)
+  else:
+    _set_robust_ylim(ax, [plot_data["energy"]])
   ax.set_title(_format_run_title(params))
   _add_text_box(ax, _selection_summary(params, selection))
   ax.legend()
@@ -278,109 +353,215 @@ def _plot_energy(params: RunParams, plot_data: pd.DataFrame) -> None:
   plt.close(fig)
 
 
-def _plot_training_diagnostics(
+def _plot_energy_components(
     params: RunParams,
     plot_data: pd.DataFrame,
     rolling_window: int,
 ) -> None:
   selection = _best_selection(params, plot_data)
-  fig, axs = plt.subplots(4, 1, figsize=(9.5, 13), sharex=True)
+  fig, axs = plt.subplots(4, 1, figsize=(10.5, 12.0), sharex=True)
   axs = axs.ravel()
   steps = plot_data["step"]
-  energy_per_particle = plot_data["energy"] / params.num_bosons
+  component_columns = [
+      ("kinetic_energy", "kinetic / N", COLORS["kinetic"]),
+      ("potential_intra", "intralayer / N", COLORS["intra"]),
+      ("potential_inter", "interlayer / N", COLORS["inter"]),
+  ]
+  available_component_columns = [
+      item for item in component_columns if item[0] in plot_data]
 
   _add_rolling_average(
       axs[0],
       steps,
-      energy_per_particle,
-      "energy / N",
+      plot_data["energy"],
+      "total energy / N",
       rolling_window,
-      color="#2a6fbb")
-  axs[0].set_ylabel("energy / N")
-  if (energy_per_particle > 0).all():
-    axs[0].set_yscale("log")
+      color=COLORS["total"])
+  axs[0].set_ylabel("total / N")
+  _set_robust_ylim(axs[0], [plot_data["energy"]])
   _add_text_box(axs[0], _selection_summary(
       params, selection, include_uncertainty=False))
   axs[0].legend(fontsize=8)
 
-  if "locstd" in plot_data:
-    std_per_particle = plot_data["locstd"] / params.num_bosons
-    _add_rolling_average(
+  if available_component_columns:
+    axs[1].axhline(0.0, color="0.55", linewidth=0.8, alpha=0.8)
+    for column, label, color in available_component_columns:
+      _add_rolling_average(
+          axs[1],
+          steps,
+          plot_data[column],
+          label,
+          rolling_window,
+          color=color)
+    axs[1].set_ylabel("components / N")
+    _set_robust_ylim(
         axs[1],
+        [plot_data[column] for column, _, _ in available_component_columns],
+        include_zero=True)
+    axs[1].legend(fontsize=8, ncol=2)
+  else:
+    axs[1].text(0.5, 0.5, "energy components unavailable",
+                ha="center", va="center")
+
+  if available_component_columns:
+    denominator = sum(
+        plot_data[column].abs()
+        for column, _, _ in available_component_columns)
+    denominator = denominator.where(denominator > 1.0e-12)
+    axs[2].axhline(1.0, color="0.55", linewidth=0.8, alpha=0.5)
+    for column, label, color in available_component_columns:
+      _add_rolling_average(
+          axs[2],
+          steps,
+          plot_data[column].abs() / denominator,
+          "|" + label.replace(" / N", "| fraction"),
+          rolling_window,
+          color=color)
+    axs[2].set_ylim(-0.03, 1.03)
+    axs[2].set_ylabel("|component| fraction")
+    axs[2].legend(fontsize=8, ncol=2)
+  else:
+    axs[2].text(0.5, 0.5, "energy ratios unavailable",
+                ha="center", va="center")
+
+  if "locstd" in plot_data:
+    std_per_particle = plot_data["locstd"]
+    _add_rolling_average(
+        axs[3],
         steps,
         std_per_particle,
         "std(E_L) / N",
         rolling_window,
-        color="#2f7d57")
-    axs[1].set_ylabel("std(E_L) / N")
+        color="#64748b")
+    axs[3].set_ylabel("locstd / N")
     if (std_per_particle > 0).all():
-      axs[1].set_yscale("log")
-    std_at_best = selection.row["locstd"] / params.num_bosons
+      axs[3].set_yscale("log")
+      _set_robust_ylim(axs[3], [std_per_particle], positive_only=True)
+    else:
+      _set_robust_ylim(axs[3], [std_per_particle])
+    std_at_best = selection.row["locstd"]
     _add_text_box(
-        axs[1],
+        axs[3],
         f"std(E_L)/N at best = {_format_float(std_at_best)}")
-    axs[1].legend(fontsize=8)
+    axs[3].legend(fontsize=8)
   elif "ewvar" in plot_data:
-    ewstd_per_particle = (plot_data["ewvar"] ** 0.5) / params.num_bosons
+    ewstd_per_particle = plot_data["ewvar"] ** 0.5
     _add_rolling_average(
-        axs[1],
+        axs[3],
         steps,
         ewstd_per_particle,
         "EW std(E_L) / N",
         rolling_window,
-        color="#2f7d57")
-    axs[1].set_ylabel("EW std(E_L) / N")
+        color="#64748b")
+    axs[3].set_ylabel("EW std / N")
     if (ewstd_per_particle > 0).all():
-      axs[1].set_yscale("log")
-    ewstd_at_best = (selection.row["ewvar"] ** 0.5) / params.num_bosons
-    _add_text_box(
-        axs[1],
-        f"EW std(E_L)/N at best = {_format_float(ewstd_at_best)}")
-    axs[1].legend(fontsize=8)
-  else:
-    axs[1].text(0.5, 0.5, "std unavailable", ha="center", va="center")
-
-  if "mcmc_width" in plot_data:
-    _add_rolling_average(
-        axs[2],
-        steps,
-        plot_data["mcmc_width"],
-        "MCMC move width",
-        rolling_window,
-        color="#c7364f")
-    axs[2].set_ylabel("MCMC move width")
-    if (plot_data["mcmc_width"] > 0).all():
-      axs[2].set_yscale("log")
-    _add_text_box(
-        axs[2],
-        f"final width = {_format_float(plot_data['mcmc_width'].iloc[-1])}")
-    axs[2].legend(fontsize=8)
-  else:
-    axs[2].text(0.5, 0.5, "mcmc_width unavailable", ha="center", va="center")
-
-  if "pmove" in plot_data:
-    _add_rolling_average(
-        axs[3],
-        steps,
-        plot_data["pmove"],
-        "pmove",
-        rolling_window,
-        color="#a36f00")
-    axs[3].set_ylabel("MCMC acceptance")
-    axs[3].set_ylim(0.0, 1.0)
+      axs[3].set_yscale("log")
+      _set_robust_ylim(axs[3], [ewstd_per_particle], positive_only=True)
+    else:
+      _set_robust_ylim(axs[3], [ewstd_per_particle])
     axs[3].legend(fontsize=8)
   else:
-    axs[3].text(0.5, 0.5, "pmove unavailable", ha="center", va="center")
+    axs[3].text(0.5, 0.5, "locstd unavailable",
+                ha="center", va="center")
 
   for ax in axs:
     ax.grid(alpha=0.25, linewidth=0.5)
   axs[-1].set_xlabel("step")
 
   fig.suptitle(
-      f"Training diagnostics: {_format_run_title(params)}",
+      f"Energy diagnostics: {_format_run_title(params)}",
       y=0.995)
   fig.tight_layout(rect=(0.0, 0.0, 1.0, 0.985))
-  output_path = params.path / "fig_training_diagnostics_overview.png"
+  output_path = params.path / "fig_training_energy_components.png"
+  fig.savefig(output_path, dpi=200)
+  print(f"Saved {output_path}")
+  plt.close(fig)
+
+
+def _plot_mcmc_diagnostics(
+    params: RunParams,
+    plot_data: pd.DataFrame,
+    rolling_window: int,
+) -> None:
+  fig, axs = plt.subplots(4, 1, figsize=(9.5, 11.5), sharex=True)
+  axs = axs.ravel()
+  steps = plot_data["step"]
+
+  if "pmove" in plot_data:
+    _add_rolling_average(
+        axs[0],
+        steps,
+        plot_data["pmove"],
+        "pmove",
+        rolling_window,
+        color=COLORS["acceptance"])
+    axs[0].set_ylabel("acceptance")
+    axs[0].set_ylim(0.0, 1.0)
+    axs[0].legend(fontsize=8)
+  else:
+    axs[0].text(0.5, 0.5, "pmove unavailable", ha="center", va="center")
+
+  if "mcmc_width" in plot_data:
+    _add_rolling_average(
+        axs[1],
+        steps,
+        plot_data["mcmc_width"],
+        "MCMC move width",
+        rolling_window,
+        color=COLORS["width"])
+    axs[1].set_ylabel("move width")
+    if (plot_data["mcmc_width"] > 0).all():
+      axs[1].set_yscale("log")
+    _add_text_box(
+        axs[1],
+        f"final width = {_format_float(plot_data['mcmc_width'].iloc[-1])}")
+    axs[1].legend(fontsize=8)
+  else:
+    axs[1].text(0.5, 0.5, "mcmc_width unavailable", ha="center", va="center")
+
+  if "mcmc_esjd_per_particle" in plot_data:
+    _add_rolling_average(
+        axs[2],
+        steps,
+        plot_data["mcmc_esjd_per_particle"],
+        "ESJD / particle",
+        rolling_window,
+        color=COLORS["esjd"])
+    axs[2].set_ylabel("ESJD / particle")
+    if (plot_data["mcmc_esjd_per_particle"] > 0).all():
+      axs[2].set_yscale("log")
+    axs[2].legend(fontsize=8)
+  else:
+    axs[2].text(
+        0.5, 0.5, "mcmc_esjd_per_particle unavailable",
+        ha="center", va="center")
+
+  if "mcmc_esjd_per_moved_particle" in plot_data:
+    _add_rolling_average(
+        axs[3],
+        steps,
+        plot_data["mcmc_esjd_per_moved_particle"],
+        "ESJD / moved particle",
+        rolling_window,
+        color=COLORS["esjd_moved"])
+    axs[3].set_ylabel("ESJD / moved")
+    if (plot_data["mcmc_esjd_per_moved_particle"] > 0).all():
+      axs[3].set_yscale("log")
+    axs[3].legend(fontsize=8)
+  else:
+    axs[3].text(
+        0.5, 0.5, "mcmc_esjd_per_moved_particle unavailable",
+        ha="center", va="center")
+
+  for ax in axs:
+    ax.grid(alpha=0.25, linewidth=0.5)
+  axs[-1].set_xlabel("step")
+
+  fig.suptitle(
+      f"MCMC diagnostics: {_format_run_title(params)}",
+      y=0.995)
+  fig.tight_layout(rect=(0.0, 0.0, 1.0, 0.985))
+  output_path = params.path / "fig_training_mcmc_diagnostics.png"
   fig.savefig(output_path, dpi=200)
   print(f"Saved {output_path}")
   plt.close(fig)
@@ -393,7 +574,10 @@ def _evaluate_run(
     skip_existing: bool,
     write_extra_figures: bool = True,
 ) -> None:
-  required_outputs = [run_dir / "fig_training_diagnostics_overview.png"]
+  required_outputs = [
+      run_dir / "fig_training_energy_components.png",
+      run_dir / "fig_training_mcmc_diagnostics.png",
+  ]
   if write_extra_figures:
     required_outputs.append(run_dir / "fig_training_energy_trace.png")
   if skip_existing and all(path.exists() for path in required_outputs):
@@ -404,15 +588,16 @@ def _evaluate_run(
   train_data = _load_train_stats(run_dir)
   if "step" not in train_data or "energy" not in train_data:
     raise ValueError(f"{run_dir} train stats must contain step and energy columns")
-  if len(train_data) <= burn_in_cut:
+  plot_data = train_data[train_data["step"] >= burn_in_cut].reset_index(drop=True)
+  if plot_data.empty:
     print(
-        f"Only {len(train_data)} rows found in {run_dir.name}; plotting all rows "
-        f"instead of applying cut {burn_in_cut}.")
-    burn_in_cut = 0
-  plot_data = train_data.iloc[burn_in_cut:].reset_index(drop=True)
+        f"No rows at or after step {burn_in_cut} in {run_dir.name}; plotting "
+        "all rows instead.")
+    plot_data = train_data.reset_index(drop=True)
   if write_extra_figures:
     _plot_energy(params, plot_data)
-  _plot_training_diagnostics(params, plot_data, rolling_window)
+  _plot_energy_components(params, plot_data, rolling_window)
+  _plot_mcmc_diagnostics(params, plot_data, rolling_window)
 
 
 def _select_run_dirs(run_dir: Path | None, scan_dir: Path, pattern: str) -> list[Path]:
@@ -439,8 +624,18 @@ def main() -> None:
   )
   parser.add_argument("--scan-dir", type=Path, default=DEFAULT_SCAN_DIR)
   parser.add_argument("--pattern", default=DEFAULT_PATTERN)
-  parser.add_argument("--burn-in-cut", type=int, default=0)
-  parser.add_argument("--rolling-window", type=int, default=100)
+  parser.add_argument(
+      "--burn-in-cut",
+      type=int,
+      default=0,
+      help="Drop rows with training step smaller than this value.",
+  )
+  parser.add_argument(
+      "--rolling-window",
+      type=int,
+      default=100,
+      help="Rolling-mean window in optimizer steps, not saved CSV rows.",
+  )
   parser.add_argument(
       "--skip-existing",
       action="store_true",

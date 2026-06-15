@@ -27,19 +27,19 @@ class BilayerDefaults:
   """Shared defaults for bilayer runners and config construction."""
 
   # Physical system.
-  num_bosons: int = 16
-  layer_occupations: tuple[int, int] = (8, 8)
-  layer_separation: float = 1.5
-  dipole_strength: float = 20.0
+  num_bosons: int = 6
+  layer_occupations: tuple[int, int] = (3, 3)
+  layer_separation: float = 1.0
+  dipole_strength: float = 6.0
   supercell_shape: str = "sq"
-  density_rs: float = 0.5
+  density_rs: float = 1.0
   seed: int = 42
 
   # Run control.
   burn_in_iterations: int = 0
   bold_iterations: int = 1000
   retune_iterations: int = 1000
-  fine_iterations: int = 3000
+  fine_iterations: int = 2000
   results_dir: str = "results"
   restore_path: str = ""
   reset_iteration_on_restore: bool = False
@@ -49,7 +49,7 @@ class BilayerDefaults:
   batch_size: int = 2048
   stats_frequency: int = 10
   save_frequency_minutes: float = 30.0
-  best_checkpoint_min_step: int = 2000
+  best_checkpoint_min_step: int = 500
   best_checkpoint_metric: str = "ewmean_std"
   best_checkpoint_std_weight: float = 1.0
 
@@ -67,8 +67,11 @@ class BilayerDefaults:
   value_dim: int = 16
   num_perceptrons_per_layer: int = 2
   use_distance_attention_bias: bool = True
-  distance_bias_num_rbf: int = 16
-  distance_bias_eps: float = 1.0e-6
+  distance_attention_bias_num_rbf: int = 16
+  distance_attention_bias_eps: float = 1.0e-6
+  distance_attention_bias_scale: float = 0.1
+  use_dipole_attention_bias: bool = True
+  dipole_attention_bias_scale: float = 1.0
 
   # MCMC defaults shared by stages unless overridden.
   init_width_fraction: float = 1.0e-3
@@ -234,7 +237,11 @@ def _configure_system(
   }
 
 
-def _configure_network(cfg: ml_collections.ConfigDict) -> None:
+def _configure_network(
+    cfg: ml_collections.ConfigDict,
+    *,
+    dipole_strength: float,
+) -> None:
   cfg.network.network_type = "BosonNet"
   cfg.network.complex = False
   cfg.network.BosonNet.architecture = "Transformer"
@@ -249,8 +256,17 @@ def _configure_network(cfg: ml_collections.ConfigDict) -> None:
   cfg.network.BosonNet.mlp_activation_fct = "GELU"
   cfg.network.BosonNet.use_distance_attention_bias = (
       DEFAULTS.use_distance_attention_bias)
-  cfg.network.BosonNet.distance_bias_num_rbf = DEFAULTS.distance_bias_num_rbf
-  cfg.network.BosonNet.distance_bias_eps = DEFAULTS.distance_bias_eps
+  cfg.network.BosonNet.distance_attention_bias_num_rbf = (
+      DEFAULTS.distance_attention_bias_num_rbf)
+  cfg.network.BosonNet.distance_attention_bias_eps = (
+      DEFAULTS.distance_attention_bias_eps)
+  cfg.network.BosonNet.distance_attention_bias_scale = (
+      DEFAULTS.distance_attention_bias_scale)
+  cfg.network.BosonNet.use_dipole_attention_bias = (
+      DEFAULTS.use_dipole_attention_bias)
+  cfg.network.BosonNet.dipole_attention_bias_scale = (
+      DEFAULTS.dipole_attention_bias_scale)
+  cfg.network.BosonNet.dipole_strength = dipole_strength
 
 
 def _configure_mcmc(
@@ -345,7 +361,7 @@ def build_config(
       layer_separation=layer_separation,
       dipole_strength=dipole_strength,
       lattice=lattice)
-  _configure_network(cfg)
+  _configure_network(cfg, dipole_strength=dipole_strength)
   _configure_mcmc(cfg, lattice=lattice)
   _configure_runtime(
       cfg,

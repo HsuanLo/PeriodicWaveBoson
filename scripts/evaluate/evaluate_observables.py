@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
-import json
 import os
 import re
 import sys
@@ -47,7 +46,7 @@ RUN_RE = re.compile(
     r"N(?P<num_bosons>\d+)_layers(?P<layer_a>\d+)_(?P<layer_b>\d+)"
     r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)"
     r"(?:_seed(?P<seed>\d+))?_"
-    r"(?P<cell>[^/]+)$"
+    r"(?P<cell>sq|tri)(?:_[^/]+)?$"
 )
 
 
@@ -224,134 +223,6 @@ def _minimum_image(params: RunParams, displacements: np.ndarray) -> np.ndarray:
   return np.einsum("ij,...j->...i", params.lat_vec, frac)
 
 
-def _default_potential_config(params: RunParams) -> tuple[float, dict]:
-  area = abs(np.linalg.det(params.lat_vec))
-  return params.d, {
-      "dipole_strength": params.dipole_strength,
-      "softening": 1e-2,
-      "use_ewald": True,
-      "ewald_alpha": 10.0 / np.sqrt(area),
-      "ewald_real_cut": 2,
-      "ewald_kmax": 12,
-      "ewald_geometry": "xy_periodic_open_z",
-  }
-
-
-def _load_potential_config(params: RunParams) -> tuple[float, dict]:
-  config_path = params.path / "config.json"
-  layer_separation, potential_kwargs = _default_potential_config(params)
-  if not config_path.exists():
-    return layer_separation, potential_kwargs
-
-  with config_path.open(encoding="utf-8") as f:
-    config = json.load(f)
-  local_energy_kwargs = (
-      config.get("system", {}).get("make_local_energy_kwargs", {}))
-  if local_energy_kwargs.get("potential_type", "Dipolar") != "Dipolar":
-    raise NotImplementedError(
-        "Dipole component evaluation only supports potential_type='Dipolar'.")
-  layer_separation = float(
-      local_energy_kwargs.get("layer_separation", layer_separation))
-  potential_kwargs = dict(
-      local_energy_kwargs.get("potential_kwargs", potential_kwargs))
-  return layer_separation, potential_kwargs
-
-
-def _make_dipole_component_potential(params: RunParams):
-  import jax.numpy as jnp
-
-  from periodicwave.pbc import bilayer_hamiltonian
-
-  layer_separation, potential_kwargs = _load_potential_config(params)
-  potential_kwargs = dict(potential_kwargs)
-  use_ewald = potential_kwargs.pop("use_ewald", False)
-  ewald_kwargs = {
-      "ewald_alpha": potential_kwargs.pop("ewald_alpha", None),
-      "ewald_real_cut": potential_kwargs.pop("ewald_real_cut", 4),
-      "ewald_kmax": potential_kwargs.pop("ewald_kmax", 8),
-      "ewald_geometry": potential_kwargs.pop(
-          "ewald_geometry", "xy_periodic_open_z"),
-  }
-  potential_kwargs.pop("ewald_truncation", None)
-
-  if use_ewald:
-    return bilayer_hamiltonian.make_ewald_bilayer_potential(
-        lattice=jnp.asarray(params.lat_vec),
-        layer_separation=layer_separation,
-        return_components=True,
-        **potential_kwargs,
-        **ewald_kwargs)
-  return bilayer_hamiltonian.make_direct_bilayer_potential(
-      lattice=jnp.asarray(params.lat_vec),
-      layer_separation=layer_separation,
-      return_components=True,
-      **potential_kwargs)
-
-
-def _compute_dipole_components(
-    params: RunParams,
-    positions: np.ndarray,
-    chunk_size: int = 256,
-) -> dict[str, np.ndarray]:
-  import jax
-  import jax.numpy as jnp
-
-  component_potential = _make_dipole_component_potential(params)
-  layer_labels = jnp.asarray(params.layer_assignment)
-
-  @jax.jit
-  @jax.vmap
-  def batch_components(config):
-    return component_potential(config, layer_labels)
-
-  chunks = []
-  for start in range(0, positions.shape[0], chunk_size):
-    chunk = jnp.asarray(positions[start:start + chunk_size])
-    chunks.append(jax.tree_util.tree_map(np.asarray, batch_components(chunk)))
-  return {
-      key: np.concatenate([chunk[key] for chunk in chunks])
-      for key in chunks[0]
-  }
-
-
-def _save_dipole_energy_components(
-    params: RunParams,
-    positions: np.ndarray,
-) -> None:
-  components = _compute_dipole_components(params, positions)
-  intra = components["intra"]
-  inter = components["inter"]
-  total = components["total"]
-  mean_intra = float(np.mean(intra))
-  mean_inter = float(np.mean(inter))
-  mean_total = float(np.mean(total))
-  ratio = mean_intra / mean_inter if mean_inter != 0.0 else np.nan
-  ratio_abs = mean_intra / abs(mean_inter) if mean_inter != 0.0 else np.nan
-  inter_fraction = mean_inter / mean_total if mean_total != 0.0 else np.nan
-
-  summary = np.array([[
-      mean_intra,
-      mean_inter,
-      mean_total,
-      float(np.std(intra)),
-      float(np.std(inter)),
-      float(np.std(total)),
-      ratio,
-      ratio_abs,
-      inter_fraction,
-      positions.shape[0],
-  ]])
-  header = (
-      "dipole_intra,dipole_inter,dipole_total,"
-      "dipole_intra_std,dipole_inter_std,dipole_total_std,"
-      "intra_over_inter,intra_over_abs_inter,inter_over_total,nconfigs")
-  csv_path = params.path / "dipole_energy_components.csv"
-  np.savetxt(csv_path, summary, delimiter=",", header=header, comments="")
-  print(
-      f"Saved {csv_path} "
-      f"(intra/inter={ratio:.6g}, intra/abs(inter)={ratio_abs:.6g})")
-
-
 def _scatter_density(
     ax,
     params: RunParams,
@@ -507,6 +378,67 @@ def _compute_layer_pair_correlation(
   return centers, gr
 
 
+def _pair_correlation_xy_edges(
+    params: RunParams,
+    nbins: int,
+) -> tuple[np.ndarray, np.ndarray]:
+  outline = _cell_outline(params)
+  xmin, xmax = outline[:, 0].min(), outline[:, 0].max()
+  ymin, ymax = outline[:, 1].min(), outline[:, 1].max()
+  return np.linspace(xmin, xmax, nbins + 1), np.linspace(ymin, ymax, nbins + 1)
+
+
+def _compute_layer_pair_correlation_xy(
+    params: RunParams,
+    positions: np.ndarray,
+    mask_a: np.ndarray,
+    mask_b: np.ndarray,
+    nbins: int,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+  area = abs(np.linalg.det(params.lat_vec))
+  xedges, yedges = _pair_correlation_xy_edges(params, nbins)
+  counts = np.zeros((nbins, nbins))
+  same_layer = np.array_equal(mask_a, mask_b)
+
+  for config in positions:
+    pos_a = config[mask_a]
+    pos_b = config[mask_b]
+    disp = pos_a[:, None, :] - pos_b[None, :, :]
+    disp = _minimum_image(params, disp)
+    if same_layer:
+      disp = disp[~np.eye(pos_a.shape[0], dtype=bool)]
+    else:
+      disp = disp.reshape((-1, 2))
+    counts += np.histogram2d(
+        disp[:, 0],
+        disp[:, 1],
+        bins=(xedges, yedges))[0]
+
+  bin_area = np.diff(xedges)[:, None] * np.diff(yedges)[None, :]
+  density_b = np.count_nonzero(mask_b) / area
+  ideal_counts = (
+      positions.shape[0] * np.count_nonzero(mask_a) * density_b * bin_area)
+
+  gxy = np.divide(
+      counts,
+      ideal_counts,
+      out=np.full_like(counts, np.nan, dtype=float),
+      where=ideal_counts > 0)
+
+  # For non-rectangular cells, the Cartesian histogram bounds include corners
+  # outside the primitive-cell parallelogram used by the minimum-image map.
+  xcenters = 0.5 * (xedges[:-1] + xedges[1:])
+  ycenters = 0.5 * (yedges[:-1] + yedges[1:])
+  xx, yy = np.meshgrid(xcenters, ycenters, indexing="ij")
+  frac = np.einsum(
+      "ij,...j->...i",
+      np.linalg.inv(params.lat_vec),
+      np.stack([xx, yy], axis=-1))
+  inside_cell = np.all((frac >= -0.5) & (frac < 0.5), axis=-1)
+  gxy[~inside_cell] = np.nan
+  return xedges, yedges, gxy
+
+
 def _save_pair_correlation(
     params: RunParams,
     positions: np.ndarray,
@@ -570,6 +502,65 @@ def _save_layer_pair_correlations(
   csv_path = params.path / "pair_correlation_gr_by_layer.csv"
   np.savetxt(csv_path, data, delimiter=",", header=header, comments="")
   print(f"Saved {csv_path}")
+
+
+def _save_layer_pair_correlation_xy(
+    params: RunParams,
+    positions: np.ndarray,
+    nbins: int,
+) -> None:
+  top = params.layer_assignment == 1.0
+  bottom = params.layer_assignment == -1.0
+  curves = [
+      ("top-top", top, top),
+      ("bottom-bottom", bottom, bottom),
+      ("top-bottom", top, bottom),
+  ]
+
+  results = []
+  for label, mask_a, mask_b in curves:
+    xedges, yedges, gxy = _compute_layer_pair_correlation_xy(
+        params, positions, mask_a, mask_b, nbins)
+    results.append((label, xedges, yedges, gxy))
+
+  finite_arrays = [
+      gxy[np.isfinite(gxy)].ravel()
+      for _, _, _, gxy in results
+      if np.any(np.isfinite(gxy))
+  ]
+  finite_values = (
+      np.concatenate(finite_arrays) if finite_arrays else np.asarray([1.0]))
+  vmax = float(np.percentile(finite_values, 99.0)) if finite_values.size else 1.0
+  vmax = max(vmax, 1.0)
+
+  fig, axs = plt.subplots(
+      1,
+      len(results),
+      figsize=(4.2 * len(results), 4.2),
+      constrained_layout=True)
+  axs = np.atleast_1d(axs)
+  mesh = None
+  for ax, (label, xedges, yedges, gxy) in zip(axs, results):
+    mesh = ax.pcolormesh(
+        xedges,
+        yedges,
+        gxy.T,
+        cmap="viridis",
+        shading="auto",
+        vmin=0.0,
+        vmax=vmax)
+    ax.set_aspect("equal", adjustable="box")
+    ax.set_xlabel("x separation")
+    ax.set_ylabel("y separation")
+    ax.set_title(label)
+  if mesh is not None:
+    fig.colorbar(mesh, ax=axs, shrink=0.86, label="g(x, y)")
+  fig.suptitle(
+      f"Layer-resolved pair correlation g(x, y): {_format_run_title(params)}")
+  path = params.path / "fig_pair_correlation_gxy_by_layer.png"
+  fig.savefig(path, dpi=200)
+  print(f"Saved {path}")
+  plt.close(fig)
 
 
 def _save_density_plots(
@@ -790,7 +781,7 @@ def _outputs_exist(run_dir: Path, write_extra_figures: bool = True) -> bool:
   names = [
       "fig_density_structure_overview.png",
       "fig_pair_correlation_gr_by_layer.png",
-      "dipole_energy_components.csv",
+      "fig_pair_correlation_gxy_by_layer.png",
   ]
   if write_extra_figures:
     names.extend([
@@ -828,10 +819,10 @@ def _evaluate_run(
   if write_extra_figures:
     _save_pair_correlation(params, positions, pair_correlation_bins)
   _save_layer_pair_correlations(params, positions, pair_correlation_bins)
+  _save_layer_pair_correlation_xy(params, positions, pair_correlation_bins)
   if write_extra_figures:
     _save_structure_factor(params, positions, kmax)
     _save_layer_structure_factors(params, positions, kmax)
-  _save_dipole_energy_components(params, positions)
 
 
 def _select_run_dirs(run_dir: Path | None, scan_dir: Path, pattern: str) -> list[Path]:

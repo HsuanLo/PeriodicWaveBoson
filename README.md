@@ -203,3 +203,5 @@ inside the run folder.
 
 For the `scan_260603` scan, omit these arguments and the evaluators will use
 their default scan directory and pattern.
+
+LLsub scripts/submit/submit.sh [10,2,20] -g volta:1  -- scripts/train/run_bilayer_D_d_scan.py   --results-dir results/D_d_scan_N16_rs1.0_sq

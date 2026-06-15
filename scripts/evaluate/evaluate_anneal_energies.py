@@ -31,7 +31,7 @@ RUN_RE = re.compile(
     r"N(?P<num_bosons>\d+)_layers(?P<layer_a>\d+)_(?P<layer_b>\d+)"
     r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)"
     r"(?:_seed(?P<seed>\d+))?_"
-    r"(?P<cell>[^/]+)$"
+    r"(?P<cell>sq|tri)(?:_[^/]+)?$"
 )
 
 

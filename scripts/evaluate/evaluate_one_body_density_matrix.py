@@ -66,12 +66,21 @@ DEFAULT_SCAN_DIR = (
     / "BosonNet"
     / "scan_260603"
 )
-DEFAULT_PATTERN = "N24_layers12_12_rs*_d*_D20.0*_sq"
+DEFAULT_PATTERN = "N*_layers*_*_rs*_d*_D*_sq"
+DEFAULT_MAX_CONFIGS = 1024
+DEFAULT_KMAX = 4
+DEFAULT_NUM_REPLACEMENT_POINTS = 128
+DEFAULT_PARTICLES_PER_LAYER = 0
+DEFAULT_CHUNK_SIZE = 2048
+QUICK_MAX_CONFIGS = 256
+QUICK_KMAX = 3
+QUICK_NUM_REPLACEMENT_POINTS = 32
+QUICK_PARTICLES_PER_LAYER = 2
 RUN_RE = re.compile(
     r"N(?P<num_bosons>\d+)_layers(?P<layer_a>\d+)_(?P<layer_b>\d+)"
     r"_rs(?P<rs>[0-9.]+)_d(?P<d>[0-9.]+)_D(?P<dipole>[0-9.]+)"
     r"(?:_seed(?P<seed>\d+))?_"
-    r"(?P<cell>[^/]+)$"
+    r"(?P<cell>sq|tri)(?:_[^/]+)?$"
 )
 
 
@@ -749,13 +758,14 @@ def _evaluate_run(
     chunk_size: int,
     seed: int,
     skip_existing: bool,
+    output_suffix: str,
 ) -> None:
-  output_top = run_dir / "one_body_density_matrix_momentum_top.csv"
-  output_bottom = run_dir / "one_body_density_matrix_momentum_bottom.csv"
-  output_occupations = run_dir / "one_body_density_matrix_momentum_occupations.csv"
-  output_eigenvalues = run_dir / "one_body_density_matrix_momentum_eigenvalues.csv"
-  output_png = run_dir / "fig_obdm_momentum_space.png"
-  output_nk_map_png = run_dir / "fig_obdm_momentum_nk_map.png"
+  output_top = run_dir / f"one_body_density_matrix_momentum_top{output_suffix}.csv"
+  output_bottom = run_dir / f"one_body_density_matrix_momentum_bottom{output_suffix}.csv"
+  output_occupations = run_dir / f"one_body_density_matrix_momentum_occupations{output_suffix}.csv"
+  output_eigenvalues = run_dir / f"one_body_density_matrix_momentum_eigenvalues{output_suffix}.csv"
+  output_png = run_dir / f"fig_obdm_momentum_space{output_suffix}.png"
+  output_nk_map_png = run_dir / f"fig_obdm_momentum_nk_map{output_suffix}.png"
   outputs = [
       output_top,
       output_bottom,
@@ -866,6 +876,10 @@ def _select_run_dirs(run_dir: Path | None, scan_dir: Path, pattern: str) -> list
   return run_dirs
 
 
+def _resolve_int_arg(value: int | None, default: int) -> int:
+  return default if value is None else value
+
+
 def main() -> None:
   parser = argparse.ArgumentParser(description=__doc__)
   parser.add_argument(
@@ -876,33 +890,89 @@ def main() -> None:
   )
   parser.add_argument("--scan-dir", type=Path, default=DEFAULT_SCAN_DIR)
   parser.add_argument("--pattern", default=DEFAULT_PATTERN)
-  parser.add_argument("--max-configs", type=int, default=1024, help="Maximum number of configurations to use for each run.")
+  parser.add_argument(
+      "--quick",
+      action="store_true",
+      help=(
+          "Use low-sample preview settings unless explicitly overridden: "
+          f"--max-configs={QUICK_MAX_CONFIGS}, --kmax={QUICK_KMAX}, "
+          f"--num-replacement-points={QUICK_NUM_REPLACEMENT_POINTS}, "
+          f"--particles-per-layer={QUICK_PARTICLES_PER_LAYER}."
+      ),
+  )
+  parser.add_argument(
+      "--max-runs",
+      type=int,
+      default=0,
+      help="Evaluate at most this many matched run directories; use 0 for all.",
+  )
+  parser.add_argument(
+      "--output-suffix",
+      default=None,
+      help=(
+          "Suffix to add before output file extensions. Defaults to '_quick' "
+          "with --quick and '' otherwise."
+      ),
+  )
+  parser.add_argument(
+      "--max-configs",
+      type=int,
+      default=None,
+      help="Maximum number of configurations to use for each run.",
+  )
   parser.add_argument(
       "--kmax",
       type=int,
-      default=4,
+      default=None,
       help="Use reciprocal modes -kmax..kmax along each lattice direction.",
   )
   parser.add_argument(
       "--num-replacement-points",
       type=int,
-      default=128,
+      default=None,
       help="Uniform absolute particle replacement points sampled in the cell.",
   )
   parser.add_argument(
       "--particles-per-layer",
       type=int,
-      default=0,
+      default=None,
       help="Use this many particles per layer; use 0 for all particles.",
   )
-  parser.add_argument("--chunk-size", type=int, default=2048)
+  parser.add_argument("--chunk-size", type=int, default=None)
   parser.add_argument("--seed", type=int, default=1)
   parser.add_argument("--skip-existing", action="store_true")
   args = parser.parse_args()
 
   _require_jax()
 
+  quick_default = {
+      "max_configs": QUICK_MAX_CONFIGS,
+      "kmax": QUICK_KMAX,
+      "num_replacement_points": QUICK_NUM_REPLACEMENT_POINTS,
+      "particles_per_layer": QUICK_PARTICLES_PER_LAYER,
+      "chunk_size": DEFAULT_CHUNK_SIZE,
+  }
+  normal_default = {
+      "max_configs": DEFAULT_MAX_CONFIGS,
+      "kmax": DEFAULT_KMAX,
+      "num_replacement_points": DEFAULT_NUM_REPLACEMENT_POINTS,
+      "particles_per_layer": DEFAULT_PARTICLES_PER_LAYER,
+      "chunk_size": DEFAULT_CHUNK_SIZE,
+  }
+  defaults = quick_default if args.quick else normal_default
+  args.max_configs = _resolve_int_arg(args.max_configs, defaults["max_configs"])
+  args.kmax = _resolve_int_arg(args.kmax, defaults["kmax"])
+  args.num_replacement_points = _resolve_int_arg(
+      args.num_replacement_points, defaults["num_replacement_points"])
+  args.particles_per_layer = _resolve_int_arg(
+      args.particles_per_layer, defaults["particles_per_layer"])
+  args.chunk_size = _resolve_int_arg(args.chunk_size, defaults["chunk_size"])
+  if args.output_suffix is None:
+    args.output_suffix = "_quick" if args.quick else ""
+
   run_dirs = _select_run_dirs(args.run_dir, args.scan_dir, args.pattern)
+  if args.max_runs > 0:
+    run_dirs = run_dirs[:args.max_runs]
 
   failures = []
   for idx, run_dir in enumerate(run_dirs, start=1):
@@ -917,6 +987,7 @@ def main() -> None:
           args.chunk_size,
           args.seed,
           args.skip_existing,
+          args.output_suffix,
       )
     except Exception as exc:  # pylint: disable=broad-exception-caught
       failures.append((run_dir, exc))

@@ -33,8 +33,12 @@ class BosonNetOptions(networks.BaseNetworkOptions):
   mlp_activation_fct: str = "GELU"
   layer_separation: float = 1.0
   use_distance_attention_bias: bool = False
-  distance_bias_num_rbf: int = 16
-  distance_bias_eps: float = 1.0e-6
+  distance_attention_bias_num_rbf: int = 16
+  distance_attention_bias_eps: float = 1.0e-6
+  distance_attention_bias_scale: float = 1.0
+  use_dipole_attention_bias: bool = False
+  dipole_attention_bias_scale: float = 1.0
+  dipole_strength: float = 1.0
 
 
 def _activation(name: str):
@@ -98,34 +102,57 @@ def _minimum_image_xy(displacements: jnp.ndarray,
   """Folds xy displacement vectors into the first periodic cell."""
   rec_no_2pi = jnp.linalg.inv(lattice)
   fractional = jnp.einsum("ij,...j->...i", rec_no_2pi, displacements)
-  fractional = (fractional + 0.5) % 1.0 - 0.5
+  image = jnp.floor(jax.lax.stop_gradient(fractional) + 0.5)
+  fractional = fractional - image
   return jnp.einsum("ij,...j->...i", lattice, fractional)
 
 
 def make_pair_distance_bias(num_heads: int,
-                            num_rbf: int,
+                            distance_attention_bias_num_rbf: int,
                             lattice: jnp.ndarray,
-                            eps: float):
+                            distance_attention_bias_eps: float,
+                            distance_attention_bias_scale: float,
+                            layer_separation: float,
+                            use_dipole_attention_bias: bool,
+                            dipole_attention_bias_scale: float,
+                            dipole_strength: float,
+                            density_rs: float):
   """Creates an RBF pair-distance attention bias builder."""
 
-  if num_rbf <= 0:
-    raise ValueError("distance_bias_num_rbf must be positive.")
+  if distance_attention_bias_num_rbf <= 0:
+    raise ValueError("distance_attention_bias_num_rbf must be positive.")
+  if distance_attention_bias_scale < 0.0:
+    raise ValueError("distance_attention_bias_scale must be nonnegative.")
+  if dipole_attention_bias_scale < 0.0:
+    raise ValueError("dipole_attention_bias_scale must be nonnegative.")
+  if density_rs <= 0.0:
+    raise ValueError("density_rs must be positive.")
 
   box_width = jnp.min(jnp.linalg.norm(lattice, axis=0))
   max_distance = 0.5 * box_width
-  centers = jnp.linspace(0.0, max_distance, num_rbf)
-  if num_rbf == 1:
+  centers = jnp.linspace(0.0, max_distance, distance_attention_bias_num_rbf)
+  kinetic_energy_scale = 1.0 / (density_rs ** 2 + distance_attention_bias_eps)
+  typical_dipole_kernel = 1.0 / (
+      (density_rs ** 2 + layer_separation ** 2
+       + distance_attention_bias_eps) ** 1.5)
+  if distance_attention_bias_num_rbf == 1:
     gamma = jnp.asarray(1.0)
   else:
     spacing = centers[1] - centers[0]
-    gamma = jax.lax.rsqrt(spacing ** 2 + eps) ** 2
+    gamma = jax.lax.rsqrt(spacing ** 2 + distance_attention_bias_eps) ** 2
 
   def init(key: chex.PRNGKey) -> Mapping[str, jnp.ndarray]:
     del key
-    return {
-        "intra_w": jnp.zeros((num_rbf, num_heads)),
-        "inter_w": jnp.zeros((num_rbf, num_heads)),
+    params = {
+        "distance_intra_w":
+            jnp.zeros((distance_attention_bias_num_rbf, num_heads)),
+        "distance_inter_w":
+            jnp.zeros((distance_attention_bias_num_rbf, num_heads)),
     }
+    if use_dipole_attention_bias:
+      params["dipole_intra_w"] = jnp.zeros((num_heads,))
+      params["dipole_inter_w"] = jnp.zeros((num_heads,))
+    return params
 
   def apply(params: networks.ParamTree,
             pos: jnp.ndarray,
@@ -133,16 +160,42 @@ def make_pair_distance_bias(num_heads: int,
     xy = jnp.reshape(pos, [-1, 2])
     dxy = xy[:, None, :] - xy[None, :, :]
     dxy = _minimum_image_xy(dxy, lattice)
-    r = jnp.sqrt(jnp.sum(dxy ** 2, axis=-1) + eps)
+    rho2 = jnp.sum(dxy ** 2, axis=-1)
+    r = jnp.sqrt(rho2 + distance_attention_bias_eps)
     rbf = jnp.exp(-gamma * (r[..., None] - centers) ** 2)
-
-    intra = jnp.einsum("ijr,rh->hij", rbf, params["intra_w"])
-    inter = jnp.einsum("ijr,rh->hij", rbf, params["inter_w"])
     same_layer = layer_labels[:, None] == layer_labels[None, :]
-    bias = jnp.where(same_layer[None, :, :], intra, inter)
+    eye = jnp.eye(xy.shape[0], dtype=bool)
+    intra = jnp.einsum("ijr,rh->hij", rbf, params["distance_intra_w"])
+    inter = jnp.einsum("ijr,rh->hij", rbf, params["distance_inter_w"])
+    bias = distance_attention_bias_scale * jnp.where(
+        same_layer[None, :, :], intra, inter)
 
-    eye = jnp.eye(xy.shape[0], dtype=bias.dtype)[None, :, :]
-    return bias * (1.0 - eye)
+    if use_dipole_attention_bias:
+      dz = 0.5 * layer_separation * (
+          layer_labels[:, None] - layer_labels[None, :])
+      off_diagonal = ~eye
+      rho2_dipole = jnp.where(off_diagonal, rho2, density_rs ** 2)
+      dz2 = jnp.where(off_diagonal, dz ** 2, layer_separation ** 2)
+      r2 = rho2_dipole + dz2 + distance_attention_bias_eps
+      direct_dipole = (rho2_dipole - 2.0 * dz2) / (r2 ** 2.5)
+      direct_dipole = jnp.where(same_layer & off_diagonal,
+                                1.0 / (r2 ** 1.5), direct_dipole)
+      dipole_shape = direct_dipole / typical_dipole_kernel
+      bounded_dipole_shape = dipole_shape / jnp.hypot(1.0, dipole_shape)
+      dipole_coupling = (
+          dipole_strength * typical_dipole_kernel / kinetic_energy_scale)
+      strength_weighted_shape = jnp.where(
+          off_diagonal, dipole_coupling * bounded_dipole_shape, 0.0)
+      dipole_intra = jnp.einsum(
+          "ij,h->hij", strength_weighted_shape, params["dipole_intra_w"])
+      dipole_inter = jnp.einsum(
+          "ij,h->hij", strength_weighted_shape, params["dipole_inter_w"])
+      dipole_bias = jnp.where(same_layer[None, :, :], dipole_intra,
+                              dipole_inter)
+      bias = bias + dipole_attention_bias_scale * dipole_bias
+
+    off_diagonal = (~eye).astype(bias.dtype)[None, :, :]
+    return bias * off_diagonal
 
   return init, apply
 
@@ -154,15 +207,30 @@ def make_transformer_block(num_heads: int,
                            ff_dim: int,
                            activation_fct_name: str,
                            use_distance_attention_bias: bool,
-                           distance_bias_num_rbf: int,
-                           distance_bias_eps: float,
-                           lattice: jnp.ndarray):
+                           distance_attention_bias_num_rbf: int,
+                           distance_attention_bias_eps: float,
+                           distance_attention_bias_scale: float,
+                           lattice: jnp.ndarray,
+                           layer_separation: float,
+                           use_dipole_attention_bias: bool,
+                           dipole_attention_bias_scale: float,
+                           dipole_strength: float,
+                           density_rs: float):
   """Creates a pre-norm permutation-equivariant Transformer block."""
 
   activation_fct = _activation(activation_fct_name)
   ln_init, ln_apply = make_layer_norm()
   bias_init, bias_apply = make_pair_distance_bias(
-      num_heads, distance_bias_num_rbf, lattice, distance_bias_eps)
+      num_heads,
+      distance_attention_bias_num_rbf,
+      lattice,
+      distance_attention_bias_eps,
+      distance_attention_bias_scale,
+      layer_separation,
+      use_dipole_attention_bias,
+      dipole_attention_bias_scale,
+      dipole_strength,
+      density_rs)
 
   def init(key: chex.PRNGKey) -> Mapping[str, jnp.ndarray]:
     key, q_key, k_key, v_key, out_key, ff1_key, ff2_key, bias_key = (
@@ -250,8 +318,12 @@ def make_boson_net(
     use_layer_norm: bool,
     mlp_activation_fct: str,
     use_distance_attention_bias: bool = False,
-    distance_bias_num_rbf: int = 16,
-    distance_bias_eps: float = 1.0e-6,
+    distance_attention_bias_num_rbf: int = 16,
+    distance_attention_bias_eps: float = 1.0e-6,
+    distance_attention_bias_scale: float = 1.0,
+    use_dipole_attention_bias: bool = False,
+    dipole_attention_bias_scale: float = 1.0,
+    dipole_strength: float = 1.0,
 ) -> networks.Network:
   """Builds a permutation-symmetric bosonic wavefunction.
 
@@ -259,7 +331,7 @@ def make_boson_net(
   upper layer and -1 for the lower layer.
   """
 
-  del charges, layer_separation
+  del charges
   if complex_output:
     raise NotImplementedError("BosonNet currently implements real positive wavefunctions only.")
   if ndim != 2:
@@ -284,11 +356,17 @@ def make_boson_net(
       use_layer_norm=use_layer_norm,
       mlp_activation_fct=mlp_activation_fct,
       use_distance_attention_bias=use_distance_attention_bias,
-      distance_bias_num_rbf=distance_bias_num_rbf,
-      distance_bias_eps=distance_bias_eps,
+      distance_attention_bias_num_rbf=distance_attention_bias_num_rbf,
+      distance_attention_bias_eps=distance_attention_bias_eps,
+      distance_attention_bias_scale=distance_attention_bias_scale,
+      use_dipole_attention_bias=use_dipole_attention_bias,
+      dipole_attention_bias_scale=dipole_attention_bias_scale,
+      dipole_strength=dipole_strength,
   )
 
   num_bosons = int(sum(nspins))
+  cell_area = jnp.abs(jnp.linalg.det(pbc_lattice))
+  density_rs = jnp.sqrt(cell_area / (jnp.pi * num_bosons))
   input_dim = 2 * ndim + 1
   mlp_init, mlp_apply = make_mlp(mlp_activation_fct)
   ln_init, ln_apply = make_layer_norm()
@@ -300,9 +378,15 @@ def make_boson_net(
       ff_dim=4 * mlp_dim,
       activation_fct_name=mlp_activation_fct,
       use_distance_attention_bias=use_distance_attention_bias,
-      distance_bias_num_rbf=distance_bias_num_rbf,
-      distance_bias_eps=distance_bias_eps,
-      lattice=pbc_lattice)
+      distance_attention_bias_num_rbf=distance_attention_bias_num_rbf,
+      distance_attention_bias_eps=distance_attention_bias_eps,
+      distance_attention_bias_scale=distance_attention_bias_scale,
+      lattice=pbc_lattice,
+      layer_separation=layer_separation,
+      use_dipole_attention_bias=use_dipole_attention_bias,
+      dipole_attention_bias_scale=dipole_attention_bias_scale,
+      dipole_strength=dipole_strength,
+      density_rs=density_rs)
 
   def init(key: chex.PRNGKey) -> networks.ParamTree:
     params = {}
