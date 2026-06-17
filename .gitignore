@@ -3,4 +3,4 @@
 *.csv
 *.png
 *.log
-results/
+results/*
