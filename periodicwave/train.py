@@ -39,7 +39,6 @@ from periodicwave import network_interfaces as networks
 from periodicwave import BosonNet
 from periodicwave.utils import statistics
 from periodicwave.utils import writers
-from periodicwave.utils import jax_utils
 import jax
 from jax.experimental import multihost_utils
 import jax.numpy as jnp
@@ -156,6 +155,90 @@ def _jittered_layer_positions(
   frac = (frac + np.asarray(offset_fractional, dtype=np.float32)) % 1.0
   centered_frac = frac - 0.5
   return centered_frac @ np.asarray(lattice, dtype=np.float32).T
+
+
+def _fractional_candidates(grid_size: int) -> np.ndarray:
+  """Returns centered fractional candidate points for farthest initialization."""
+  vals = (np.arange(grid_size, dtype=np.float32) + 0.5) / grid_size
+  frac = np.stack(np.meshgrid(vals, vals, indexing="ij"), axis=-1).reshape(-1, 2)
+  return frac - 0.5
+
+
+def _periodic_dist2_fractional(
+    candidates: np.ndarray,
+    selected: np.ndarray,
+    lattice: np.ndarray,
+) -> np.ndarray:
+  """Returns squared minimum-image distances from candidates to selected points."""
+  delta_frac = candidates[:, None, :] - selected[None, :, :]
+  delta_frac = delta_frac - np.round(delta_frac)
+  delta_xy = np.einsum("...j,ij->...i", delta_frac, lattice)
+  return np.sum(delta_xy ** 2, axis=-1)
+
+
+def _farthest_layer_positions(
+    num_particles: int,
+    lattice: np.ndarray,
+    seed_index: int,
+    grid_size: int = 64,
+    avoid_fractional: np.ndarray | None = None,
+) -> np.ndarray:
+  """Returns approximately farthest-apart points in one periodic layer."""
+  if num_particles <= 0:
+    return np.zeros((0, 2), dtype=np.float32)
+
+  lattice = np.asarray(lattice, dtype=np.float32)
+  candidates = _fractional_candidates(grid_size)
+  selected = [candidates[seed_index % len(candidates)]]
+  while len(selected) < num_particles:
+    selected_arr = np.asarray(selected, dtype=np.float32)
+    dist2 = _periodic_dist2_fractional(candidates, selected_arr, lattice)
+    score = np.min(dist2, axis=1)
+    if avoid_fractional is not None and len(avoid_fractional):
+      avoid_dist2 = _periodic_dist2_fractional(
+          candidates, avoid_fractional, lattice)
+      score = np.minimum(score, np.min(avoid_dist2, axis=1))
+    selected.append(candidates[int(np.argmax(score))])
+
+  selected_frac = np.asarray(selected, dtype=np.float32)
+  return selected_frac @ lattice.T
+
+
+def init_bosons_farthest(
+    key,
+    layer_occupations: Sequence[int],
+    ndim: int,
+    batch_size: int,
+    lattice: np.ndarray,
+    jitter_width: float,
+) -> Tuple[jnp.ndarray, jnp.ndarray]:
+  """Initializes bilayer bosons using farthest-point xy configurations."""
+  if ndim != 2:
+    raise ValueError("Farthest initialization currently expects ndim=2.")
+  layer_occupations = tuple(int(n) for n in layer_occupations)
+  grid_size = max(32, int(np.ceil(np.sqrt(sum(layer_occupations))) * 16))
+  top_frac_seed = 0
+  top_base = _farthest_layer_positions(
+      layer_occupations[0], lattice, top_frac_seed, grid_size)
+  top_frac = np.linalg.solve(np.asarray(lattice).T, top_base.T).T
+  bottom_base = _farthest_layer_positions(
+      layer_occupations[1],
+      lattice,
+      grid_size // 2,
+      grid_size,
+      avoid_fractional=top_frac)
+  base_positions = np.concatenate([top_base, bottom_base], axis=0)
+  base_positions = jnp.asarray(base_positions.reshape(-1), dtype=jnp.float32)
+  base_positions = jnp.tile(base_positions[None, :], reps=(batch_size, 1))
+
+  key, subkey = jax.random.split(key)
+  jitter = (
+      jax.random.normal(subkey, shape=base_positions.shape) *
+      jnp.asarray(jitter_width, dtype=base_positions.dtype))
+  boson_positions = base_positions + jitter
+  layer_labels = _assign_layer_configuration(
+      layer_occupations[0], layer_occupations[1], batch_size)
+  return boson_positions, layer_labels
 
 
 def init_bosons_jittered_lattice(
@@ -674,13 +757,25 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
     if sum(init_layer_occupations) != sum(cfg.system.bosons):
       raise ValueError("layer_assignment entries must be +1 or -1.")
     # Create boson positions and layer labels.
-    pos, spins = init_bosons_jittered_lattice(
-      subkey,
-      layer_occupations=init_layer_occupations,
-      ndim = cfg.system.ndim,
-      batch_size=host_batch_size,
-      lattice=cfg.system.pbc_lattice,
-      jitter_width=cfg.mcmc.init_width,)
+    init_layout = cfg.mcmc.get("init_layout", "jittered_lattice")
+    if init_layout == "jittered_lattice":
+      pos, spins = init_bosons_jittered_lattice(
+        subkey,
+        layer_occupations=init_layer_occupations,
+        ndim = cfg.system.ndim,
+        batch_size=host_batch_size,
+        lattice=cfg.system.pbc_lattice,
+        jitter_width=cfg.mcmc.init_width,)
+    elif init_layout == "farthest":
+      pos, spins = init_bosons_farthest(
+        subkey,
+        layer_occupations=init_layer_occupations,
+        ndim = cfg.system.ndim,
+        batch_size=host_batch_size,
+        lattice=cfg.system.pbc_lattice,
+        jitter_width=cfg.mcmc.init_width,)
+    else:
+      raise ValueError(f"Unknown cfg.mcmc.init_layout: {init_layout}")
     spins = jnp.tile(layer_assignment[None], reps=(host_batch_size, 1))
 
     pos = jnp.reshape(pos, data_shape + (-1,))
@@ -697,7 +792,6 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
 
   burn_stage = _burn_in_stage(cfg)
   training_stages = _post_burn_in_stages(cfg)
-  optimizer_stages = _optimizer_stages(cfg)
   if training_stages:
     cfg.optim.iterations = sum(_stage_iterations(stage)
                               for stage in training_stages)
@@ -706,9 +800,8 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
   train_schema = [
       'step', 'stage', 'energy', 'ewmean', 'ewvar', 'pmove', 'locstd',
       'kinetic_energy', 'potential_energy', 'potential_intra',
-      'potential_inter',
-      'mcmc_width', 'mcmc_esjd_per_particle',
-      'mcmc_esjd_per_moved_particle'
+      'potential_inter', 'potential_intra_scale', 'potential_inter_scale',
+      'mcmc_width', 'mcmc_esjd_per_particle', 'mcmc_esjd_per_moved_particle'
   ]
 
   # Initialisation done. We now want to have different PRNG streams on each
@@ -735,79 +828,210 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
             cfg.mcmc.get('global_width_scale', 0.25)),
     )
 
-  # Construct loss and optimizer
+  # Construct stage-specific losses and optimizers.
   # Requires a local energy function to be specified.
   local_energy_module, local_energy_fn = (
       cfg.system.make_local_energy_fn.rsplit('.', maxsplit=1))
   local_energy_module = importlib.import_module(local_energy_module)
   make_local_energy = getattr(local_energy_module, local_energy_fn)  # type: hamiltonians.MakeLocalEnergy
-  local_energy_fn = make_local_energy(
-      f=signed_network,
-      charges=charges,
-      nspins=nspins,
-      complex_output=use_complex,
-      use_scan=False,
-      **cfg.system.make_local_energy_kwargs)
 
-  local_energy = local_energy_fn
+  def local_energy_kwargs_for_stage(stage=None):
+    kwargs = dict(cfg.system.make_local_energy_kwargs)
+    if stage is not None:
+      kwargs.update(stage.get('make_local_energy_kwargs', {}))
+    return kwargs
 
-  evaluate_loss = qmc_loss_functions.make_loss(
-      log_network if use_complex else logabs_network,
-      local_energy,
-      clip_local_energy=cfg.optim.clip_local_energy,
-      clip_from_median=cfg.optim.clip_median,
-      center_at_clipped_energy=cfg.optim.center_at_clip,
-      complex_output=use_complex,
-  )
+  def potential_scales_for_stage(stage=None):
+    kwargs = local_energy_kwargs_for_stage(stage)
+    return (
+        kwargs.get('potential_intra_scale', 1.0),
+        kwargs.get('potential_inter_scale', 1.0),
+    )
 
-  # Compute the learning rate
-  if optimizer_stages:
-    stage_lengths = np.asarray([
-        _stage_iterations(stage) for stage in optimizer_stages
-    ], dtype=np.int32)
-    stage_ends = np.cumsum(stage_lengths)
-    stage_rates = np.asarray([
-        stage.get('lr_rate', cfg.optim.lr.rate) for stage in optimizer_stages
-    ], dtype=np.float32)
+  def make_evaluate_loss_for_stage(stage=None):
+    local_energy = make_local_energy(
+        f=signed_network,
+        charges=charges,
+        nspins=nspins,
+        complex_output=use_complex,
+        use_scan=False,
+        **local_energy_kwargs_for_stage(stage))
+    return qmc_loss_functions.make_loss(
+        log_network if use_complex else logabs_network,
+        local_energy,
+        clip_local_energy=cfg.optim.clip_local_energy,
+        clip_from_median=cfg.optim.clip_median,
+        center_at_clipped_energy=cfg.optim.center_at_clip,
+        complex_output=use_complex,
+    )
+
+  evaluate_loss = make_evaluate_loss_for_stage()
+
+  def _auto_start_scale(
+      kinetic_median: float,
+      potential_median: float,
+      *,
+      factor: float,
+      min_scale: float,
+      max_scale: float = 1.0,
+  ) -> float:
+    if not np.isfinite(potential_median) or potential_median <= 0.0:
+      return max_scale
+    value = factor * kinetic_median / potential_median
+    if not np.isfinite(value):
+      return max_scale
+    return float(np.clip(value, min_scale, max_scale))
+
+  def _schedule_values(
+      start: float,
+      final: float,
+      num_stages: int,
+      schedule: str,
+  ) -> tuple[float, ...]:
+    if num_stages <= 0:
+      return ()
+    if num_stages == 1:
+      return (float(final),)
+    schedule = schedule.lower()
+    if schedule == 'log' and start > 0.0 and final > 0.0:
+      return tuple(float(x) for x in np.geomspace(start, final, num_stages))
+    if schedule == 'linear':
+      return tuple(float(x) for x in np.linspace(start, final, num_stages))
+    raise ValueError(f'Unknown adiabatic schedule: {schedule}')
+
+  def _estimate_unscaled_component_medians():
+    kwargs = dict(cfg.system.make_local_energy_kwargs)
+    kwargs['potential_intra_scale'] = 1.0
+    kwargs['potential_inter_scale'] = 1.0
+    local_energy = make_local_energy(
+        f=signed_network,
+        charges=charges,
+        nspins=nspins,
+        complex_output=use_complex,
+        use_scan=False,
+        **kwargs)
+
+    def component_samples(params, key, data):
+      keys = jax.random.split(key, num=data.positions.shape[0])
+      _, aux = jax.vmap(local_energy, in_axes=(None, 0, 0))(
+          params, keys, data)
+      return {
+          'kinetic': constants.all_gather(jnp.abs(aux['kinetic'])),
+          'potential_intra': constants.all_gather(
+              jnp.abs(aux['potential_intra'])),
+          'potential_inter': constants.all_gather(
+              jnp.abs(aux['potential_inter'])),
+      }
+
+    pcomponent_samples = constants.pmap(component_samples)
+    subkeys = kfac_jax.utils.make_different_rng_key_on_all_devices(prng_key)
+    samples = pcomponent_samples(params, subkeys, data)
+
+    def median(name: str) -> float:
+      return float(np.median(np.asarray(samples[name][0]).reshape(-1)))
+
+    return {
+        'kinetic': median('kinetic'),
+        'potential_intra': median('potential_intra'),
+        'potential_inter': median('potential_inter'),
+    }
+
+  def _resolve_adiabatic_scale_schedules():
+    schedule_stages = [
+        stage for stage in training_stages
+        if 'adiabatic_scale_schedule' in stage
+    ]
+    if not schedule_stages:
+      return
+
+    needs_estimate = any(
+        stage['adiabatic_scale_schedule'].get('intra_start') == 'auto' or
+        stage['adiabatic_scale_schedule'].get('inter_start') == 'auto'
+        for stage in schedule_stages)
+    medians = _estimate_unscaled_component_medians() if needs_estimate else None
+
+    first_meta = schedule_stages[0]['adiabatic_scale_schedule']
+    factor = float(first_meta.get('auto_scale_factor', 0.2))
+    intra_min = float(first_meta.get('intra_min_scale', 1.0e-2))
+    inter_min = float(first_meta.get('inter_min_scale', 1.0e-4))
+
+    def resolve_start(raw_start, potential_name: str, min_scale: float) -> float:
+      if raw_start != 'auto':
+        return float(raw_start)
+      return _auto_start_scale(
+          medians['kinetic'],
+          medians[potential_name],
+          factor=factor,
+          min_scale=min_scale)
+
+    num_stages = int(first_meta['num_stages'])
+    schedule = first_meta.get('schedule', 'log')
+    intra_start = resolve_start(
+        first_meta.get('intra_start', 1.0), 'potential_intra', intra_min)
+    intra_final = float(first_meta.get('intra_final', 1.0))
+    inter_start = resolve_start(
+        first_meta.get('inter_start', 1.0), 'potential_inter', inter_min)
+    inter_final = float(first_meta.get('inter_final', 1.0))
+
+    intra_values = _schedule_values(
+        intra_start, intra_final, num_stages, schedule)
+    inter_values = _schedule_values(
+        inter_start, inter_final, num_stages, schedule)
+
+    if len(intra_values) != len(schedule_stages):
+      raise ValueError('Resolved intra adiabatic schedule length mismatch.')
+    if len(inter_values) != len(schedule_stages):
+      raise ValueError('Resolved inter adiabatic schedule length mismatch.')
+
+    if medians is not None:
+      logging.info(
+          ('Auto adiabatic starts from medians: median(|T|)=%g, '
+           'median(|V_intra|)=%g, median(|V_inter|)=%g, '
+           'intra_start=%g, inter_start=%g'),
+          medians['kinetic'],
+          medians['potential_intra'],
+          medians['potential_inter'],
+          intra_start,
+          inter_start)
+
+    for index, stage in enumerate(schedule_stages):
+      kwargs = dict(stage.get('make_local_energy_kwargs', {}))
+      kwargs['potential_intra_scale'] = intra_values[index]
+      kwargs['potential_inter_scale'] = inter_values[index]
+      stage['make_local_energy_kwargs'] = kwargs
+      stage['name'] = (
+          f"adiabatic_{index:02d}_inter_{inter_values[index]:g}"
+          f"_intra_{intra_values[index]:g}")
+
+  def learning_rate_schedule_for_stage(stage=None):
+    stage = stage or {}
+    rate = stage.get('lr_rate', cfg.optim.lr.rate)
+    if stage and 'lr_decay' not in stage and 'lr_delay' not in stage:
+      return lambda t_: jnp.asarray(rate)
+    decay = stage.get('lr_decay', cfg.optim.lr.decay)
+    delay = stage.get('lr_delay', cfg.optim.lr.delay)
 
     def learning_rate_schedule(t_: jnp.ndarray) -> jnp.ndarray:
-      stage_idx = jnp.sum(t_ >= jnp.asarray(stage_ends[:-1]))
-      return jnp.asarray(stage_rates)[stage_idx]
-  else:
-    def learning_rate_schedule(t_: jnp.ndarray) -> jnp.ndarray:
-      return cfg.optim.lr.rate * jnp.power(
-          (1.0 / (1.0 + (t_/cfg.optim.lr.delay))), cfg.optim.lr.decay)
+      return rate * jnp.power((1.0 / (1.0 + (t_ / delay))), decay)
 
-  active_optimizer_name = cfg.optim.optimizer
-  if optimizer_stages:
-    stage_optimizers = {_stage_optimizer(stage) for stage in optimizer_stages}
-    if len(stage_optimizers) != 1:
-      raise ValueError(
-          'All non-burn-in training stages must use the same optimizer.')
-    active_optimizer_name = next(iter(stage_optimizers))
+    return learning_rate_schedule
 
-  def kfac_learning_rate_schedule(t_: jnp.ndarray) -> jnp.ndarray:
-    if active_optimizer_name != 'adam_kfac':
-      return learning_rate_schedule(t_)
-    return cfg.optim.adam_kfac.kfac_lr_rate * jnp.power(
-        (1.0 / (1.0 + (t_/cfg.optim.adam_kfac.kfac_lr_delay))),
-        cfg.optim.adam_kfac.kfac_lr_decay)
-
-  def make_adam_optimizer() -> optax.GradientTransformation:
+  def make_adam_optimizer(stage=None) -> optax.GradientTransformation:
     return optax.chain(
         optax.scale_by_adam(**cfg.optim.adam),
-        optax.scale_by_schedule(learning_rate_schedule),
+        optax.scale_by_schedule(learning_rate_schedule_for_stage(stage)),
         optax.scale(-1.))
 
-  def make_lamb_optimizer() -> optax.GradientTransformation:
+  def make_lamb_optimizer(stage=None) -> optax.GradientTransformation:
     return optax.chain(
         optax.clip_by_global_norm(1.0),
         optax.scale_by_adam(eps=1e-7),
         optax.scale_by_trust_ratio(),
-        optax.scale_by_schedule(learning_rate_schedule),
+        optax.scale_by_schedule(learning_rate_schedule_for_stage(stage)),
         optax.scale(-1))
 
-  def make_kfac_optimizer() -> kfac_jax.Optimizer:
+  def make_kfac_optimizer(evaluate_loss, stage=None) -> kfac_jax.Optimizer:
+    learning_rate_schedule = learning_rate_schedule_for_stage(stage)
     val_and_grad = jax.value_and_grad(evaluate_loss, argnums=0, has_aux=True)
     return kfac_jax.Optimizer(
         val_and_grad,
@@ -815,7 +1039,7 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
         norm_constraint=cfg.optim.kfac.norm_constraint,
         value_func_has_aux=True,
         value_func_has_rng=True,
-        learning_rate_schedule=kfac_learning_rate_schedule,
+        learning_rate_schedule=learning_rate_schedule,
         curvature_ema=cfg.optim.kfac.cov_ema_decay,
         inverse_update_period=cfg.optim.kfac.invert_every,
         min_damping=cfg.optim.kfac.min_damping,
@@ -830,7 +1054,7 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
         # debug=True
     )
 
-  def make_step_for_optimizer(optimizer, mcmc_step):
+  def make_step_for_optimizer(optimizer, mcmc_step, evaluate_loss):
     if not optimizer:
       return make_training_step(
           mcmc_step=mcmc_step,
@@ -849,68 +1073,33 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
     raise ValueError(f'Unknown optimizer: {optimizer}')
 
   def make_step_for_stage(stage):
+    evaluate_loss = make_evaluate_loss_for_stage(stage)
     stage_mcmc_step = make_stage_mcmc_step(stage)
     if stage is not None and _stage_optimizer(stage) == 'none':
       if not stage.get('evaluate_loss', True):
         return make_training_step(
             mcmc_step=stage_mcmc_step,
             optimizer_step=null_update)
-      return make_step_for_optimizer(None, stage_mcmc_step)
-    return make_step_for_optimizer(optimizer, stage_mcmc_step)
+      return None, make_step_for_optimizer(None, stage_mcmc_step, evaluate_loss)
 
-  scheduled_adam_kfac = (
-      not training_stages and active_optimizer_name == 'adam_kfac')
-  switch_iteration = cfg.optim.adam_kfac.switch_iteration
-  if scheduled_adam_kfac and switch_iteration <= 0:
-    raise ValueError("cfg.optim.adam_kfac.switch_iteration must be positive.")
-
-  # Construct and setup optimizer
-  if active_optimizer_name == 'none':
-    optimizer = None
-  elif active_optimizer_name == 'adam':
-    optimizer = make_adam_optimizer()
-  elif active_optimizer_name == 'lamb':
-    optimizer = make_lamb_optimizer()
-  elif active_optimizer_name == 'kfac':
-    optimizer = make_kfac_optimizer()
-    sharded_key, subkeys = kfac_jax.utils.p_split(sharded_key)
-    opt_state = optimizer.init(params, subkeys, data)
-    opt_state = opt_state_ckpt or opt_state  # avoid overwriting ckpted state
-  elif scheduled_adam_kfac:
-    adam_optimizer = make_adam_optimizer()
-    kfac_optimizer = make_kfac_optimizer()
-    if t_init >= switch_iteration:
-      optimizer = kfac_optimizer
-      sharded_key, subkeys = kfac_jax.utils.p_split(sharded_key)
-      opt_state = optimizer.init(params, subkeys, data)
-      current_optimizer_name = 'kfac'
+    optimizer_name = _stage_optimizer(stage) if stage is not None else cfg.optim.optimizer
+    if optimizer_name == 'none':
+      optimizer = None
+    elif optimizer_name == 'adam':
+      optimizer = make_adam_optimizer(stage)
+    elif optimizer_name == 'lamb':
+      optimizer = make_lamb_optimizer(stage)
+    elif optimizer_name == 'kfac':
+      optimizer = make_kfac_optimizer(evaluate_loss, stage)
     else:
-      optimizer = adam_optimizer
-      opt_state = jax.pmap(optimizer.init)(params)
-      opt_state = opt_state_ckpt or opt_state
-      current_optimizer_name = 'adam'
-  else:
-    raise ValueError(f'Not a recognized optimizer: {active_optimizer_name}')
+      raise ValueError(f'Not a recognized optimizer: {optimizer_name}')
+    return optimizer, make_step_for_optimizer(
+        optimizer, stage_mcmc_step, evaluate_loss)
 
-  initial_stage = training_stages[0] if training_stages else None
-
-  if scheduled_adam_kfac:
-    step = make_step_for_stage(initial_stage)
-    logging.info(
-        'Using adam_kfac optimizer: Adam until step %d, then KFAC.',
-        switch_iteration)
-  elif not optimizer:
-    opt_state = None
-    step = make_step_for_stage(initial_stage)
-  elif isinstance(optimizer, optax.GradientTransformation):
-    # optax/optax-compatible optimizer (ADAM, LAMB, ...)
-    opt_state = jax.pmap(optimizer.init)(params)
-    opt_state = opt_state_ckpt or opt_state  # avoid overwriting ckpted state
-    step = make_step_for_stage(initial_stage)
-  elif isinstance(optimizer, kfac_jax.Optimizer):
-    step = make_step_for_stage(initial_stage)
-  else:
-    raise ValueError(f'Unknown optimizer: {optimizer}')
+  opt_state = None
+  optimizer = None
+  current_optimizer_name = None
+  step = None
 
   if mcmc_width_ckpt is not None:
     mcmc_width = kfac_jax.utils.replicate_all_local_devices(mcmc_width_ckpt[0])
@@ -968,7 +1157,10 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
           float(np.asarray(mcmc_width[0])),
           float(np.asarray(burn_in_esjd_per_particle[0])),
           float(np.asarray(burn_in_esjd_per_moved_particle[0])))
-  if t_init == 0:
+
+  _resolve_adiabatic_scale_schedules()
+
+  if t_init == 0 and cfg.debug.get('check_initial_energy', True):
     sharded_key, subkeys = kfac_jax.utils.p_split(sharded_key)
     ptotal_energy = constants.pmap(evaluate_loss)
     initial_energy, _ = ptotal_energy(params, subkeys, data)
@@ -982,7 +1174,8 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
   time_of_last_ckpt = time.time()
   weighted_stats = None
 
-  if active_optimizer_name == 'none' and opt_state_ckpt is not None:
+  inference_run = not training_stages and cfg.optim.optimizer == 'none'
+  if inference_run and opt_state_ckpt is not None:
     # If opt_state_ckpt is None, then we're restarting from a previous inference
     # run (most likely due to preemption) and so should continue from the last
     # iteration in the checkpoint. Otherwise, starting an inference run from a
@@ -996,7 +1189,7 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
       raise Exception("Inference aborted because no checkpoint loaded.")
 
   if writer_manager is None:
-    if active_optimizer_name == 'none':
+    if inference_run:
       stats_name = "inference_stats"
     else:
       stats_name = "train_stats"
@@ -1014,6 +1207,7 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
     # Main training loop
     num_resets = 0  # used if reset_if_nan is true
     current_stage_index = None
+    opt_state_ckpt_consumed = False
     stage_start = 0
     current_stage = None
     current_stage_name = 'training'
@@ -1040,18 +1234,51 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
           stage_for_step(t))
       if stage_index != current_stage_index:
         current_stage_index = stage_index
-        step = make_step_for_stage(current_stage)
+        new_optimizer_name = (
+            _stage_optimizer(current_stage)
+            if current_stage is not None
+            else cfg.optim.optimizer)
+        optimizer, step = make_step_for_stage(current_stage)
+        potential_intra_scale, potential_inter_scale = (
+            potential_scales_for_stage(current_stage))
+        entering_from_previous_stage = t == stage_start
+        reset_optimizer_state = (
+            current_stage is not None
+            and current_stage.get('reset_optimizer_state', False)
+            and entering_from_previous_stage)
+        optimizer_changed = new_optimizer_name != current_optimizer_name
+        if new_optimizer_name == 'none':
+          opt_state = None
+        elif isinstance(optimizer, optax.GradientTransformation):
+          if (opt_state is None or optimizer_changed or
+              reset_optimizer_state):
+            if (opt_state_ckpt is not None and not opt_state_ckpt_consumed
+                and not reset_optimizer_state):
+              opt_state = opt_state_ckpt
+            else:
+              opt_state = jax.pmap(optimizer.init)(params)
+            opt_state_ckpt_consumed = True
+        elif isinstance(optimizer, kfac_jax.Optimizer):
+          if (opt_state is None or optimizer_changed or
+              reset_optimizer_state):
+            if (opt_state_ckpt is not None and not opt_state_ckpt_consumed
+                and not reset_optimizer_state):
+              opt_state = opt_state_ckpt
+            else:
+              sharded_key, subkeys = kfac_jax.utils.p_split(sharded_key)
+              opt_state = optimizer.init(params, subkeys, data)
+            opt_state_ckpt_consumed = True
+        else:
+          raise ValueError(f'Unknown optimizer for stage {current_stage_name}.')
+        current_optimizer_name = new_optimizer_name
         logging.info(
-            'Starting training stage %s at step %d', current_stage_name, t)
-
-      if (scheduled_adam_kfac and current_optimizer_name == 'adam' and
-          t >= switch_iteration):
-        logging.info('Switching optimizer from Adam to KFAC at step %d.', t)
-        optimizer = kfac_optimizer
-        sharded_key, subkeys = kfac_jax.utils.p_split(sharded_key)
-        opt_state = optimizer.init(params, subkeys, data)
-        step = make_step_for_stage(current_stage)
-        current_optimizer_name = 'kfac'
+            ('Starting training stage %s at step %d with optimizer %s '
+             '(potential_intra_scale=%g, potential_inter_scale=%g)'),
+            current_stage_name,
+            t,
+            current_optimizer_name,
+            potential_intra_scale,
+            potential_inter_scale)
 
       sharded_key, subkeys = kfac_jax.utils.p_split(sharded_key)
       (data, params, opt_state, loss, aux_data, pmove, esjd_per_particle,
@@ -1102,7 +1329,7 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
 
       if cfg.debug.check_nan:
         tree = {'params': params, 'loss': loss}
-        if active_optimizer_name != 'none':
+        if current_optimizer_name != 'none':
           tree['optim'] = opt_state
         try:
           chex.assert_tree_all_finite(tree)
@@ -1149,6 +1376,8 @@ def train(cfg: ml_collections.ConfigDict, writer_manager=None, layer_assignment=
             'potential_energy': aux_scalar('potential_energy'),
             'potential_intra': aux_scalar('potential_intra'),
             'potential_inter': aux_scalar('potential_inter'),
+            'potential_intra_scale': potential_intra_scale,
+            'potential_inter_scale': potential_inter_scale,
             'mcmc_width': np.asarray(mcmc_width[0]),
             'mcmc_esjd_per_particle': np.asarray(esjd_per_particle),
             'mcmc_esjd_per_moved_particle': np.asarray(

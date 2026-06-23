@@ -61,7 +61,6 @@ Available architectures:
 - `"DeepSets"`: simple permutation-equivariant MLP blocks followed by symmetric
   pooling.
 - `"Transformer"`: pre-norm self-attention blocks followed by symmetric pooling.
-- `"Attention"`: accepted as an alias for `"Transformer"`.
 
 The current run config uses `"Transformer"` for a more expressive correlated
 bosonic ansatz. Permutation invariance is preserved by symmetric pooling.

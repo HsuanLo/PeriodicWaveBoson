@@ -37,7 +37,10 @@ def _run_dir(
 ) -> Path:
   return (
       results_dir
-      / f"N{num_bosons}_layers{layers}_rs{rs}_d{d}_D{dipole_strength}_seed{seed}_{cell}"
+      / (
+          f"N{num_bosons}_layers{layers}_rs{rs}_d{d}_D{dipole_strength}"
+          f"_seed{seed}_{cell}_adiabatic"
+      )
   )
 
 
@@ -63,10 +66,6 @@ def main() -> None:
   parser.add_argument("--seed", type=int, default=DEFAULTS.seed)
   parser.add_argument("--burn-in-iterations", type=int,
                       default=DEFAULTS.burn_in_iterations)
-  parser.add_argument("--bold-iterations", type=int,
-                      default=DEFAULTS.bold_iterations)
-  parser.add_argument("--retune-iterations", type=int,
-                      default=DEFAULTS.retune_iterations)
   parser.add_argument("--fine-iterations", type=int,
                       default=DEFAULTS.fine_iterations)
   parser.add_argument(
@@ -140,10 +139,6 @@ def main() -> None:
         str(args.seed),
         "--burn-in-iterations",
         str(args.burn_in_iterations),
-        "--bold-iterations",
-        str(args.bold_iterations),
-        "--retune-iterations",
-        str(args.retune_iterations),
         "--fine-iterations",
         str(args.fine_iterations),
         "--results-dir",

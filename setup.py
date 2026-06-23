@@ -48,12 +48,6 @@ setup(
     url='https://github.com/mg607/periodicwave',
     author='Max Geier, Khachatur Nazaryan',
     author_email='contact@deeppsi.ai',
-    # Contained modules and scripts.
-    entry_points={
-        'console_scripts': [
-            'periodicwave = periodicwave.main:main_wrapper',
-        ],
-    },
     packages=find_packages(),
     install_requires=REQUIRED_PACKAGES,
     extras_require={'testing': ['flake8', 'pylint', 'pytest', 'pytype']},

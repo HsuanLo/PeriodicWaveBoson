@@ -158,8 +158,8 @@ scripts/submit/submit.sh scripts/train/run_bilayer_rs_d_scan.py --help
 
 Stage lengths are independent. If a stage length is omitted, the runner uses the
 config default from `periodicwave/configs/bilayer_bosons.py`; the post-burn
-optimizer length is derived as `bold_iterations + retune_iterations +
-fine_iterations`. Resuming and extending a scan point follows the same
+optimizer length is derived as the adiabatic warmup stages plus
+`fine_iterations`. Resuming and extending a scan point follows the same
 checkpoint behavior as a single `run_bilayer.py` run: rerun with a larger total
 target length to continue beyond the latest checkpoint.
 
@@ -205,3 +205,4 @@ For the `scan_260603` scan, omit these arguments and the evaluators will use
 their default scan directory and pattern.
 
 LLsub scripts/submit/submit.sh [10,2,20] -g volta:1  -- scripts/train/run_bilayer_D_d_scan.py   --results-dir results/D_d_scan_N16_rs1.0_sq
+LLsub scripts/submit/submit.sh [10,1,40] -g volta:2 -- scripts/train/run_bilayer_D_d_scan.py --results-dir results/D_d_scan_N24_rs1.0_sq_slice

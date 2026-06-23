@@ -1,0 +1,70 @@
+=== PeriodicWaveBoson multinode launch ===
+date=2026-06-23T14:50:30-04:00
+coordinator=d-12-13-2:39389
+nodes=1
+ntasks=1
+ntasks_per_node=1
+python=/home/gridsan/hlo1/venv/periodicwaveboson/bin/python
+jax_processes=1
+local_device_ids=0,1
+command=/home/gridsan/hlo1/venv/periodicwaveboson/bin/python scripts/train/run_bilayer.py --coordinator_address d-12-13-2:39389 --num_processes 1 --local_device_ids 0\,1 --jobid 4969889 
+Jax Devices: [CudaDevice(id=0), CudaDevice(id=1)]
+Renamed 'device_info.log' to 'results/N32_layers16_16_rs1.0_d1.0_D6.0_seed42_sq_adiabatic/device_info_1.log'
+Device and environment info logged to results/N32_layers16_16_rs1.0_d1.0_D6.0_seed42_sq_adiabatic/device_info.log
+Renamed 'config.json' to 'results/N32_layers16_16_rs1.0_d1.0_D6.0_seed42_sq_adiabatic/config_1.json'
+Configuration saved as JSON to results/N32_layers16_16_rs1.0_d1.0_D6.0_seed42_sq_adiabatic/config.json
+Renamed 'train_stats.csv' to 'results/N32_layers16_16_rs1.0_d1.0_D6.0_seed42_sq_adiabatic/train_stats_1.csv'
+E0623 14:51:05.057333  980549 cuda_timer.cc:87] Delay kernel timed out: measured time has sub-optimal accuracy. There may be a missing warmup execution, please investigate in Nsight Systems.
+E0623 14:51:05.208235  980549 cuda_timer.cc:87] Delay kernel timed out: measured time has sub-optimal accuracy. There may be a missing warmup execution, please investigate in Nsight Systems.
+W0623 14:51:23.776339  980460 hlo_rematerialization.cc:3233] Can't reduce memory use below 27.13GiB (29131423902 bytes) by rematerialization; only reduced to 45.17GiB (48501551105 bytes), down from 45.72GiB (49090064113 bytes) originally
+W0623 14:51:37.379716  980546 bfc_allocator.cc:514] Allocator (GPU_1_bfc) ran out of memory trying to allocate 45.53GiB (rounded to 48889245696)requested by op 
+If the cause is memory fragmentation maybe the environment variable 'TF_GPU_ALLOCATOR=cuda_malloc_async' will improve the situation. 
+Current allocation summary follows.
+Current allocation summary follows.
+W0623 14:51:37.380003  980543 bfc_allocator.cc:514] Allocator (GPU_0_bfc) ran out of memory trying to allocate 45.53GiB (rounded to 48889245696)requested by op 
+If the cause is memory fragmentation maybe the environment variable 'TF_GPU_ALLOCATOR=cuda_malloc_async' will improve the situation. 
+Current allocation summary follows.
+Current allocation summary follows.
+W0623 14:51:37.380515  980546 bfc_allocator.cc:525] __________________________________________________________________________________________________**
+W0623 14:51:37.380620  980543 bfc_allocator.cc:525] ___________________________________________________________________________________________________*
+Traceback (most recent call last):
+  File "/home/gridsan/hlo1/project/PeriodicWaveBoson/scripts/train/run_bilayer.py", line 292, in <module>
+    main()
+    ~~~~^^
+  File "/home/gridsan/hlo1/project/PeriodicWaveBoson/scripts/train/run_bilayer.py", line 288, in main
+    run(parse_args())
+    ~~~^^^^^^^^^^^^^^
+  File "/home/gridsan/hlo1/project/PeriodicWaveBoson/scripts/train/run_bilayer.py", line 279, in run
+    train.train(
+    ~~~~~~~~~~~^
+        cfg,
+        ^^^^
+        writer_manager=writer_manager,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        layer_assignment=layer_assignment)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gridsan/hlo1/project/PeriodicWaveBoson/periodicwave/train.py", line 1349, in train
+    _best_checkpoint_score(
+    ~~~~~~~~~~~~~~~~~~~~~~^
+        cfg.log.get('best_checkpoint_metric', 'ewmean'),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        num_particles=num_particles,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        std_weight=cfg.log.get('best_checkpoint_std_weight', 1.0))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/gridsan/hlo1/project/PeriodicWaveBoson/periodicwave/train.py", line 556, in _best_checkpoint_score
+    np.asarray((weighted_stats.mean + std_weight * local_std)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               / num_particles))
+               ^^^^^^^^^^^^^^^^
+  File "/home/gridsan/hlo1/venv/periodicwaveboson/lib/python3.13/site-packages/jax/_src/array.py", line 414, in __array__
+    return np.asarray(self._value, dtype=dtype, **kwds)  # pyrefly: ignore[no-matching-overload]
+                      ^^^^^^^^^^^
+  File "/home/gridsan/hlo1/venv/periodicwaveboson/lib/python3.13/site-packages/jax/_src/profiler.py", line 427, in wrapper
+    return func(*args, **kwargs)
+  File "/home/gridsan/hlo1/venv/periodicwaveboson/lib/python3.13/site-packages/jax/_src/array.py", line 614, in _value
+    npy_value, did_copy = self._single_device_array_to_np_array_did_copy()
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+jax.errors.JaxRuntimeError: RESOURCE_EXHAUSTED: Out of memory while trying to allocate 45.53GiB. [executable_name='jit_true_divide'] [tf-allocator-allocation-error='']
+srun: error: d-12-13-2: task 0: Exited with exit code 1

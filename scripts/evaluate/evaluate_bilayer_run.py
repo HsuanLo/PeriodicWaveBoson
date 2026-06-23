@@ -53,16 +53,17 @@ def _evaluate_run(
     )
 
   if "observables" in stages:
-    evaluate_observables._evaluate_run(  # pylint: disable=protected-access
-        run_dir,
-        args.load_n_ckpts,
-        args.max_configs,
-        args.snapshot_count,
-        args.pair_correlation_bins,
-        args.kmax,
-        args.skip_existing,
-        args.write_extra_figures,
-    )
+	    evaluate_observables._evaluate_run(  # pylint: disable=protected-access
+	        run_dir,
+	        args.load_n_ckpts,
+	        args.max_configs,
+	        args.snapshot_count,
+	        args.pair_correlation_bins,
+	        args.kmax,
+	        args.skip_existing,
+	        args.write_extra_figures,
+	        args.checkpoint,
+	    )
 
 
 def main() -> None:
@@ -84,6 +85,15 @@ def main() -> None:
   parser.add_argument("--burn-in-cut", type=int, default=0)
   parser.add_argument("--rolling-window", type=int, default=100)
   parser.add_argument("--load-n-ckpts", type=int, default=1)
+  parser.add_argument(
+      "--checkpoint",
+      type=Path,
+      default=None,
+      help=(
+          "Evaluate this checkpoint file for observables instead of selecting "
+          "best/latest checkpoints. Relative paths are resolved inside --run-dir."
+      ),
+  )
   parser.add_argument(
       "--max-configs",
       type=int,

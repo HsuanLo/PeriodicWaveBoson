@@ -338,9 +338,9 @@ def make_boson_net(
     raise ValueError("BosonNet expects ndim=2 continuous xy coordinates.")
 
   architecture = architecture.upper()
-  if architecture not in {"DEEPSETS", "ATTENTION", "TRANSFORMER"}:
+  if architecture not in {"DEEPSETS", "TRANSFORMER"}:
     raise ValueError(f"Unknown BosonNet architecture: {architecture}")
-  use_transformer = architecture in {"ATTENTION", "TRANSFORMER"}
+  use_transformer = architecture == "TRANSFORMER"
 
   options = BosonNetOptions(
       ndim=ndim,

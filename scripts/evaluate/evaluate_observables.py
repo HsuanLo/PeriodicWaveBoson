@@ -179,14 +179,30 @@ def _checkpoint_files(folder_path: Path, nfiles: int) -> list[Path]:
   return _latest_checkpoint_files(folder_path, nfiles)
 
 
+def _explicit_checkpoint_files(run_dir: Path, checkpoint: Path) -> list[Path]:
+  checkpoint = checkpoint.expanduser()
+  if not checkpoint.is_absolute():
+    checkpoint = run_dir / checkpoint
+  checkpoint = checkpoint.resolve()
+  if not checkpoint.exists():
+    raise ValueError(f"--checkpoint does not exist: {checkpoint}")
+  if not checkpoint.is_file():
+    raise ValueError(f"--checkpoint is not a file: {checkpoint}")
+  return [checkpoint]
+
+
 def _load_positions(
     params: RunParams,
     nfiles: int,
     max_configs: int | None,
+    checkpoint: Path | None = None,
 ) -> np.ndarray:
   _install_jax_array_unpickle_fallback()
   positions = []
-  ckpt_files = _checkpoint_files(params.path, nfiles)
+  ckpt_files = (
+      _explicit_checkpoint_files(params.path, checkpoint)
+      if checkpoint is not None
+      else _checkpoint_files(params.path, nfiles))
   if not ckpt_files:
     raise ValueError(f"No checkpoints found in {params.path}")
   print(
@@ -805,13 +821,14 @@ def _evaluate_run(
     kmax: int,
     skip_existing: bool,
     write_extra_figures: bool = True,
+    checkpoint: Path | None = None,
 ) -> None:
   if skip_existing and _outputs_exist(run_dir, write_extra_figures):
     print(f"Skipping existing bilayer plots: {run_dir}")
     return
 
   params = _parse_run_dir(run_dir)
-  positions = _load_positions(params, load_n_ckpts, max_configs)
+  positions = _load_positions(params, load_n_ckpts, max_configs, checkpoint)
   _save_density_structure_overview(params, positions, kmax)
   if write_extra_figures:
     _save_density_plots(params, positions, write_extra_figures)
@@ -850,6 +867,15 @@ def main() -> None:
   parser.add_argument("--scan-dir", type=Path, default=DEFAULT_SCAN_DIR)
   parser.add_argument("--pattern", default=DEFAULT_PATTERN)
   parser.add_argument("--load-n-ckpts", type=int, default=1)
+  parser.add_argument(
+      "--checkpoint",
+      type=Path,
+      default=None,
+      help=(
+          "Evaluate this checkpoint file instead of selecting best/latest "
+          "checkpoints. Relative paths are resolved inside --run-dir."
+      ),
+  )
   parser.add_argument(
       "--max-configs",
       type=int,
@@ -890,6 +916,7 @@ def main() -> None:
           args.kmax,
           args.skip_existing,
           args.write_extra_figures,
+          args.checkpoint,
       )
     except Exception as exc:  # pylint: disable=broad-exception-caught
       failures.append((run_dir, exc))

@@ -8,8 +8,6 @@ from __future__ import annotations
 
 import dataclasses
 from pathlib import Path
-import runpy
-import sys
 from typing import Sequence
 
 import ml_collections
@@ -27,8 +25,8 @@ class BilayerDefaults:
   """Shared defaults for bilayer runners and config construction."""
 
   # Physical system.
-  num_bosons: int = 24
-  layer_occupations: tuple[int, int] = (12, 12)
+  num_bosons: int = 32
+  layer_occupations: tuple[int, int] = (16, 16)
   layer_separation: float = 1.0
   dipole_strength: float = 6.0
   supercell_shape: str = "sq"
@@ -37,13 +35,21 @@ class BilayerDefaults:
 
   # Run control.
   burn_in_iterations: int = 0
-  bold_iterations: int = 1000
-  retune_iterations: int = 1000
-  fine_iterations: int = 2000
+  fine_iterations: int = 10000
+  fine_lr_rate: float = 1.0e-3
   results_dir: str = "results"
   restore_path: str = ""
   reset_iteration_on_restore: bool = False
   reset_optimizer_on_restore: bool = False
+  adiabatic_inter_start: float | None = None
+  adiabatic_intra_start: float | None = None
+  adiabatic_num_stages: int = 20
+  adiabatic_schedule: str = "log"
+  adiabatic_intra_final: float = 1.0
+  adiabatic_inter_final: float = 1.0
+  adiabatic_iterations: int = 500
+  adiabatic_stage_lr_rate: float = 3.0e-3
+  adiabatic_start_target: float = 0.05
 
   # Logging/checkpointing.
   batch_size: int = 2048
@@ -54,14 +60,8 @@ class BilayerDefaults:
   best_checkpoint_std_weight: float = 1.0
 
   # Transformer BosonNet.
-  # network_layers: int = 4
-  # mlp_dim: int = 96
-  # num_heads: int = 4
-  # attn_dim: int = 24
-  # value_dim: int = 24
-  # num_perceptrons_per_layer: int = 2
   network_layers: int = 4
-  mlp_dim: int = 64
+  mlp_dim: int = 32
   num_heads: int = 4
   attn_dim: int = 16
   value_dim: int = 16
@@ -69,11 +69,12 @@ class BilayerDefaults:
   use_distance_attention_bias: bool = True
   distance_attention_bias_num_rbf: int = 16
   distance_attention_bias_eps: float = 1.0e-6
-  distance_attention_bias_scale: float = 0.1
+  distance_attention_bias_scale: float = 1.0
   use_dipole_attention_bias: bool = True
   dipole_attention_bias_scale: float = 1.0
 
   # MCMC defaults shared by stages unless overridden.
+  init_layout: str = "farthest"
   init_width_fraction: float = 1.0e-3
   move_width: float = 0.05
   global_move_fraction: float = 0.05
@@ -84,6 +85,20 @@ class BilayerDefaults:
 
 
 DEFAULTS = BilayerDefaults()
+
+
+@dataclasses.dataclass(frozen=True)
+class AdiabaticWarmup:
+  """Parameters for the adiabatic Hamiltonian continuation stages."""
+
+  inter_start: float
+  intra_start: float
+  num_stages: int
+  schedule: str
+  intra_final: float
+  inter_final: float
+  iterations: int
+  lr_rate: float
 
 
 def format_layer_occupations(layer_occupations: Sequence[int]) -> str:
@@ -123,67 +138,152 @@ def _make_lattice(
   raise NotImplementedError(f"Unknown supercell_shape: {supercell_shape}")
 
 
+def _physics_adiabatic_start_scales(
+    *,
+    density_rs: float,
+    layer_separation: float,
+    dipole_strength: float,
+    target: float,
+) -> tuple[float, float]:
+  """Returns explicit warmup starts from simple kinetic/potential estimates."""
+  rs = float(density_rs)
+  d = float(layer_separation)
+  dipole = float(dipole_strength)
+  if rs <= 0.0:
+    raise ValueError("density_rs must be positive.")
+  if d <= 0.0:
+    raise ValueError("layer_separation must be positive.")
+  if dipole <= 0.0:
+    raise ValueError("dipole_strength must be positive.")
+  if target <= 0.0:
+    raise ValueError("adiabatic_start_target must be positive.")
+
+  separation_ratio = d / rs
+  kinetic_est = 1.7 / (rs ** 2) * max(1.0, separation_ratio ** -2.5)
+  intra_est = 2.05 * (dipole / 6.0) / (rs ** 3)
+  if separation_ratio < 1.0:
+    inter_shape = separation_ratio ** -4
+  else:
+    inter_shape = separation_ratio ** -6
+  inter_est = intra_est * inter_shape
+
+  def scale(component_est: float) -> float:
+    value = target * kinetic_est / component_est
+    return float(np.clip(value, 1.0e-4, 1.0))
+
+  return scale(intra_est), scale(inter_est)
+
+
+def _burn_in_stage(iterations: int) -> dict:
+  return {
+      "name": "burn_in",
+      "iterations": iterations,
+      "optimizer": "none",
+      "mcmc_steps": 10,
+      "proposal": "block",
+      "block_size": 1,
+      "target_acceptance": 0.30,
+      "adapt_width": False,
+  }
+
+
+def _fine_stage(*, iterations: int, lr_rate: float) -> dict:
+  return {
+      "name": "fine",
+      "iterations": iterations,
+      "optimizer": "kfac",
+      "lr_rate": lr_rate,
+      "mcmc_steps": 30,
+      "proposal": "hybrid",
+      "block_size": 2,
+      "global_move_fraction": 0.05,
+      "global_width_scale": 0.05,
+      "target_acceptance": 0.25,
+      "adapt_width": False,
+  }
+
+
 def _make_training_stages(
     *,
     burn_in_iterations: int,
-    bold_iterations: int,
-    retune_iterations: int,
     fine_iterations: int,
+    fine_lr_rate: float,
+    warmup: AdiabaticWarmup,
 ) -> list[dict]:
   """Returns the staged sampler/optimizer protocol."""
-  return [
-      {
-          "name": "burn_in",
-          "iterations": burn_in_iterations,
-          "optimizer": "none",
-          "mcmc_steps": 10,
-          "proposal": "block",
-          "block_size": 1,
-          "target_acceptance": 0.30,
-          "adapt_width": False,
-      },
-      {
-          "name": "bold",
-          "iterations": bold_iterations,
-          "optimizer": "kfac",
-          "lr_rate": 1.0e-2,
-          "mcmc_steps": 10,
-          "proposal": "hybrid",
-          "block_size": 8,
-          "global_move_fraction": 0.1,
-          "global_width_scale": 0.20,
-          "target_acceptance": 0.20,
-          "adapt_width": True,
-          "adaptive_steps": bold_iterations,
-      },
-      {
-          "name": "retune",
-          "iterations": retune_iterations,
-          "optimizer": "kfac",
-          "lr_rate": 3.0e-3,
-          "mcmc_steps": 30,
-          "proposal": "hybrid",
-          "block_size": 2,
-          "global_move_fraction": 0.1,
-          "global_width_scale": 0.05,
-          "target_acceptance": 0.25,
-          "adapt_width": True,
-          "adaptive_steps": retune_iterations,
-      },
-      {
-          "name": "fine",
-          "iterations": fine_iterations,
-          "optimizer": "kfac",
-          "lr_rate": 1.0e-3,
-          "mcmc_steps": 30,
-          "proposal": "hybrid",
-          "block_size": 2,
-          "global_move_fraction": 0.05,
-          "global_width_scale": 0.05,
-          "target_acceptance": 0.25,
-          "adapt_width": False,
-      },
-  ]
+  stages = [_burn_in_stage(burn_in_iterations)]
+  inter_scales = _adiabatic_inter_scales(
+      start=warmup.inter_start,
+      final=warmup.inter_final,
+      num_stages=warmup.num_stages,
+      schedule=warmup.schedule)
+  stages.extend(
+      _make_adiabatic_stages(
+          inter_scales=inter_scales,
+          warmup=warmup))
+  stages.append(_fine_stage(iterations=fine_iterations, lr_rate=fine_lr_rate))
+  return stages
+
+
+def _adiabatic_inter_scales(
+    *,
+    start: float,
+    final: float,
+    num_stages: int,
+    schedule: str,
+) -> tuple[float | None, ...]:
+  """Returns inter-layer potential scales for adiabatic warmup."""
+  if num_stages <= 0:
+    raise ValueError("adiabatic_num_stages must be positive.")
+  schedule = schedule.lower()
+  start = float(start)
+  if schedule == "log":
+    if start <= 0.0:
+      raise ValueError("adiabatic_inter_start must be positive for log schedule.")
+    return tuple(float(scale) for scale in np.geomspace(start, final, num_stages))
+  if schedule == "linear":
+    return tuple(float(scale) for scale in np.linspace(start, final, num_stages))
+  raise ValueError(f"Unknown adiabatic_schedule: {schedule}")
+
+
+def _make_adiabatic_stages(
+    *,
+    inter_scales: Sequence[float | None],
+    warmup: AdiabaticWarmup,
+) -> list[dict]:
+  """Returns KFAC warmup stages for adiabatic Hamiltonian continuation."""
+  stages = []
+  for index, inter_scale in enumerate(inter_scales):
+    inter_name = f"{inter_scale:g}"
+    stages.append({
+        "name": f"adiabatic_{index:02d}_inter_{inter_name}",
+        "iterations": warmup.iterations,
+        "optimizer": "kfac",
+        "lr_rate": warmup.lr_rate,
+        "mcmc_steps": 10,
+        "proposal": "hybrid",
+        "block_size": 4,
+        "global_move_fraction": 0.1,
+        "global_width_scale": 0.10,
+        "target_acceptance": 0.25,
+        "adapt_width": True,
+        "adaptive_steps": warmup.iterations,
+        "reset_optimizer_state": True,
+        "make_local_energy_kwargs": {
+            "potential_intra_scale": None,
+            "potential_inter_scale": inter_scale,
+        },
+        "adiabatic_scale_schedule": {
+            "index": index,
+            "num_stages": len(inter_scales),
+            "schedule": warmup.schedule,
+            "intra_start": warmup.intra_start,
+            "intra_final": warmup.intra_final,
+            "inter_start": warmup.inter_start,
+            "inter_final": warmup.inter_final,
+        },
+    })
+  return stages
 
 
 def _result_folder(
@@ -202,7 +302,7 @@ def _result_folder(
       / (
           f"N{num_bosons}_layers{layer_occupations[0]}_{layer_occupations[1]}"
           f"_rs{density_rs}_d{layer_separation}_D{dipole_strength}"
-          f"_seed{seed}_{supercell_shape}"
+          f"_seed{seed}_{supercell_shape}_adiabatic"
       ))
 
 
@@ -276,6 +376,7 @@ def _configure_mcmc(
 ) -> None:
   box_width = float(np.min(np.linalg.norm(lattice, axis=0)))
 
+  cfg.mcmc.init_layout = DEFAULTS.init_layout
   cfg.mcmc.init_width = DEFAULTS.init_width_fraction * box_width
   cfg.mcmc.move_width = DEFAULTS.move_width
   cfg.mcmc.global_move_fraction = DEFAULTS.global_move_fraction
@@ -294,9 +395,10 @@ def _configure_runtime(
     reset_iteration_on_restore: bool,
     reset_optimizer_on_restore: bool,
     best_checkpoint_std_weight: float,
+    batch_size: int,
     seed: int,
 ) -> None:
-  cfg.batch_size = DEFAULTS.batch_size
+  cfg.batch_size = batch_size
   cfg.training.stages = training_stages
 
   cfg.optim.iterations = sum(stage["iterations"] for stage in training_stages[1:])
@@ -312,6 +414,7 @@ def _configure_runtime(
 
   cfg.debug.deterministic = True
   cfg.debug.seed = seed
+  cfg.debug.check_initial_energy = False
 
 
 def build_config(
@@ -324,14 +427,23 @@ def build_config(
     density_rs: float = DEFAULTS.density_rs,
     seed: int = DEFAULTS.seed,
     burn_in_iterations: int = DEFAULTS.burn_in_iterations,
-    bold_iterations: int = DEFAULTS.bold_iterations,
-    retune_iterations: int = DEFAULTS.retune_iterations,
     fine_iterations: int = DEFAULTS.fine_iterations,
     results_dir: str | Path = DEFAULTS.results_dir,
     restore_path: str = DEFAULTS.restore_path,
     reset_iteration_on_restore: bool = DEFAULTS.reset_iteration_on_restore,
     reset_optimizer_on_restore: bool = DEFAULTS.reset_optimizer_on_restore,
+    adiabatic_inter_start: float | None = DEFAULTS.adiabatic_inter_start,
+    adiabatic_intra_start: float | None = DEFAULTS.adiabatic_intra_start,
+    adiabatic_num_stages: int = DEFAULTS.adiabatic_num_stages,
+    adiabatic_schedule: str = DEFAULTS.adiabatic_schedule,
+    adiabatic_intra_final: float = DEFAULTS.adiabatic_intra_final,
+    adiabatic_inter_final: float = DEFAULTS.adiabatic_inter_final,
+    adiabatic_iterations: int = DEFAULTS.adiabatic_iterations,
+    adiabatic_stage_lr_rate: float = DEFAULTS.adiabatic_stage_lr_rate,
+    fine_lr_rate: float = DEFAULTS.fine_lr_rate,
+    adiabatic_start_target: float = DEFAULTS.adiabatic_start_target,
     best_checkpoint_std_weight: float = DEFAULTS.best_checkpoint_std_weight,
+    batch_size: int = DEFAULTS.batch_size,
 ) -> tuple[ml_collections.ConfigDict, np.ndarray]:
   """Builds the bilayer VMC config and fixed layer labels.
 
@@ -343,11 +455,30 @@ def build_config(
   if sum(layer_occupations) != num_bosons:
     raise ValueError("layer_occupations must sum to num_bosons.")
 
+  default_intra_start, default_inter_start = _physics_adiabatic_start_scales(
+      density_rs=density_rs,
+      layer_separation=layer_separation,
+      dipole_strength=dipole_strength,
+      target=adiabatic_start_target)
+  if adiabatic_intra_start is None:
+    adiabatic_intra_start = default_intra_start
+  if adiabatic_inter_start is None:
+    adiabatic_inter_start = default_inter_start
+
+  warmup = AdiabaticWarmup(
+      inter_start=adiabatic_inter_start,
+      intra_start=adiabatic_intra_start,
+      num_stages=adiabatic_num_stages,
+      schedule=adiabatic_schedule,
+      intra_final=adiabatic_intra_final,
+      inter_final=adiabatic_inter_final,
+      iterations=adiabatic_iterations,
+      lr_rate=adiabatic_stage_lr_rate)
   training_stages = _make_training_stages(
       burn_in_iterations=burn_in_iterations,
-      bold_iterations=bold_iterations,
-      retune_iterations=retune_iterations,
-      fine_iterations=fine_iterations)
+      fine_iterations=fine_iterations,
+      fine_lr_rate=fine_lr_rate,
+      warmup=warmup)
 
   lattice = _make_lattice(
       num_bosons=num_bosons,
@@ -370,6 +501,7 @@ def build_config(
       reset_iteration_on_restore=reset_iteration_on_restore,
       reset_optimizer_on_restore=reset_optimizer_on_restore,
       best_checkpoint_std_weight=best_checkpoint_std_weight,
+      batch_size=batch_size,
       seed=seed)
 
   cfg.log.save_path = _result_folder(
@@ -383,17 +515,3 @@ def build_config(
       supercell_shape=supercell_shape)
 
   return cfg, _make_layer_assignment(layer_occupations)
-
-
-def main() -> None:
-  """Compatibility shim for the old direct config entry point."""
-  repo_root = Path(__file__).resolve().parents[2]
-  if str(repo_root) not in sys.path:
-    sys.path.insert(0, str(repo_root))
-  runpy.run_path(
-      str(repo_root / "scripts" / "train" / "run_bilayer.py"),
-      run_name="__main__")
-
-
-if __name__ == "__main__":
-  main()

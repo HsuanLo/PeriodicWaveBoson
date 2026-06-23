@@ -1,0 +1,13 @@
+{
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/.codex": true,
+    "**/.agents": true,
+    "**/*.out": false
+  },
+  "search.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true
+  },
+}

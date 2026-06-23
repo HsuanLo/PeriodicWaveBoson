@@ -189,7 +189,7 @@ def default() -> ml_collections.ConfigDict:
           'complex': False,
           # Symmetric bosonic network, not a determinant wavefunction.
           'BosonNet': {
-              'architecture': "DeepSets", # one of "DeepSets", "Attention", or "Transformer"
+              'architecture': "DeepSets", # one of "DeepSets" or "Transformer"
               'num_layers': 3,
               'mlp_dim': 64,
               'num_heads': 4,
@@ -211,6 +211,7 @@ def default() -> ml_collections.ConfigDict:
           # Check optimizer state, parameters and loss and raise an exception if
           # NaN is found.
           'check_nan': False,
+          'check_initial_energy': True,
           'deterministic': False,  # Use a deterministic seed.
           'seed': 42,  # Seed used when deterministic is true.
       },
